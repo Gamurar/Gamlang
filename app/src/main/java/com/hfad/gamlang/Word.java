@@ -1,11 +1,10 @@
-package com.hfad.selectionmenu;
+package com.hfad.gamlang;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.hfad.selectionmenu.utilities.Pair;
+import com.hfad.gamlang.utilities.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;

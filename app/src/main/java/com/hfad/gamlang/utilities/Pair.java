@@ -1,4 +1,4 @@
-package com.hfad.selectionmenu.utilities;
+package com.hfad.gamlang.utilities;
 
 public class Pair<A, B> {
     public final A originalContext;

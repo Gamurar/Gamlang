@@ -1,12 +1,12 @@
-package com.hfad.selectionmenu;
+package com.hfad.gamlang;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,14 +14,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hfad.selectionmenu.utilities.ImagesAdapter;
-import com.hfad.selectionmenu.utilities.NetworkUtils;
+import com.hfad.gamlang.database.AppDatabase;
+import com.hfad.gamlang.database.CardEntry;
+import com.hfad.gamlang.utilities.ImagesAdapter;
+import com.hfad.gamlang.utilities.NetworkUtils;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     private static ArrayList<String> dict =
             new ArrayList<>();
@@ -34,38 +38,22 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar loadingIndicator;
     static ArrayList<String> imgsURL;
 
+    private AppDatabase mDb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        wordTextView = findViewById(R.id.tv_word);
-        translationTextView = findViewById(R.id.tv_translation);
-        loadingIndicator = findViewById(R.id.pb_loading_indicator);
-
-        CharSequence text = getIntent()
-                .getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
-        if (text != null) {
-            word.setName(text.toString());
-            wordTextView.setText(word.getName());
-        }
-
+        initViews();
         ABBYYTranslate();
 
-        playSoundImageView = findViewById(R.id.iv_play);
-        playSoundImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                word.playPronunc();
-            }
-        });
-
-        wordPictureRecyclerView = findViewById(R.id.rv_word_pictures);
         //ImagesAdapter adapter = new ImagesAdapter(imgsURL);
         wordPictureRecyclerView.setLayoutManager(
                 new GridLayoutManager(this, 3)
         );
         //wordPictureRecyclerView.setAdapter(adapter);
+
+        mDb = AppDatabase.getInstance(getApplicationContext());
     }
 
     public class ABBYYQueryTask extends AsyncTask<URL, Void, String> {
@@ -126,7 +114,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addToDict(View btn) {
-        Toast.makeText(this, "The word " + word + " added to the dictionary.", Toast.LENGTH_SHORT).show();
+        final CardEntry newCard = new CardEntry(word.name, word.translations.get(0).transVariants.get(0));
+        final Toast toast = Toast.makeText(this, "The word " + word.getName() + " added to the dictionary.", Toast.LENGTH_SHORT);
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mDb.cardDao().insertCard(newCard);
+                Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
+                toast.show();
+            }
+        });
 
     }
 
@@ -135,5 +132,31 @@ public class MainActivity extends AppCompatActivity {
         new ABBYYQueryTask().execute(url);
     }
 
+    public void onClickLearnWords(View view) {
+        Intent intent = new Intent(this, LearnWordsActivity.class);
+        startActivity(intent);
+    }
+
+    private void initViews() {
+        wordTextView = findViewById(R.id.tv_word);
+        translationTextView = findViewById(R.id.tv_translation);
+        loadingIndicator = findViewById(R.id.pb_loading_indicator);
+        playSoundImageView = findViewById(R.id.iv_play);
+        wordPictureRecyclerView = findViewById(R.id.rv_word_pictures);
+
+        CharSequence text = getIntent()
+                .getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
+        if (text != null) {
+            word.setName(text.toString());
+            wordTextView.setText(word.getName());
+        }
+
+        playSoundImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                word.playPronunc();
+            }
+        });
+    }
 
 }

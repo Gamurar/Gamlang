@@ -1,12 +1,11 @@
-package com.hfad.selectionmenu.utilities;
+package com.hfad.gamlang.utilities;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 
-import com.hfad.selectionmenu.MainActivity;
-import com.hfad.selectionmenu.Word;
+import com.hfad.gamlang.Word;
 
 import org.json.JSONArray;
 import org.json.JSONException;

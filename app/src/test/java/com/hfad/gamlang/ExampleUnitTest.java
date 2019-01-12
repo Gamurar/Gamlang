@@ -1,4 +1,4 @@
-package com.hfad.selectionmenu;
+package com.hfad.gamlang;
 
 import org.junit.Test;
 
