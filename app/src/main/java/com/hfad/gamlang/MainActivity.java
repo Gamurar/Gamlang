@@ -84,11 +84,11 @@ public class MainActivity extends AppCompatActivity {
             URL queryUrl = params[0];
             try {
                 ABBYYResponse = NetworkUtils.getABBYYTranslation(queryUrl);
-                String imagesJSON = NetworkUtils.getImagesJSON(
-                        NetworkUtils.buildUrl(
-                                word.getName(),
-                                NetworkUtils.IMAGE_SEARCH_ACTION));
-                imgsURL = NetworkUtils.getImagesURLFromJSON(imagesJSON);
+//                String imagesJSON = NetworkUtils.getImagesJSON(
+//                        NetworkUtils.buildUrl(
+//                                word.getName(),
+//                                NetworkUtils.IMAGE_SEARCH_ACTION));
+//                imgsURL = NetworkUtils.getImagesURLFromJSON(imagesJSON);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -104,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
                 word = NetworkUtils.getWordFromShortTranslation(ABBYYResponse);
                 translationTextView.setText(word.getTranslation());
 
-                ImagesAdapter adapter = new ImagesAdapter(imgsURL);
-                wordPictureRecyclerView.setAdapter(adapter);
+//                ImagesAdapter adapter = new ImagesAdapter(imgsURL);
+//                wordPictureRecyclerView.setAdapter(adapter);
             } else {
                 // COMPLETED (16) Call showErrorMessage if the result is null in onPostExecute
                 //showErrorMessage();

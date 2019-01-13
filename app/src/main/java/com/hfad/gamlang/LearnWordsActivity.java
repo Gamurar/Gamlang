@@ -62,11 +62,11 @@ public class LearnWordsActivity extends AppCompatActivity {
         mAnswer = findViewById(R.id.answer);
         mShowAnswer = findViewById(R.id.show_answer);
         mShowAnswer.setOnClickListener((view) -> {
-                if (isAnswerShown) {
-                    nextWord();
-                } else {
-                    showAnswer();
-                }
+            if (isAnswerShown) {
+                nextWord();
+            } else {
+                showAnswer();
+            }
         });
     }
 
