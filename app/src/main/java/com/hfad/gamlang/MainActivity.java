@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView playSoundImageView;
     private RecyclerView wordPictureRecyclerView;
     private ProgressBar loadingIndicator;
+    private DrawerLayout drawer;
     static ArrayList<String> imgsURL;
 
     private AppDatabase mDb;
@@ -138,10 +142,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+
+
         wordTextView = findViewById(R.id.tv_word);
         translationTextView = findViewById(R.id.tv_translation);
         loadingIndicator = findViewById(R.id.pb_loading_indicator);
         playSoundImageView = findViewById(R.id.iv_play);
+        drawer = findViewById(R.id.drawer_layout);
         wordPictureRecyclerView = findViewById(R.id.rv_word_pictures);
 
         CharSequence text = getIntent()

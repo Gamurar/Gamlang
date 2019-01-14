@@ -1,6 +1,7 @@
 package com.hfad.gamlang;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
@@ -13,7 +14,7 @@ import com.hfad.gamlang.database.CardEntry;
 
 import java.util.List;
 
-public class LearnWordsActivity extends AppCompatActivity {
+public class LearnWordsActivity extends AppCompatActivity implements LifecycleOwner {
 
     private static final String TAG = "LearnWordsActivity";
 
@@ -86,5 +87,10 @@ public class LearnWordsActivity extends AppCompatActivity {
             mCardCount = mCards.size();
             Log.d(TAG, "Card count: " + mCardCount);
         });
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
     }
 }
