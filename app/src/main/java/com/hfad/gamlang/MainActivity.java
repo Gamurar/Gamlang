@@ -57,6 +57,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         new LearnWordsFragment()).commit();
                 break;
             }
+            case R.id.nav_my_dictionary: {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new MyDictionaryFragment()).commit();
+                break;
+            }
             case R.id.nav_add_words: {
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new AddWordsFragment()).commit();

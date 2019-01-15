@@ -93,9 +93,9 @@ public class AddWordsFragment extends Fragment {
         ABBYYTranslate();
 
         //ImagesAdapter adapter = new ImagesAdapter(imgsURL);
-        wordPictureRecyclerView.setLayoutManager(
-                new GridLayoutManager(getContext(), 3)
-        );
+//        wordPictureRecyclerView.setLayoutManager(
+//                new GridLayoutManager(getContext(), 3)
+//        );
         //wordPictureRecyclerView.setAdapter(adapter);
 
         mDb = AppDatabase.getInstance(getActivity().getApplicationContext());
