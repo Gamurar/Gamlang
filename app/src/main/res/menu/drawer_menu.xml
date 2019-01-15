@@ -4,14 +4,15 @@
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
-        <item android:title="Item" />
-        <item android:title="Item" />
-        <item android:title="Item" />
-        <item android:title="Item" />
-        <item android:title="Item" />
+        <item android:id="@+id/nav_learn_words"
+            android:title="Learn words" />
+        <item android:id="@+id/nav_my_dictionary"
+            android:title="My dictionary" />
+        <item android:id="@+id/nav_add_words"
+            android:title="Add words" />
     </group>
 
-    <item android:title="Item">
+    <item android:title="Settings">
         <menu>
             <item android:title="Item" />
             <item android:title="Item" />

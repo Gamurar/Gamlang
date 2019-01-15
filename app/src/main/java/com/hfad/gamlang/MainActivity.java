@@ -2,21 +2,27 @@ package com.hfad.gamlang;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.navigation.NavigationView;
 import com.hfad.gamlang.database.AppDatabase;
 import com.hfad.gamlang.database.CardEntry;
 import com.hfad.gamlang.utilities.ImagesAdapter;
@@ -26,7 +32,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
 
@@ -58,6 +64,28 @@ public class MainActivity extends AppCompatActivity {
         //wordPictureRecyclerView.setAdapter(adapter);
 
         mDb = AppDatabase.getInstance(getApplicationContext());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_learn_words: {
+
+                break;
+            }
+        }
+
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     public class ABBYYQueryTask extends AsyncTask<URL, Void, String> {
@@ -151,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
         translationTextView = findViewById(R.id.tv_translation);
         loadingIndicator = findViewById(R.id.pb_loading_indicator);
         playSoundImageView = findViewById(R.id.iv_play);
-        drawer = findViewById(R.id.drawer_layout);
         wordPictureRecyclerView = findViewById(R.id.rv_word_pictures);
 
         CharSequence text = getIntent()
@@ -161,6 +188,16 @@ public class MainActivity extends AppCompatActivity {
             wordTextView.setText(word.getName());
         }
 
+        //navigation drawer
+        drawer = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
         playSoundImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -168,5 +205,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 }
