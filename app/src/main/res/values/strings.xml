@@ -3,4 +3,11 @@
     
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!--Error messages-->
+    <string name="error_no_translation">Can\'t translate, check your internet connection</string>
+    <string name="error_add_to_dictionary">There is nothing to add to the dictionary</string>
+    <!---->
+    <!--Actions-->
+    <string name="action_refresh">Refresh</string>
 </resources>

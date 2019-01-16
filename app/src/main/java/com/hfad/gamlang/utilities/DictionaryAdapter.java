@@ -1,22 +1,17 @@
 package com.hfad.gamlang.utilities;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.hfad.gamlang.LearnWordsViewModel;
-import com.hfad.gamlang.MyDictionaryFragment;
 import com.hfad.gamlang.R;
 import com.hfad.gamlang.database.CardEntry;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.CardViewHolder> {
@@ -46,6 +41,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
             return;
         }
         holder.word.setText(mCards.get(position).getWord());
+        //holder.itemView.setOnCreateContextMenuListener(mContextMenuListener);
     }
 
     @Override
@@ -54,11 +50,13 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
     }
 
     class CardViewHolder extends RecyclerView.ViewHolder {
+        private static final String TAG = "CardViewHolder";
         TextView word;
 
-        public CardViewHolder(@NonNull View itemView) {
+        private CardViewHolder(@NonNull View itemView) {
             super(itemView);
-            word = itemView.findViewById(R.id.dict_listitem);
+            word = itemView.findViewById(R.id.word_listitem);
+            //itemView.setOnCreateContextMenuListener(mContextMenuListener);
         }
     }
 }

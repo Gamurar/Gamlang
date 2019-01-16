@@ -2,7 +2,10 @@ package com.hfad.gamlang;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -13,10 +16,8 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,13 +36,13 @@ public class MyDictionaryFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         setupViewModel();
-        mWordsList = view.findViewById(R.id.rv_my_dictionary);
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
-        mWordsList.addItemDecoration(itemDecoration);
         //Recycler View
-        //TODO:Create recycler view adapter
+        mWordsList = view.findViewById(R.id.rv_my_dictionary);
+//        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+//        mWordsList.addItemDecoration(itemDecoration);
         mWordsList.setLayoutManager(new LinearLayoutManager(getContext()));
         mWordsList.setHasFixedSize(true);
+
         //
         super.onViewCreated(view, savedInstanceState);
     }
@@ -57,5 +58,19 @@ public class MyDictionaryFragment extends Fragment {
             mAdapter = new DictionaryAdapter(cards);
             mWordsList.setAdapter(mAdapter);
         });
+    }
+
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        Log.d(TAG, "onCreateContextMenu: context menu created");
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.card_context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        Log.d(TAG, "Context menu item selected");
+        return super.onContextItemSelected(item);
     }
 }

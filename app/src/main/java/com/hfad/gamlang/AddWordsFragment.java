@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -44,6 +47,7 @@ public class AddWordsFragment extends Fragment {
     private RecyclerView wordPictureRecyclerView;
     private ProgressBar loadingIndicator;
     private Button addToDictBtn;
+    private static boolean canAddToDict = true;
 
     static ArrayList<String> imgsURL;
 
@@ -58,6 +62,7 @@ public class AddWordsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         //init views
+        setHasOptionsMenu(true);
         wordTextView = view.findViewById(R.id.tv_word);
         translationTextView = view.findViewById(R.id.tv_translation);
         loadingIndicator = view.findViewById(R.id.pb_loading_indicator);
@@ -77,7 +82,7 @@ public class AddWordsFragment extends Fragment {
         playSoundImageView.setOnClickListener(soundBtn -> word.playPronunc());
 
         addToDictBtn.setOnClickListener(btn -> {
-            final CardEntry newCard = new CardEntry(word.name, word.translations.get(0).transVariants.get(0));
+            final CardEntry newCard = new CardEntry(word.name, word.getTranslation());
             final Toast toast = Toast.makeText(getContext(), "The word " + word.getName() + " added to the dictionary.", Toast.LENGTH_SHORT);
             AppExecutors.getInstance().diskIO().execute(new Runnable() {
                 @Override
@@ -88,6 +93,7 @@ public class AddWordsFragment extends Fragment {
                 }
             });
         });
+
         //
 
         ABBYYTranslate();
@@ -146,16 +152,14 @@ public class AddWordsFragment extends Fragment {
         protected void onPostExecute(String ABBYYResponse) {
             loadingIndicator.setVisibility(View.INVISIBLE);
             if (ABBYYResponse != null && !ABBYYResponse.equals("")) {
-                // COMPLETED (17) Call showJsonDataView if we have valid, non-null results
-                //showJsonDataView();
                 word = NetworkUtils.getWordFromShortTranslation(ABBYYResponse);
                 translationTextView.setText(word.getTranslation());
-
+                allowAddToDict();
 //                ImagesAdapter adapter = new ImagesAdapter(imgsURL);
 //                wordPictureRecyclerView.setAdapter(adapter);
             } else {
-                // COMPLETED (16) Call showErrorMessage if the result is null in onPostExecute
-                //showErrorMessage();
+                showErrorMessage();
+                forbidAddToDict();
             }
         }
     }
@@ -163,5 +167,43 @@ public class AddWordsFragment extends Fragment {
     public void ABBYYTranslate() {
         URL url = NetworkUtils.buildUrl(word.getName(), NetworkUtils.ABBYY_SHORT_TRANSLATE);
         new ABBYYQueryTask().execute(url);
+    }
+
+    private void showErrorMessage() {
+        translationTextView.setText(R.string.error_no_translation);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.add_word_from_context_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+
+        switch (itemId) {
+            case R.id.actionRefresh: {
+                ABBYYTranslate();
+
+                break;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void forbidAddToDict() {
+        if (canAddToDict) {
+            canAddToDict = false;
+            addToDictBtn.setEnabled(false);
+        }
+    }
+
+    private void allowAddToDict() {
+        if (!canAddToDict) {
+            canAddToDict = true;
+            addToDictBtn.setEnabled(true);
+        }
     }
 }
