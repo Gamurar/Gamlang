@@ -10,10 +10,7 @@
         android:id="@+id/word_listitem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Word"
         android:padding="15dp"
-        android:focusable="true"
-        android:clickable="true"
         android:background="?attr/selectableItemBackground"/>
 
 </androidx.cardview.widget.CardView>

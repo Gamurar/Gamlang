@@ -2,10 +2,9 @@ package com.hfad.gamlang;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -38,8 +37,6 @@ public class MyDictionaryFragment extends Fragment {
         setupViewModel();
         //Recycler View
         mWordsList = view.findViewById(R.id.rv_my_dictionary);
-//        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
-//        mWordsList.addItemDecoration(itemDecoration);
         mWordsList.setLayoutManager(new LinearLayoutManager(getContext()));
         mWordsList.setHasFixedSize(true);
 
@@ -55,22 +52,24 @@ public class MyDictionaryFragment extends Fragment {
                 return;
             }
             cards = cardEntries;
-            mAdapter = new DictionaryAdapter(cards);
+            mAdapter = new DictionaryAdapter(cards, onWordSelected());
             mWordsList.setAdapter(mAdapter);
         });
     }
 
     @Override
-    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        Log.d(TAG, "onCreateContextMenu: context menu created");
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.card_context_menu, menu);
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.dictionary_selected_words_menu, menu);
     }
 
-    @Override
-    public boolean onContextItemSelected(@NonNull MenuItem item) {
-        Log.d(TAG, "Context menu item selected");
-        return super.onContextItemSelected(item);
+    private View.OnLongClickListener onWordSelected() {
+        return view -> {
+            view.setBackgroundResource(R.color.colorSelected);
+            setHasOptionsMenu(true);
+            return true;
+        };
     }
 }
+
+

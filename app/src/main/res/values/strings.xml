@@ -10,4 +10,5 @@
     <!---->
     <!--Actions-->
     <string name="action_refresh">Refresh</string>
+    <string name="action_delete">Delete</string>
 </resources>
