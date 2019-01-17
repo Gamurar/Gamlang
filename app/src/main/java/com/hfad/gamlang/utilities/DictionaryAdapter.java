@@ -1,6 +1,5 @@
 package com.hfad.gamlang.utilities;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +18,21 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
     private static final String TAG = "DictionaryAdapter";
 
     private static List<CardEntry> mCards;
-    private View.OnLongClickListener mLongClickListener;
+    private DictWordSelectListener mDictWordSelectListener;
 
-    public DictionaryAdapter(List<CardEntry> cards, View.OnLongClickListener longClickListener) {
+    public static boolean haveSelection = false;
+
+    public interface DictWordSelectListener {
+        void onFirstSelect(View view, int wordId);
+
+        boolean onNextSelect(View view, int wordId);
+
+        boolean onUnselect(View view, int wordId);
+    }
+
+    public DictionaryAdapter(List<CardEntry> cards, DictWordSelectListener dictWordSelectListener) {
         mCards = cards;
-        mLongClickListener = longClickListener;
+        mDictWordSelectListener = dictWordSelectListener;
     }
 
 
@@ -50,19 +59,38 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         return mCards.size();
     }
 
-    class CardViewHolder extends RecyclerView.ViewHolder {
+    class CardViewHolder extends RecyclerView.ViewHolder
+            implements View.OnLongClickListener, View.OnClickListener {
         private static final String TAG = "CardViewHolder";
         TextView word;
         CardView cardView;
-        View view;
+        View listView;
 
         private CardViewHolder(@NonNull View itemView) {
             super(itemView);
             cardView = itemView.findViewById(R.id.dict_cardview);
             word = itemView.findViewById(R.id.word_listitem);
-            //word.setOnLongClickListener(mLongClickListener);
-            view = itemView;
-            view.setOnLongClickListener(mLongClickListener);
+            word.setOnLongClickListener(this);
+            word.setOnClickListener(this);
+            listView = itemView;
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            if (!haveSelection) {
+                mDictWordSelectListener.onFirstSelect(itemView, this.getAdapterPosition());
+                haveSelection = true;
+            } else {
+                haveSelection = mDictWordSelectListener.onNextSelect(itemView, this.getAdapterPosition());
+            }
+            return true;
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (haveSelection) {
+                haveSelection = mDictWordSelectListener.onNextSelect(itemView, this.getAdapterPosition());
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import com.hfad.gamlang.database.CardEntry;
 import com.hfad.gamlang.utilities.DictionaryAdapter;
 
+import java.util.HashSet;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -20,11 +21,13 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MyDictionaryFragment extends Fragment {
+public class MyDictionaryFragment extends Fragment
+    implements DictionaryAdapter.DictWordSelectListener {
     private static final String TAG = "MyDictionaryFragment";
     private RecyclerView mWordsList;
     private DictionaryAdapter mAdapter;
     private static List<CardEntry> cards;
+    private static HashSet<Integer> selectedCardsId;
 
     @Nullable
     @Override
@@ -52,7 +55,7 @@ public class MyDictionaryFragment extends Fragment {
                 return;
             }
             cards = cardEntries;
-            mAdapter = new DictionaryAdapter(cards, onWordSelected());
+            mAdapter = new DictionaryAdapter(cards, this);
             mWordsList.setAdapter(mAdapter);
         });
     }
@@ -63,12 +66,38 @@ public class MyDictionaryFragment extends Fragment {
         inflater.inflate(R.menu.dictionary_selected_words_menu, menu);
     }
 
-    private View.OnLongClickListener onWordSelected() {
-        return view -> {
+
+    @Override
+    public void onFirstSelect(View view, int wordId) {
+        view.setBackgroundResource(R.color.colorSelected);
+        selectedCardsId = new HashSet<Integer>();
+        selectedCardsId.add(wordId);
+        setHasOptionsMenu(true);
+    }
+
+    //return true if there are still selected items in the list and false otherwise
+    @Override
+    public boolean onNextSelect(View view, int wordId) {
+        if (selectedCardsId.contains(wordId)) {
+            return onUnselect(view, wordId);
+        } else {
             view.setBackgroundResource(R.color.colorSelected);
-            setHasOptionsMenu(true);
+            selectedCardsId.add(wordId);
             return true;
-        };
+        }
+    }
+
+    //return true if there are still selected items in the list and false otherwise
+    @Override
+    public boolean onUnselect(View view, int wordId) {
+        view.setBackgroundResource(android.R.color.white);
+        selectedCardsId.remove(wordId);
+        boolean isSelectedItem = !selectedCardsId.isEmpty();
+        if (!isSelectedItem) {
+            setHasOptionsMenu(false);
+        }
+
+        return isSelectedItem;
     }
 }
 
