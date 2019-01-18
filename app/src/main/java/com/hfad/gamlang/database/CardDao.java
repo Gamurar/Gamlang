@@ -1,5 +1,6 @@
 package com.hfad.gamlang.database;
 
+import java.util.HashSet;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
@@ -23,7 +24,10 @@ public interface CardDao {
     void updateCard(CardEntry taskEntry);
 
     @Delete
-    void deleteCard(CardEntry taskEntry);
+    void deleteCard(CardEntry cardEntry);
+
+    @Query("DELETE FROM card WHERE id IN(:cardsId)")
+    void deleteCards(Integer[] cardsId);
 
     @Query("SELECT * FROM card WHERE id = :id")
     CardEntry loadCardById(int id);

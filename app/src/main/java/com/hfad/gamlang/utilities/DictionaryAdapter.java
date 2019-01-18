@@ -1,5 +1,6 @@
 package com.hfad.gamlang.utilities;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
 
     private static List<CardEntry> mCards;
     private DictWordSelectListener mDictWordSelectListener;
+    private Context mContext;
 
     public static boolean haveSelection = false;
 
@@ -30,9 +32,9 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         boolean onUnselect(View view, int wordId);
     }
 
-    public DictionaryAdapter(List<CardEntry> cards, DictWordSelectListener dictWordSelectListener) {
-        mCards = cards;
+    public DictionaryAdapter(Context context, DictWordSelectListener dictWordSelectListener) {
         mDictWordSelectListener = dictWordSelectListener;
+        mContext = context;
     }
 
 
@@ -52,11 +54,21 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
             return;
         }
         holder.word.setText(mCards.get(position).getWord());
+        holder.setCardId(mCards.get(position).getId());
     }
 
     @Override
     public int getItemCount() {
-        return mCards.size();
+        if (mCards == null) {
+            return 0;
+        } else {
+            return mCards.size();
+        }
+    }
+
+    public void setCards(List<CardEntry> cards) {
+        mCards = cards;
+        notifyDataSetChanged();
     }
 
     class CardViewHolder extends RecyclerView.ViewHolder
@@ -65,6 +77,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         TextView word;
         CardView cardView;
         View listView;
+        int cardId;
 
         private CardViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -75,13 +88,17 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
             listView = itemView;
         }
 
+        public void setCardId(int id) {
+            cardId = id;
+        }
+
         @Override
         public boolean onLongClick(View view) {
             if (!haveSelection) {
-                mDictWordSelectListener.onFirstSelect(itemView, this.getAdapterPosition());
+                mDictWordSelectListener.onFirstSelect(itemView, cardId);
                 haveSelection = true;
             } else {
-                haveSelection = mDictWordSelectListener.onNextSelect(itemView, this.getAdapterPosition());
+                haveSelection = mDictWordSelectListener.onNextSelect(itemView, cardId);
             }
             return true;
         }
@@ -89,7 +106,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         @Override
         public void onClick(View view) {
             if (haveSelection) {
-                haveSelection = mDictWordSelectListener.onNextSelect(itemView, this.getAdapterPosition());
+                haveSelection = mDictWordSelectListener.onNextSelect(itemView, cardId);
             }
         }
     }

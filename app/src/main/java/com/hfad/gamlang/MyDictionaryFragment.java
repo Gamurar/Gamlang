@@ -5,12 +5,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hfad.gamlang.database.AppDatabase;
 import com.hfad.gamlang.database.CardEntry;
 import com.hfad.gamlang.utilities.DictionaryAdapter;
+import com.hfad.gamlang.utilities.MyDictionaryViewModel;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -18,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,8 +32,10 @@ public class MyDictionaryFragment extends Fragment
     private static final String TAG = "MyDictionaryFragment";
     private RecyclerView mWordsList;
     private DictionaryAdapter mAdapter;
-    private static List<CardEntry> cards;
     private static HashSet<Integer> selectedCardsId;
+    private AppDatabase mDb;
+    private MyDictionaryViewModel mViewModel;
+
 
     @Nullable
     @Override
@@ -37,26 +45,27 @@ public class MyDictionaryFragment extends Fragment
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        setupViewModel();
         //Recycler View
         mWordsList = view.findViewById(R.id.rv_my_dictionary);
         mWordsList.setLayoutManager(new LinearLayoutManager(getContext()));
         mWordsList.setHasFixedSize(true);
-
+        mAdapter = new DictionaryAdapter(getContext(), this);
+        mWordsList.setAdapter(mAdapter);
         //
+        mDb = AppDatabase.getInstance(getActivity().getApplicationContext());
+        setupViewModel();
         super.onViewCreated(view, savedInstanceState);
     }
 
     private void setupViewModel() {
-        LearnWordsViewModel viewModel = ViewModelProviders.of(this).get(LearnWordsViewModel.class);
-        viewModel.getCards().observe(this, (cardEntries) -> {
+        MyDictionaryViewModelFactory factory = new MyDictionaryViewModelFactory(mDb);
+        mViewModel = ViewModelProviders.of(this, factory).get(MyDictionaryViewModel.class);
+        mViewModel.getCards().observe(this, (cardEntries) -> {
             if (cardEntries.isEmpty()) {
                 Log.d(TAG, "There is no cards retrieved from the DataBase");
-                return;
+            } else {
+                mAdapter.setCards(cardEntries);
             }
-            cards = cardEntries;
-            mAdapter = new DictionaryAdapter(cards, this);
-            mWordsList.setAdapter(mAdapter);
         });
     }
 
@@ -66,11 +75,30 @@ public class MyDictionaryFragment extends Fragment
         inflater.inflate(R.menu.dictionary_selected_words_menu, menu);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        switch (itemId) {
+            case R.id.action_delete_words: {
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Integer[] cardsIdToDelete = selectedCardsId.toArray(new Integer[selectedCardsId.size()]);
+                        mViewModel.deleteCardsById(cardsIdToDelete);
+                        Log.d(TAG, "run: The selected cards deleted");
+                        selectedCardsId.clear();
+                    }
+                });
+            }
+        }
+        //TODO: Delete selected words from the database
+        return true;
+    }
 
     @Override
     public void onFirstSelect(View view, int wordId) {
         view.setBackgroundResource(R.color.colorSelected);
-        selectedCardsId = new HashSet<Integer>();
+        selectedCardsId = new HashSet<>();
         selectedCardsId.add(wordId);
         setHasOptionsMenu(true);
     }
