@@ -53,6 +53,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         if (position >= mCards.size()) {
             return;
         }
+        holder.itemView.setBackgroundResource(android.R.color.white);
         holder.word.setText(mCards.get(position).getWord());
         holder.setCardId(mCards.get(position).getId());
     }
@@ -95,10 +96,10 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         @Override
         public boolean onLongClick(View view) {
             if (!haveSelection) {
-                mDictWordSelectListener.onFirstSelect(itemView, cardId);
+                mDictWordSelectListener.onFirstSelect(cardView, cardId);
                 haveSelection = true;
             } else {
-                haveSelection = mDictWordSelectListener.onNextSelect(itemView, cardId);
+                haveSelection = mDictWordSelectListener.onNextSelect(cardView, cardId);
             }
             return true;
         }
@@ -106,7 +107,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         @Override
         public void onClick(View view) {
             if (haveSelection) {
-                haveSelection = mDictWordSelectListener.onNextSelect(itemView, cardId);
+                haveSelection = mDictWordSelectListener.onNextSelect(cardView, cardId);
             }
         }
     }

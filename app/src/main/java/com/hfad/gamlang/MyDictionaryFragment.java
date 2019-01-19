@@ -10,20 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.hfad.gamlang.database.AppDatabase;
-import com.hfad.gamlang.database.CardEntry;
 import com.hfad.gamlang.utilities.DictionaryAdapter;
 import com.hfad.gamlang.utilities.MyDictionaryViewModel;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -80,20 +75,24 @@ public class MyDictionaryFragment extends Fragment
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.action_delete_words: {
-                AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        Integer[] cardsIdToDelete = selectedCardsId.toArray(new Integer[selectedCardsId.size()]);
-                        mViewModel.deleteCardsById(cardsIdToDelete);
-                        Log.d(TAG, "run: The selected cards deleted");
-                        selectedCardsId.clear();
-                    }
-                });
+                deleteSelectedCards();
             }
         }
-        //TODO: Delete selected words from the database
         return true;
     }
+
+    private void deleteSelectedCards() {
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                Integer[] cardsIdToDelete = selectedCardsId.toArray(new Integer[selectedCardsId.size()]);
+                mViewModel.deleteCardsById(cardsIdToDelete);
+                Log.d(TAG, "run: The selected cards deleted");
+                selectedCardsId.clear();
+            }
+        });
+    }
+
 
     @Override
     public void onFirstSelect(View view, int wordId) {
