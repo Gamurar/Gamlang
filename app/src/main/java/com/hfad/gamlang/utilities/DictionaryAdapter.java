@@ -22,7 +22,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
     private DictWordSelectListener mDictWordSelectListener;
     private Context mContext;
 
-    public static boolean haveSelection = false;
+    public boolean haveSelection = false;
 
     public interface DictWordSelectListener {
         void onFirstSelect(View view, int wordId);

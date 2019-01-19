@@ -91,6 +91,8 @@ public class MyDictionaryFragment extends Fragment
                 selectedCardsId.clear();
             }
         });
+        setHasOptionsMenu(false);
+        mAdapter.haveSelection = false;
     }
 
 
