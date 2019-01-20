@@ -35,11 +35,11 @@ public class Word {
         this.translations.add(new Translation(translation));
     }
 
-    String getName() {
+    public String getName() {
         return this.name;
     }
 
-    String getTranslation() {
+    public String getTranslation() {
         if (this.translations != null) {
             return this.translations.get(0).transVariants.get(0);
         } else {

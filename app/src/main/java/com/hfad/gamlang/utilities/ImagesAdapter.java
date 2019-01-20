@@ -16,10 +16,15 @@ import java.util.ArrayList;
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
     private static final String TAG = "ImagesAdapter";
-    private static ArrayList<String> imgsURL;
+    private static ArrayList<String> mImgsURL;
+    private ImageClickListener mImageClickListener;
 
-    public ImagesAdapter(ArrayList<String> imgsURL) {
-        this.imgsURL = imgsURL;
+    public interface ImageClickListener {
+        void onImageClick(ImageView imgView);
+    }
+
+    public ImagesAdapter(ImageClickListener imageClickListener) {
+        mImageClickListener = imageClickListener;
     }
 
 
@@ -37,17 +42,26 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder imageViewHolder, int i) {
-        if (i >= imgsURL.size()) {
+        if (i >= mImgsURL.size()) {
             return;
         }
-        Log.i(TAG, "Picture URI: " + imgsURL.get(i));
-        Picasso.get().load(imgsURL.get(i))
+        Log.i(TAG, "Picture URI: " + mImgsURL.get(i));
+        Picasso.get().load(mImgsURL.get(i))
                 .into(imageViewHolder.imgView);
     }
 
     @Override
     public int getItemCount() {
-        return NetworkUtils.imageCount;
+        if (mImgsURL == null) {
+            return 0;
+        } else {
+            return mImgsURL.size();
+        }
+    }
+
+    public void setImages(ArrayList<String> imgsURL) {
+        mImgsURL = imgsURL;
+        notifyDataSetChanged();
     }
 
     class ImageViewHolder extends RecyclerView.ViewHolder {
@@ -56,6 +70,12 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imgView = itemView.findViewById(R.id.iv_word_picture);
+            imgView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mImageClickListener.onImageClick(imgView);
+                }
+            });
         }
     }
 }

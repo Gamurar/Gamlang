@@ -7,6 +7,7 @@
     <!--Error messages-->
     <string name="error_no_translation">Can\'t translate, check your internet connection</string>
     <string name="error_add_to_dictionary">There is nothing to add to the dictionary</string>
+    <string name="error_no_images">Can\'t fetch images</string>
     <!---->
     <!--Actions-->
     <string name="action_refresh">Refresh</string>

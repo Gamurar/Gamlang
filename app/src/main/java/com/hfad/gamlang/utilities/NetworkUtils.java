@@ -46,17 +46,16 @@ public class NetworkUtils {
     private static final int ENG = 1033;
     private static final int RUS = 1049;
 
-    //Image search with ContextualWeb search engine
+    //Image search on Pixels.com
     private static final String IMAGE_SEARCH_API_KEY
-            = "gOeKuubQgomshwJ2dgCdKvAR5iqip1nsrmLjsnayGsW4F5JJhe";
+            = "563492ad6f917000010000010b67db13fe80472ea18059085d7f7a45";
     private static final String IMAGE_SEARCH_BASE_URL
-            = "https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/ImageSearchAPI";
-    public static final String IMAGE_SEARCH_ACTION = "/api/Search/ImageSearchAPI";
-    private static final String PARAM_IMAGE_COUNT = "count";
-    private static final String PARAM_IMAGE_QUERY = "q";
-    private static final String PARAM_IMAGE_AUTOCORRECT = "autoCorrect";
-    static int imageCount = 50;
-    private static String imageAutoCorrect = "false";
+            = "https://api.pexels.com/v1/search";
+    public static final String IMAGE_SEARCH_ACTION = "searchImages";
+    private static final String PARAM_IMAGE_QUERY = "query";
+    private static final String PARAM_IMAGE_PER_PAGE = "per_page";
+    private static final String PARAM_IMAGE_PAGE = "page";
+    static int imagesPerPage = 15;
 
     /**
      * Builds the URL used to query GitHub.
@@ -76,10 +75,10 @@ public class NetworkUtils {
                 break;
             }
             case IMAGE_SEARCH_ACTION: {
+                word = word.toLowerCase().trim();
                 builtUri = Uri.parse(IMAGE_SEARCH_BASE_URL).buildUpon()
                         .appendQueryParameter(PARAM_IMAGE_QUERY, word)
-                        .appendQueryParameter(PARAM_IMAGE_COUNT, Integer.toString(imageCount))
-                        .appendQueryParameter(PARAM_IMAGE_AUTOCORRECT, imageAutoCorrect)
+                        .appendQueryParameter(PARAM_IMAGE_PER_PAGE, Integer.toString(imagesPerPage))
                         .build();
                 break;
             }
@@ -177,7 +176,7 @@ public class NetworkUtils {
         // optional default is GET
         con.setRequestMethod("GET");
         //add request header
-        con.setRequestProperty("X-RapidAPI-Key", IMAGE_SEARCH_API_KEY);
+        con.setRequestProperty("Authorization", IMAGE_SEARCH_API_KEY);
         con.setRequestProperty("User-Agent", USER_AGENT);
 
         int responseCode = con.getResponseCode();
@@ -221,10 +220,11 @@ public class NetworkUtils {
         ArrayList<String> imgURLs = new ArrayList<>();
         try {
             JSONArray jsonArr = new JSONObject(JSON)
-                    .getJSONArray("value");
+                    .getJSONArray("photos");
             for (int i = 0; i < jsonArr.length(); i++) {
                 String picURL = jsonArr.getJSONObject(i)
-                        .getString("url");
+                        .getJSONObject("src")
+                        .getString("tiny");
                 imgURLs.add(picURL);
             }
         } catch (JSONException e) {
