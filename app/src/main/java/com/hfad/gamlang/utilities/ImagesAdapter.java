@@ -1,8 +1,11 @@
 package com.hfad.gamlang.utilities;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,17 +13,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.hfad.gamlang.R;
-import com.squareup.picasso.Picasso;
+import com.hfad.gamlang.views.ImageViewBitmap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
     private static final String TAG = "ImagesAdapter";
-    private static ArrayList<String> mImgsURL;
+    private static Map<Integer, Bitmap> mImages;
+    private static Iterator<Map.Entry<Integer, Bitmap>> mImagesIterator;
     private ImageClickListener mImageClickListener;
 
     public interface ImageClickListener {
-        void onImageClick(ImageView imgView);
+        void onImageClick(ImageViewBitmap imgView);
     }
 
     public ImagesAdapter(ImageClickListener imageClickListener) {
@@ -42,40 +49,38 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder imageViewHolder, int i) {
-        if (i >= mImgsURL.size()) {
-            return;
+        if (mImagesIterator.hasNext()) {
+            Map.Entry<Integer, Bitmap> pair = mImagesIterator.next();
+            imageViewHolder.imgView.setImageBitmap(pair.getValue());
+            imageViewHolder.imgView.setId(pair.getKey());
         }
-        Log.i(TAG, "Picture URI: " + mImgsURL.get(i));
-        Picasso.get().load(mImgsURL.get(i))
-                .into(imageViewHolder.imgView);
+
     }
 
     @Override
     public int getItemCount() {
-        if (mImgsURL == null) {
+        if (mImages == null) {
             return 0;
         } else {
-            return mImgsURL.size();
+            return mImages.size();
         }
     }
 
-    public void setImages(ArrayList<String> imgsURL) {
-        mImgsURL = imgsURL;
+    public void setImages(HashMap<Integer, Bitmap> imgsURL) {
+        mImages = imgsURL;
+        mImagesIterator = imgsURL.entrySet().iterator();
+
         notifyDataSetChanged();
     }
 
     class ImageViewHolder extends RecyclerView.ViewHolder {
-        ImageView imgView;
+        ImageViewBitmap imgView;
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imgView = itemView.findViewById(R.id.iv_word_picture);
-            imgView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mImageClickListener.onImageClick(imgView);
-                }
-            });
+            imgView.setOnClickListener(v -> mImageClickListener.onImageClick(imgView));
         }
+
     }
 }

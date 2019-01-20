@@ -1,4 +1,4 @@
-package com.hfad.gamlang;
+package com.hfad.gamlang.utilities;
 
 import com.hfad.gamlang.database.AppDatabase;
 import com.hfad.gamlang.utilities.MyDictionaryViewModel;

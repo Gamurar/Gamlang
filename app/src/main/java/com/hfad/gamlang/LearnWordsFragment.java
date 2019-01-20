@@ -12,10 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hfad.gamlang.database.CardEntry;
+import com.hfad.gamlang.utilities.LearnWordsViewModel;
+import com.hfad.gamlang.utilities.StorageHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LearnWordsFragment extends Fragment implements LifecycleOwner {
@@ -25,11 +29,14 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner {
     private TextView mQuestion;
     private TextView mAnswer;
     private Button mShowAnswer;
+    private ImageView mPicture;
     private static boolean isAnswerShown = false;
-    private List<CardEntry> mCards;
+    private List<CardEntry> mCardEntries;
+    private List<Card> mCards;
     private int mCardCount;
     private static int mCurrentCardId = 0;
     private CardEntry mCurrentWord;
+    private StorageHelper storageHelper;
 
     @Nullable
     @Override
@@ -39,11 +46,7 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        //init views
-        mQuestion = view.findViewById(R.id.question);
-        mAnswer = view.findViewById(R.id.answer);
-        mShowAnswer = view.findViewById(R.id.show_answer);
-        //
+        init(view);
         setupViewModel();
 
         mShowAnswer.setOnClickListener(new View.OnClickListener() {
@@ -59,6 +62,14 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner {
         super.onViewCreated(view, savedInstanceState);
     }
 
+    private void init(@NonNull View view) {
+        mQuestion = view.findViewById(R.id.question);
+        mAnswer = view.findViewById(R.id.answer);
+        mShowAnswer = view.findViewById(R.id.show_answer);
+        mPicture = view.findViewById(R.id.card_picture);
+        storageHelper = new StorageHelper(getContext());
+    }
+
     private void setupViewModel() {
         LearnWordsViewModel viewModel = ViewModelProviders.of(this).get(LearnWordsViewModel.class);
         viewModel.getCards().observe(this, (cardEntries) -> {
@@ -66,14 +77,20 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner {
                 Log.d(TAG, "There is no cards retrieved from the DataBase");
                 return;
             }
-            mCards = cardEntries;
+            mCardEntries = cardEntries;
+            mCards = new ArrayList<>();
+            for (CardEntry entry : cardEntries) {
+                Card card = new Card(entry.getWord(), entry.getTranslation());
+                storageHelper.getImages(entry.getImage());
+            }
             mCurrentCardId = 0;
             Log.d(TAG, "Card set to review was updated");
-            mCurrentWord = mCards.get(mCurrentCardId);
+            mCurrentWord = mCardEntries.get(mCurrentCardId);
             mQuestion.setText(mCurrentWord.getWord());
             mAnswer.setText(mCurrentWord.getTranslation());
-            mCardCount = mCards.size();
+            mCardCount = mCardEntries.size();
             Log.d(TAG, "Card count: " + mCardCount);
+
         });
     }
 
@@ -88,7 +105,7 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner {
         if (mCurrentCardId == mCardCount) {
             mCurrentCardId = 0;
         }
-        mCurrentWord = mCards.get(mCurrentCardId);
+        mCurrentWord = mCardEntries.get(mCurrentCardId);
 
         mAnswer.setVisibility(TextView.INVISIBLE);
         isAnswerShown = false;

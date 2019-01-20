@@ -1,11 +1,12 @@
 package com.hfad.gamlang;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -13,12 +14,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
+
+    private final String SAVE_IMAGES_PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    private final int PERMISSION_REQUEST_CODE = 198;
 
     private DrawerLayout drawer;
     private NavigationView navigationView;
@@ -39,6 +45,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     new LearnWordsFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_learn_words);
+        }
+
+        //Permissions
+        if ((ContextCompat.checkSelfPermission(this, SAVE_IMAGES_PERMISSION)
+                != PackageManager.PERMISSION_GRANTED)) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{SAVE_IMAGES_PERMISSION},
+                    PERMISSION_REQUEST_CODE);
+        }
+        //
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permission granted
+                } else {
+                    //Permission denied
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        finishAndRemoveTask();
+                    } else {
+                        this.finishAffinity();
+                    }
+
+                }
+            }
         }
     }
 

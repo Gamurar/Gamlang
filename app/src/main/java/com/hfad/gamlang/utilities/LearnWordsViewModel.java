@@ -1,4 +1,4 @@
-package com.hfad.gamlang;
+package com.hfad.gamlang.utilities;
 
 import android.app.Application;
 import android.util.Log;

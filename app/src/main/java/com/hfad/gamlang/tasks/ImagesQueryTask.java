@@ -1,5 +1,6 @@
 package com.hfad.gamlang.tasks;
 
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.TextView;
@@ -7,12 +8,17 @@ import android.widget.TextView;
 import com.hfad.gamlang.AddWordsFragment;
 import com.hfad.gamlang.R;
 import com.hfad.gamlang.utilities.NetworkUtils;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class ImagesQueryTask extends AsyncTask<URL, Void, ArrayList<String>> {
+public class ImagesQueryTask extends AsyncTask<Void, Void, HashMap<Integer, Bitmap>> {
 
     private static final String TAG = "TranslateQueryTask";
 
@@ -30,26 +36,37 @@ public class ImagesQueryTask extends AsyncTask<URL, Void, ArrayList<String>> {
     }
 
             @Override
-        protected ArrayList<String> doInBackground(URL... params) {
-            ArrayList<String> imgsURL = null;
+        protected HashMap<Integer, Bitmap> doInBackground(Void...voids) {
+                HashMap<Integer, Bitmap> images = new LinkedHashMap<>();
             try {
                 String imagesJSON = NetworkUtils.getImagesJSON(
                         NetworkUtils.buildUrl(
                                 AddWordsFragment.word.getName(),
                                 NetworkUtils.IMAGE_SEARCH_ACTION));
-                imgsURL = NetworkUtils.getImagesURLFromJSON(imagesJSON);
+                HashMap<Integer, String> imgsURL = NetworkUtils.getImagesURLFromJSON(imagesJSON);
+
+                if (imgsURL != null && !imgsURL.isEmpty()) {
+                    for (Map.Entry<Integer, String> entry : imgsURL.entrySet()) {
+                        int id = entry.getKey();
+                        String url = entry.getValue();
+                        Bitmap bitmap = Picasso.get().load(url)
+                                .get();
+
+                        images.put(id, bitmap);
+                    }
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            return imgsURL;
+            return images;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<String> imgsURL) {
+        protected void onPostExecute(HashMap<Integer, Bitmap> images) {
             addWordsFragment.imagesLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (imgsURL != null && !imgsURL.isEmpty()) {
-                addWordsFragment.mAdapter.setImages(imgsURL);
+            if (images != null && !images.isEmpty()) {
+                addWordsFragment.mAdapter.setImages(images);
                 //allowAddToDict();
             } else {
                 showErrorMessage();
@@ -61,10 +78,4 @@ public class ImagesQueryTask extends AsyncTask<URL, Void, ArrayList<String>> {
         addWordsFragment.imagesErrorMessage.setText(R.string.error_no_images);
         addWordsFragment.imagesErrorMessage.setVisibility(TextView.VISIBLE);
     }
-
-    public void fetchImages() {
-        URL url = NetworkUtils.buildUrl(AddWordsFragment.word.getName(), NetworkUtils.ABBYY_SHORT_TRANSLATE);
-        this.execute(url);
-    }
-
 }

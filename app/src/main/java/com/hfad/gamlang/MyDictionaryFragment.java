@@ -10,8 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.hfad.gamlang.database.AppDatabase;
+import com.hfad.gamlang.utilities.AppExecutors;
 import com.hfad.gamlang.utilities.DictionaryAdapter;
 import com.hfad.gamlang.utilities.MyDictionaryViewModel;
+import com.hfad.gamlang.utilities.MyDictionaryViewModelFactory;
 
 import java.util.HashSet;
 

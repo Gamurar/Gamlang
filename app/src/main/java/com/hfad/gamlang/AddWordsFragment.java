@@ -1,7 +1,6 @@
 package com.hfad.gamlang;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,7 +20,10 @@ import com.hfad.gamlang.database.AppDatabase;
 import com.hfad.gamlang.database.CardEntry;
 import com.hfad.gamlang.tasks.ImagesQueryTask;
 import com.hfad.gamlang.tasks.TranslateQueryTask;
+import com.hfad.gamlang.utilities.AppExecutors;
 import com.hfad.gamlang.utilities.ImagesAdapter;
+import com.hfad.gamlang.utilities.StorageHelper;
+import com.hfad.gamlang.views.ImageViewBitmap;
 
 import java.util.HashSet;
 
@@ -50,6 +52,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
     private static boolean canAddToDict = true;
 
     private AppDatabase mDb;
+    private StorageHelper storageHelper;
 
     @Nullable
     @Override
@@ -85,20 +88,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 
         playSoundImageView.setOnClickListener(soundBtn -> word.playPronunc());
 
-        addToDictBtn.setOnClickListener(btn -> {
-            final CardEntry newCard = new CardEntry(word.name, word.getTranslation());
-            final Toast toast = Toast.makeText(getContext(), "The word " + word.getName() + " added to the dictionary.", Toast.LENGTH_SHORT);
-            AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    mDb.cardDao().insertCard(newCard);
-                    Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
-                    toast.show();
-                }
-            });
-        });
-
-        //
+        addToDictBtn.setOnClickListener(btn -> addToDictionary());
 
         mAdapter = new ImagesAdapter(this);
         wordPictureRecyclerView.setLayoutManager(
@@ -106,9 +96,35 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         );
         wordPictureRecyclerView.setAdapter(mAdapter);
         new TranslateQueryTask(this).translate();
-        new ImagesQueryTask(this).fetchImages();
+        new ImagesQueryTask(this).execute();
 
         mDb = AppDatabase.getInstance(getActivity().getApplicationContext());
+        storageHelper = new StorageHelper(getContext());
+    }
+
+    private void addToDictionary() {
+        final CardEntry newCard;
+        if (selectedImages != null && !selectedImages.isEmpty()) {
+            StringBuilder strBuilder = new StringBuilder();
+            for (ImageViewBitmap image : selectedImages) {
+                strBuilder.append(storageHelper.saveImage(image));
+                strBuilder.append(" ");
+            }
+            String imagesString = strBuilder.toString();
+
+            newCard = new CardEntry(word.name, word.getTranslation(), imagesString);
+        } else {
+            newCard = new CardEntry(word.name, word.getTranslation());
+        }
+        final Toast toast = Toast.makeText(getContext(), "The word " + word.getName() + " added to the dictionary.", Toast.LENGTH_SHORT);
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mDb.cardDao().insertCard(newCard);
+                Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
+                toast.show();
+            }
+        });
     }
 
 
@@ -125,7 +141,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         switch (itemId) {
             case R.id.actionRefresh: {
                 new TranslateQueryTask(this).translate();
-                new ImagesQueryTask(this).fetchImages();
+                new ImagesQueryTask(this).execute();
 
                 break;
             }
@@ -147,17 +163,18 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         }
     }
 
-    private HashSet<Drawable> selectedImages = new HashSet<>();
+    private HashSet<ImageViewBitmap> selectedImages = new HashSet<>();
 
     @Override
-    public void onImageClick(ImageView imgView) {
-        Drawable image = imgView.getDrawable();
-        if (selectedImages.contains(image)) {
-            imgView.setBackgroundColor(getResources().getColor(android.R.color.white));
-            selectedImages.remove(image);
-        } else {
+    public void onImageClick(ImageViewBitmap imgView) {
+        if (!selectedImages.contains(imgView)) {
+            selectedImages.add(imgView);
             imgView.setBackground(getResources().getDrawable(R.drawable.image_shadow));
-            selectedImages.add(imgView.getDrawable());
+        } else {
+            selectedImages.remove(imgView);
+            imgView.setBackgroundColor(getResources().getColor(android.R.color.white));
         }
     }
+
+
 }

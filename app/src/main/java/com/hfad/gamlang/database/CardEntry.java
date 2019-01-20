@@ -25,6 +25,14 @@ public class CardEntry {
         this.updatedAt = new Date();
     }
 
+    @Ignore
+    public CardEntry(String word, String translation, String image) {
+        this.word = word;
+        this.translation = translation;
+        this.image = image;
+        this.updatedAt = new Date();
+    }
+
     public CardEntry(int id, String word, String translation) {
         this.id = id;
         this.word = word;

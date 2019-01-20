@@ -19,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Scanner;
 
 /**
@@ -216,21 +217,25 @@ public class NetworkUtils {
         return null;
     }
 
-    public static ArrayList<String> getImagesURLFromJSON(String JSON) {
-        ArrayList<String> imgURLs = new ArrayList<>();
+
+    public static LinkedHashMap<Integer, String> getImagesURLFromJSON(String JSON) {
+        LinkedHashMap<Integer, String> imgsURL = new LinkedHashMap<>();
         try {
             JSONArray jsonArr = new JSONObject(JSON)
                     .getJSONArray("photos");
             for (int i = 0; i < jsonArr.length(); i++) {
-                String picURL = jsonArr.getJSONObject(i)
+                JSONObject jsonPic = jsonArr.getJSONObject(i);
+                String picURL = jsonPic
                         .getJSONObject("src")
                         .getString("tiny");
-                imgURLs.add(picURL);
+                int picId = jsonPic
+                        .getInt("id");
+                imgsURL.put(picId, picURL);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return imgURLs;
+        return imgsURL;
     }
 
     public static void playPronunc(String url) {
