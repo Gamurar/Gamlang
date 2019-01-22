@@ -3,6 +3,7 @@ package com.hfad.gamlang.utilities;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
@@ -19,8 +20,8 @@ import java.util.Map;
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
     private static final String TAG = "ImagesAdapter";
-    private static Map<String, Bitmap> mImages;
-    private static Iterator<Map.Entry<String, Bitmap>> mImagesIterator;
+    private Map<String, Bitmap> mImages;
+    private Iterator<Map.Entry<String, Bitmap>> mImagesIterator;
     private ImageClickListener mImageClickListener;
 
     public interface ImageClickListener {
@@ -54,6 +55,8 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
 
     }
 
+
+
     @Override
     public int getItemCount() {
         if (mImages == null) {
@@ -64,9 +67,16 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
     }
 
     public void setImages(HashMap<String, Bitmap> imgsURL) {
-        mImages = imgsURL;
         mImagesIterator = imgsURL.entrySet().iterator();
+        mImages = imgsURL;
+        notifyDataSetChanged();
+    }
 
+    public void setImage(String id, Bitmap image) {
+        if (mImages == null) {
+            mImages = new HashMap<>();
+        }
+        mImages.put(id, image);
         notifyDataSetChanged();
     }
 

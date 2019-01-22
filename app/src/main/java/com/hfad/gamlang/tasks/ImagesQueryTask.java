@@ -2,11 +2,13 @@ package com.hfad.gamlang.tasks;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
 import com.hfad.gamlang.AddWordsFragment;
 import com.hfad.gamlang.R;
+import com.hfad.gamlang.utilities.AppExecutors;
 import com.hfad.gamlang.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
@@ -18,8 +20,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Executor;
 
-public class ImagesQueryTask extends AsyncTask<String, Void, HashMap<String, Bitmap>> {
+public class ImagesQueryTask extends AsyncTask<String, HashMap<String, Bitmap>, HashMap<String, Bitmap>> {
 
     private static final String TAG = "TranslateQueryTask";
 
@@ -37,42 +40,42 @@ public class ImagesQueryTask extends AsyncTask<String, Void, HashMap<String, Bit
     }
 
     @Override
-    protected HashMap<String, Bitmap> doInBackground(String... word) {
-        HashMap<String, Bitmap> images = new LinkedHashMap<>();
-        try {
-//                String imagesJSON = NetworkUtils.getImagesJSON(
-//                        NetworkUtils.buildUrl(
-//                                AddWordsFragment.word.getName(),
-//                                NetworkUtils.IMAGE_SEARCH_ACTION));
-//                HashMap<Integer, String> imgsURL = NetworkUtils.getImagesURLFromJSON(imagesJSON);
+    protected HashMap<String, Bitmap> doInBackground(String... queryWord) {
+        String word = queryWord[0];
+        if (word == null && TextUtils.isEmpty(word)) {
+            return null;
+        } else {
+            HashMap<String, Bitmap> images = new LinkedHashMap<>();
+            Executor mainThread = AppExecutors.getInstance().mainThread();
 
-//                if (imgsURL != null && !imgsURL.isEmpty()) {
-//                    for (Map.Entry<Integer, String> entry : imgsURL.entrySet()) {
-//                        int id = entry.getKey();
-//                        String url = entry.getValue();
-//                        Bitmap bitmap = Picasso.get().load(url)
-//                                .get();
-//
-//                        images.put(id, bitmap);
-//                    }
-//                }
-
-
-            ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word[0], "com");
+            ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word, "com");
             if (imgsURL != null && !imgsURL.isEmpty()) {
                 for (String url : imgsURL) {
-                    Bitmap bitmap = Picasso.get().load(url).get();
-                    //TODO: get the photo id from the url
-                    String id = url.substring(url.lastIndexOf("tbn:") + 4);
+                    if (url != null && !TextUtils.isEmpty(url)) {
+                        try {
+                            Bitmap bitmap = Picasso.get()
+                                    .load(url)
+                                    .resize(200, 150)
+                                    .get();
+                            String id = url.substring(url.lastIndexOf("tbn:") + 4);
 
-                    images.put(id, bitmap);
+                            images.put(id, bitmap);
+
+                            //mainThread.execute(() -> onProgressUpdate(images));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        return images;
+            return images;
+        }
+    }
+
+    @Override
+    protected void onProgressUpdate(HashMap<String, Bitmap>... values) {
+        addWordsFragment.mAdapter.setImages(values[0]);
     }
 
     @Override

@@ -260,9 +260,8 @@ public class NetworkUtils {
         try {
             Document doc = Jsoup.connect(
                     "https://www.google." + siteDomain
-                            + "/search?q=" + word
-                            + "+site%3A" + siteDomain
-                            + "&sout=1&tbm=isch")
+                            + "/search?q=" + word + "+site%3A" + siteDomain
+                            + "&sout=1&tbm=isch&gs_l=img")
                     .get();
             Log.d(TAG, doc.title());
             Log.d(TAG, "jsoupTest: " + doc.title());

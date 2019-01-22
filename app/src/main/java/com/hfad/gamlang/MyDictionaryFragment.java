@@ -58,11 +58,8 @@ public class MyDictionaryFragment extends Fragment
         MyDictionaryViewModelFactory factory = new MyDictionaryViewModelFactory(mDb);
         mViewModel = ViewModelProviders.of(this, factory).get(MyDictionaryViewModel.class);
         mViewModel.getCards().observe(this, (cardEntries) -> {
-            if (cardEntries.isEmpty()) {
-                Log.d(TAG, "There is no cards retrieved from the DataBase");
-            } else {
-                mAdapter.setCards(cardEntries);
-            }
+            mAdapter.setCards(cardEntries);
+
         });
     }
 
