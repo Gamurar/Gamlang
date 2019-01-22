@@ -17,8 +17,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
-public class ImagesQueryTask extends AsyncTask<Void, Void, HashMap<Integer, Bitmap>> {
+public class ImagesQueryTask extends AsyncTask<String, Void, HashMap<String, Bitmap>> {
 
     private static final String TAG = "TranslateQueryTask";
 
@@ -35,44 +36,56 @@ public class ImagesQueryTask extends AsyncTask<Void, Void, HashMap<Integer, Bitm
         addWordsFragment.imagesLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
-            @Override
-        protected HashMap<Integer, Bitmap> doInBackground(Void...voids) {
-                HashMap<Integer, Bitmap> images = new LinkedHashMap<>();
-            try {
-                String imagesJSON = NetworkUtils.getImagesJSON(
-                        NetworkUtils.buildUrl(
-                                AddWordsFragment.word.getName(),
-                                NetworkUtils.IMAGE_SEARCH_ACTION));
-                HashMap<Integer, String> imgsURL = NetworkUtils.getImagesURLFromJSON(imagesJSON);
+    @Override
+    protected HashMap<String, Bitmap> doInBackground(String... word) {
+        HashMap<String, Bitmap> images = new LinkedHashMap<>();
+        try {
+//                String imagesJSON = NetworkUtils.getImagesJSON(
+//                        NetworkUtils.buildUrl(
+//                                AddWordsFragment.word.getName(),
+//                                NetworkUtils.IMAGE_SEARCH_ACTION));
+//                HashMap<Integer, String> imgsURL = NetworkUtils.getImagesURLFromJSON(imagesJSON);
 
-                if (imgsURL != null && !imgsURL.isEmpty()) {
-                    for (Map.Entry<Integer, String> entry : imgsURL.entrySet()) {
-                        int id = entry.getKey();
-                        String url = entry.getValue();
-                        Bitmap bitmap = Picasso.get().load(url)
-                                .get();
+//                if (imgsURL != null && !imgsURL.isEmpty()) {
+//                    for (Map.Entry<Integer, String> entry : imgsURL.entrySet()) {
+//                        int id = entry.getKey();
+//                        String url = entry.getValue();
+//                        Bitmap bitmap = Picasso.get().load(url)
+//                                .get();
+//
+//                        images.put(id, bitmap);
+//                    }
+//                }
 
-                        images.put(id, bitmap);
-                    }
+
+            ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word[0], "com");
+            if (imgsURL != null && !imgsURL.isEmpty()) {
+                for (String url : imgsURL) {
+                    Bitmap bitmap = Picasso.get().load(url).get();
+                    //TODO: get the photo id from the url
+                    String id = url.substring(url.lastIndexOf("tbn:") + 4);
+
+                    images.put(id, bitmap);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-
-            return images;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        @Override
-        protected void onPostExecute(HashMap<Integer, Bitmap> images) {
-            addWordsFragment.imagesLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (images != null && !images.isEmpty()) {
-                addWordsFragment.mAdapter.setImages(images);
-                //allowAddToDict();
-            } else {
-                showErrorMessage();
-                //forbidAddToDict();
-            }
+        return images;
+    }
+
+    @Override
+    protected void onPostExecute(HashMap<String, Bitmap> images) {
+        addWordsFragment.imagesLoadingIndicator.setVisibility(View.INVISIBLE);
+        if (images != null && !images.isEmpty()) {
+            addWordsFragment.mAdapter.setImages(images);
+            //allowAddToDict();
+        } else {
+            showErrorMessage();
+            //forbidAddToDict();
         }
+    }
 
     private void showErrorMessage() {
         addWordsFragment.imagesErrorMessage.setText(R.string.error_no_images);

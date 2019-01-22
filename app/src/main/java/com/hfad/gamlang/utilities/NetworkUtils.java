@@ -10,6 +10,10 @@ import com.hfad.gamlang.Word;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -61,7 +65,7 @@ public class NetworkUtils {
     /**
      * Builds the URL used to query GitHub.
      *
-     * @param word The word that will be translated.
+     * @param word   The word that will be translated.
      * @param action The part of the url that define an action.
      * @return The URL to use to query the translation in ABBYY.
      */
@@ -114,7 +118,7 @@ public class NetworkUtils {
 
         String basicAuth = "Basic " + ABBYY_API_KEY;
 
-        urlConnection.setRequestProperty ("Authorization", basicAuth);
+        urlConnection.setRequestProperty("Authorization", basicAuth);
         urlConnection.setRequestMethod("POST");
         urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         urlConnection.setRequestProperty("Content-Length", "");
@@ -250,4 +254,30 @@ public class NetworkUtils {
         }
         mediaPlayer.start();
     }
+
+    public static ArrayList<String> fetchRelatedImagesUrl(String word, String siteDomain) {
+        ArrayList<String> imgsUrl = new ArrayList<>();
+        try {
+            Document doc = Jsoup.connect(
+                    "https://www.google." + siteDomain
+                            + "/search?q=" + word
+                            + "+site%3A" + siteDomain
+                            + "&sout=1&tbm=isch")
+                    .get();
+            Log.d(TAG, doc.title());
+            Log.d(TAG, "jsoupTest: " + doc.title());
+            Elements images = doc.select("#res #search #ires .images_table img");
+            for (Element image : images) {
+                Log.d(TAG, "jsoupTest: " + image.attr("src"));
+//                                + image.attr("title") + "\n\t"
+//                                + image.absUrl("href"));
+                imgsUrl.add(image.attr("src"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return imgsUrl;
+    }
+
 }

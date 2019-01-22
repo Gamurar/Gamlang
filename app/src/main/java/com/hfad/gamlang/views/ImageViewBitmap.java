@@ -11,7 +11,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 public class ImageViewBitmap extends AppCompatImageView {
 
     private Bitmap mBitmap;
-    private int mId;
+    private String mCode;
 
 
     public ImageViewBitmap(Context context) {
@@ -36,11 +36,10 @@ public class ImageViewBitmap extends AppCompatImageView {
         return mBitmap;
     }
 
-    public int getId() {
-        return mId;
+    public String getCode() { return mCode;
     }
 
-    public void setId(int mId) {
-        this.mId = mId;
+    public void setCode(String mId) {
+        this.mCode = mId;
     }
 }

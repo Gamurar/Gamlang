@@ -96,7 +96,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         );
         wordPictureRecyclerView.setAdapter(mAdapter);
         new TranslateQueryTask(this).translate();
-        new ImagesQueryTask(this).execute();
+        new ImagesQueryTask(this).execute(word.getName());
 
         mDb = AppDatabase.getInstance(getActivity().getApplicationContext());
         storageHelper = new StorageHelper(getContext());

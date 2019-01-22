@@ -6,67 +6,19 @@
     android:layout_height="match_parent"
     tools:context="com.hfad.gamlang.LearnWordsFragment">
 
-    <TextView
-        android:id="@+id/question"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="Question"
-        app:layout_constraintBottom_toTopOf="@+id/quiz_divider"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <View
-        android:id="@+id/quiz_divider"
-        android:layout_width="368dp"
-        android:layout_height="1dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toTopOf="@+id/show_answer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/answer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="Answer"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/card_picture"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/quiz_divider" />
-
-    <ImageView
-        android:id="@+id/card_picture"
-        android:layout_width="wrap_content"
-        android:layout_height="120dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/show_answer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/show_answer"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Show answer"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_height="match_parent"
+        android:padding="20dp"
+        android:clipToPadding="false"
+        android:clipChildren="false">
+
+        <com.yuyakaido.android.cardstackview.CardStackView
+            android:id="@+id/card_stack"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </com.yuyakaido.android.cardstackview.CardStackView>
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,11 +16,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hfad.gamlang.database.CardEntry;
+import com.hfad.gamlang.tasks.ImagesFromLocalStorageQueryTask;
+import com.hfad.gamlang.utilities.AppExecutors;
+import com.hfad.gamlang.utilities.CardsAdapter;
 import com.hfad.gamlang.utilities.LearnWordsViewModel;
 import com.hfad.gamlang.utilities.StorageHelper;
+import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
+import com.yuyakaido.android.cardstackview.CardStackView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class LearnWordsFragment extends Fragment implements LifecycleOwner {
 
@@ -32,11 +38,12 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner {
     private ImageView mPicture;
     private static boolean isAnswerShown = false;
     private List<CardEntry> mCardEntries;
-    private List<Card> mCards;
     private int mCardCount;
     private static int mCurrentCardId = 0;
     private CardEntry mCurrentWord;
-    private StorageHelper storageHelper;
+    private CardsAdapter mAdapter;
+    private CardStackView mCardStack;
+    // private StorageHelper storageHelper;
 
     @Nullable
     @Override
@@ -49,48 +56,54 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner {
         init(view);
         setupViewModel();
 
-        mShowAnswer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(isAnswerShown) {
-                    nextWord();
-                } else {
-                    showAnswer();
-                }
-            }
-        });
+//        mShowAnswer.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(isAnswerShown) {
+//                    nextWord();
+//                } else {
+//                    showAnswer();
+//                }
+//            }
+//        });
         super.onViewCreated(view, savedInstanceState);
     }
 
     private void init(@NonNull View view) {
-        mQuestion = view.findViewById(R.id.question);
-        mAnswer = view.findViewById(R.id.answer);
+//        mQuestion = view.findViewById(R.id.question);
+//        mAnswer = view.findViewById(R.id.answer);
+//        mPicture = view.findViewById(R.id.card_picture);
         mShowAnswer = view.findViewById(R.id.show_answer);
-        mPicture = view.findViewById(R.id.card_picture);
-        storageHelper = new StorageHelper(getContext());
+        mCardStack = view.findViewById(R.id.card_stack);
+        mAdapter = new CardsAdapter(getContext());
+        CardStackLayoutManager manager = new CardStackLayoutManager(getContext());
+        mCardStack.setLayoutManager(manager);
+        mCardStack.setAdapter(mAdapter);
     }
 
     private void setupViewModel() {
-        LearnWordsViewModel viewModel = ViewModelProviders.of(this).get(LearnWordsViewModel.class);
+        LearnWordsViewModel viewModel = ViewModelProviders.of(getActivity()).get(LearnWordsViewModel.class);
         viewModel.getCards().observe(this, (cardEntries) -> {
+            Log.d(TAG, "setupViewModel: receive data from ViewModel to 'Learn words'");
             if (cardEntries.isEmpty()) {
                 Log.d(TAG, "There is no cards retrieved from the DataBase");
                 return;
             }
-            mCardEntries = cardEntries;
-            mCards = new ArrayList<>();
-            for (CardEntry entry : cardEntries) {
-                Card card = new Card(entry.getWord(), entry.getTranslation());
-                storageHelper.getImages(entry.getImage());
+//            mCardEntries = cardEntries;
+//            mCurrentCardId = 0;
+//            mCurrentWord = mCardEntries.get(mCurrentCardId);
+//            mQuestion.setText(mCurrentWord.getWord());
+//            mAnswer.setText(mCurrentWord.getTranslation());
+//            mCardCount = mCardEntries.size();
+            try {
+                CardEntry[] entries = new CardEntry[cardEntries.size()];
+                ArrayList<Card> cards
+                        = new ImagesFromLocalStorageQueryTask()
+                        .execute(cardEntries.toArray(entries)).get();
+                mAdapter.setCards(cards);
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
             }
-            mCurrentCardId = 0;
-            Log.d(TAG, "Card set to review was updated");
-            mCurrentWord = mCardEntries.get(mCurrentCardId);
-            mQuestion.setText(mCurrentWord.getWord());
-            mAnswer.setText(mCurrentWord.getTranslation());
-            mCardCount = mCardEntries.size();
-            Log.d(TAG, "Card count: " + mCardCount);
-
         });
     }
 

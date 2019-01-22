@@ -1,6 +1,7 @@
 package com.hfad.gamlang;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -9,6 +10,9 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.android.material.navigation.NavigationView;
+import com.hfad.gamlang.utilities.NetworkUtils;
+
+import java.io.IOException;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     PERMISSION_REQUEST_CODE);
         }
         //
+
     }
 
     @Override

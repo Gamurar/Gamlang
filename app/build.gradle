@@ -44,4 +44,9 @@ dependencies {
 
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    // jsoup HTML parser library @ https://jsoup.org/
+    implementation 'org.jsoup:jsoup:1.11.3'
+
+    implementation "com.yuyakaido.android:card-stack-view:2.2.2"
 }

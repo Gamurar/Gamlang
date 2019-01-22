@@ -1,16 +1,28 @@
 package com.hfad.gamlang;
 
-import android.widget.ImageView;
+import android.graphics.Bitmap;
+
+import com.hfad.gamlang.database.CardEntry;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class Card {
     private int id;
     private String question;
     private String answer;
-    private ImageView picture;
+    private ArrayList<Bitmap> pictures;
 
     public Card(String question, String answer) {
         this.question = question;
         this.answer = answer;
+    }
+
+    public Card(String question, String answer, ArrayList<Bitmap> pictures) {
+        this.question = question;
+        this.answer = answer;
+        this.pictures = pictures;
     }
 
     public String getQuestion() {
@@ -29,11 +41,12 @@ public class Card {
         this.answer = answer;
     }
 
-    public ImageView getPicture() {
-        return picture;
+    public ArrayList<Bitmap> getPictures() {
+        return pictures;
     }
 
-    public void setPicture(ImageView picture) {
-        this.picture = picture;
+    public void setPictures(ArrayList<Bitmap> pictures) {
+        this.pictures = pictures;
     }
+
 }

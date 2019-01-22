@@ -6,24 +6,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.hfad.gamlang.R;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
     private static final String TAG = "ImagesAdapter";
-    private static Map<Integer, Bitmap> mImages;
-    private static Iterator<Map.Entry<Integer, Bitmap>> mImagesIterator;
+    private static Map<String, Bitmap> mImages;
+    private static Iterator<Map.Entry<String, Bitmap>> mImagesIterator;
     private ImageClickListener mImageClickListener;
 
     public interface ImageClickListener {
@@ -50,9 +47,9 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder imageViewHolder, int i) {
         if (mImagesIterator.hasNext()) {
-            Map.Entry<Integer, Bitmap> pair = mImagesIterator.next();
+            Map.Entry<String, Bitmap> pair = mImagesIterator.next();
             imageViewHolder.imgView.setImageBitmap(pair.getValue());
-            imageViewHolder.imgView.setId(pair.getKey());
+            imageViewHolder.imgView.setCode(pair.getKey());
         }
 
     }
@@ -66,7 +63,7 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
         }
     }
 
-    public void setImages(HashMap<Integer, Bitmap> imgsURL) {
+    public void setImages(HashMap<String, Bitmap> imgsURL) {
         mImages = imgsURL;
         mImagesIterator = imgsURL.entrySet().iterator();
 
