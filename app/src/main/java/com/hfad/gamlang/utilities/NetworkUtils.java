@@ -257,12 +257,21 @@ public class NetworkUtils {
 
     public static ArrayList<String> fetchRelatedImagesUrl(String word, String siteDomain) {
         ArrayList<String> imgsUrl = new ArrayList<>();
+        word = word.replaceAll(" ", "+");
+        String url;
+        if (siteDomain == null) {
+            url = "https://www.google.com"
+                    + "/search?q=" + word
+                    + "&sout=1&tbm=isch&gs_l=img";
+        } else {
+            url = "https://www.google." + siteDomain
+                    + "/search?q=" + word + "+site%3A" + siteDomain
+                    + "&sout=1&tbm=isch&gs_l=img";
+        }
+
         try {
-            Document doc = Jsoup.connect(
-                    "https://www.google." + siteDomain
-                            + "/search?q=" + word + "+site%3A" + siteDomain
-                            + "&sout=1&tbm=isch&gs_l=img")
-                    .get();
+            Log.d(TAG, "fetchRelatedImagesUrl: " + url);
+            Document doc = Jsoup.connect(url).get();
             Log.d(TAG, doc.title());
             Log.d(TAG, "jsoupTest: " + doc.title());
             Elements images = doc.select("#res #search #ires .images_table img");

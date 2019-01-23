@@ -48,7 +48,7 @@ public class ImagesQueryTask extends AsyncTask<String, HashMap<String, Bitmap>, 
             HashMap<String, Bitmap> images = new LinkedHashMap<>();
             Executor mainThread = AppExecutors.getInstance().mainThread();
 
-            ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word, "com");
+            ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word, null);
             if (imgsURL != null && !imgsURL.isEmpty()) {
                 for (String url : imgsURL) {
                     if (url != null && !TextUtils.isEmpty(url)) {

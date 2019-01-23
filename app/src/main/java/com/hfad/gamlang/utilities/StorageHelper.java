@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.hfad.gamlang.Card;
 import com.hfad.gamlang.MainActivity;
+import com.hfad.gamlang.MyDictionaryFragment;
 import com.hfad.gamlang.database.CardEntry;
 import com.hfad.gamlang.views.ImageViewBitmap;
 import com.squareup.picasso.Picasso;

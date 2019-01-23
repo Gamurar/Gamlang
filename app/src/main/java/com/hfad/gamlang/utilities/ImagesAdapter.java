@@ -3,7 +3,6 @@ package com.hfad.gamlang.utilities;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
@@ -21,6 +20,7 @@ import java.util.Map;
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
     private static final String TAG = "ImagesAdapter";
     private Map<String, Bitmap> mImages;
+    private String[] mImgCodes;
     private Iterator<Map.Entry<String, Bitmap>> mImagesIterator;
     private ImageClickListener mImageClickListener;
 
@@ -47,11 +47,9 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder imageViewHolder, int i) {
-        if (mImagesIterator.hasNext()) {
-            Map.Entry<String, Bitmap> pair = mImagesIterator.next();
-            imageViewHolder.imgView.setImageBitmap(pair.getValue());
-            imageViewHolder.imgView.setCode(pair.getKey());
-        }
+        String imgCode = mImgCodes[i];
+        imageViewHolder.imgView.setImageBitmap(mImages.get(imgCode));
+        imageViewHolder.imgView.setCode(imgCode);
 
     }
 
@@ -69,6 +67,10 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
     public void setImages(HashMap<String, Bitmap> imgsURL) {
         mImagesIterator = imgsURL.entrySet().iterator();
         mImages = imgsURL;
+        mImgCodes = new String[mImages.size()];
+        for (int i = 0; i < mImages.size(); i++) {
+            mImgCodes[i] = mImagesIterator.next().getKey();
+        }
         notifyDataSetChanged();
     }
 
