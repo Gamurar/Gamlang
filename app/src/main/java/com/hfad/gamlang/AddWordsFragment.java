@@ -96,7 +96,6 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         );
         wordPictureRecyclerView.setAdapter(mAdapter);
         new TranslateQueryTask(this).translate();
-        new ImagesQueryTask(this).execute(word.getName());
 
         mDb = AppDatabase.getInstance(getActivity().getApplicationContext());
         storageHelper = new StorageHelper(getContext());
@@ -141,8 +140,6 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         switch (itemId) {
             case R.id.actionRefresh: {
                 new TranslateQueryTask(this).translate();
-                new ImagesQueryTask(this).execute();
-
                 break;
             }
         }

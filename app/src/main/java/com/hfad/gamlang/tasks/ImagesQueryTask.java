@@ -7,9 +7,11 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.hfad.gamlang.AddWordsFragment;
+import com.hfad.gamlang.MainActivity;
 import com.hfad.gamlang.R;
 import com.hfad.gamlang.utilities.AppExecutors;
 import com.hfad.gamlang.utilities.NetworkUtils;
+import com.hfad.gamlang.utilities.PreferencesUtils;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -48,7 +50,8 @@ public class ImagesQueryTask extends AsyncTask<String, HashMap<String, Bitmap>, 
             HashMap<String, Bitmap> images = new LinkedHashMap<>();
             Executor mainThread = AppExecutors.getInstance().mainThread();
 
-            ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word, null);
+            String siteDomain = PreferencesUtils.getSiteDomain(addWordsFragment.getContext());
+            ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word, siteDomain);
             if (imgsURL != null && !imgsURL.isEmpty()) {
                 for (String url : imgsURL) {
                     if (url != null && !TextUtils.isEmpty(url)) {

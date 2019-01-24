@@ -1,5 +1,6 @@
 package com.hfad.gamlang.utilities;
 
+import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -62,6 +63,13 @@ public class NetworkUtils {
     private static final String PARAM_IMAGE_PAGE = "page";
     static int imagesPerPage = 15;
 
+    //Glosbe.com translation API
+    public static final String GlOSBE_TRANSLATION_ACTION = "/translate";
+    public static final String GlOSBE_BASE_URL = "https://glosbe.com/gapi";
+    public static final String GLOSBE_PARAM_WORD = "phrase";
+    public static final String GLOSBE_PARAM_ORIGIN_LANG = "from";
+    public static final String GLOSBE_PARAM_TRANSLATION_LANG = "dest";
+
     /**
      * Builds the URL used to query GitHub.
      *
@@ -71,6 +79,7 @@ public class NetworkUtils {
      */
     public static URL buildUrl(String word, String action) {
         Uri builtUri;
+        word = word.toLowerCase().trim();
 
         switch (action) {
             case ABBYY_AUTH: {
@@ -80,7 +89,6 @@ public class NetworkUtils {
                 break;
             }
             case IMAGE_SEARCH_ACTION: {
-                word = word.toLowerCase().trim();
                 builtUri = Uri.parse(IMAGE_SEARCH_BASE_URL).buildUpon()
                         .appendQueryParameter(PARAM_IMAGE_QUERY, word)
                         .appendQueryParameter(PARAM_IMAGE_PER_PAGE, Integer.toString(imagesPerPage))
@@ -104,6 +112,70 @@ public class NetworkUtils {
         }
 
         return url;
+    }
+
+    public static String fetchGlosbeTranslationJSON(String word, Context context) throws IOException {
+        String origLang = PreferencesUtils.getPreferedOriginLangCode(context);
+        String destLang = PreferencesUtils.getPreferedDestLangCode(context);
+        Uri builtUri = Uri.parse(GlOSBE_BASE_URL + GlOSBE_TRANSLATION_ACTION).buildUpon()
+                .appendQueryParameter(GLOSBE_PARAM_WORD, word)
+                .appendQueryParameter(GLOSBE_PARAM_ORIGIN_LANG, origLang)
+                .appendQueryParameter(GLOSBE_PARAM_TRANSLATION_LANG, destLang)
+                .appendQueryParameter("format", "json")
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+        con.setRequestMethod("GET");
+
+        int responseCode = con.getResponseCode();
+        Log.i(TAG, "\nSending 'GET' request to URL : " + url);
+        Log.i(TAG, "Response Code : " + responseCode);
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        return response.toString();
+    }
+
+    public static String getGlosbeTranslationFromJSON(String JSONString) {
+        String translation = null;
+        try {
+            translation = new JSONObject(JSONString)
+                    .getJSONArray("tuc")
+                    .getJSONObject(0)
+                    .getJSONObject("phrase")
+                    .getString("text");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return translation;
+    }
+
+    public static String translateByGlosbe(String word, Context context) {
+        String json = null;
+        try {
+            json = fetchGlosbeTranslationJSON(word, context);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return getGlosbeTranslationFromJSON(json);
     }
 
     /**
@@ -259,7 +331,7 @@ public class NetworkUtils {
         ArrayList<String> imgsUrl = new ArrayList<>();
         word = word.replaceAll(" ", "+");
         String url;
-        if (siteDomain == null) {
+        if (siteDomain.equals("com")) {
             url = "https://www.google.com"
                     + "/search?q=" + word
                     + "&sout=1&tbm=isch&gs_l=img";

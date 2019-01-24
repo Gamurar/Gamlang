@@ -30,35 +30,39 @@ public class TranslateQueryTask extends AsyncTask<URL, Void, String> {
 
     @Override
     protected String doInBackground(URL... params) {
-        String ABBYYResponse = null;
-        //if there is no token, get token
-        if (NetworkUtils.authABBYYToken == null) {
-            URL authUrl = NetworkUtils.buildUrl(null, NetworkUtils.ABBYY_AUTH);
-            try {
-                ABBYYResponse = NetworkUtils.getABBYYAuthToken(authUrl);
-                NetworkUtils.authABBYYToken
-                        = ABBYYResponse.replaceAll("[\"]", "");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        URL queryUrl = params[0];
-        try {
-            ABBYYResponse = NetworkUtils.getABBYYTranslation(queryUrl);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return ABBYYResponse;
+//        String ABBYYResponse = null;
+//        //if there is no token, get token
+//        if (NetworkUtils.authABBYYToken == null) {
+//            URL authUrl = NetworkUtils.buildUrl(null, NetworkUtils.ABBYY_AUTH);
+//            try {
+//                ABBYYResponse = NetworkUtils.getABBYYAuthToken(authUrl);
+//                NetworkUtils.authABBYYToken
+//                        = ABBYYResponse.replaceAll("[\"]", "");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        URL queryUrl = params[0];
+//        try {
+//            ABBYYResponse = NetworkUtils.getABBYYTranslation(queryUrl);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return ABBYYResponse;
+        return NetworkUtils.translateByGlosbe(
+                AddWordsFragment.word.getName(),
+                addWordsFragment.getContext());
     }
 
     @Override
-    protected void onPostExecute(String ABBYYResponse) {
+    protected void onPostExecute(String translation) {
         addWordsFragment.loadingIndicator.setVisibility(View.INVISIBLE);
-        if (ABBYYResponse != null && !ABBYYResponse.equals("")) {
-            AddWordsFragment.word = NetworkUtils.getWordFromShortTranslation(ABBYYResponse);
-            addWordsFragment.translationTextView.setText(AddWordsFragment.word.getTranslation());
+        if (translation != null && !translation.equals("")) {
+            AddWordsFragment.word.setTranslation(translation);
+            addWordsFragment.translationTextView.setText(translation);
             addWordsFragment.allowAddToDict();
+            new ImagesQueryTask(addWordsFragment).execute(translation);
         } else {
             showErrorMessage();
             addWordsFragment.forbidAddToDict();
