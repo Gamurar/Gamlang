@@ -1,4 +1,4 @@
-package com.hfad.gamlang.database;
+package com.hfad.gamlang.Model.database;
 
 import java.util.Date;
 

@@ -1,4 +1,4 @@
-package com.hfad.gamlang.database;
+package com.hfad.gamlang.Model.database;
 
 import android.content.Context;
 import android.util.Log;

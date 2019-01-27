@@ -1,11 +1,10 @@
 package com.hfad.gamlang.utilities;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.hfad.gamlang.Card;
-import com.hfad.gamlang.database.CardEntry;
+import com.hfad.gamlang.Model.database.CardEntry;
 
 import java.util.ArrayList;
 import java.util.List;

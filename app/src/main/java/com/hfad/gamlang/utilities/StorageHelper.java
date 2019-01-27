@@ -1,25 +1,14 @@
 package com.hfad.gamlang.utilities;
 
-import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
-import com.hfad.gamlang.Card;
-import com.hfad.gamlang.MainActivity;
-import com.hfad.gamlang.MyDictionaryFragment;
-import com.hfad.gamlang.database.CardEntry;
 import com.hfad.gamlang.views.ImageViewBitmap;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class StorageHelper {
 

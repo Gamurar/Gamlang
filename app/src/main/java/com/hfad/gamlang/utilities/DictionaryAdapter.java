@@ -6,8 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.hfad.gamlang.Card;
 import com.hfad.gamlang.R;
-import com.hfad.gamlang.database.CardEntry;
+import com.hfad.gamlang.Model.database.CardEntry;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.CardViewHolder> {
     private static final String TAG = "DictionaryAdapter";
 
-    private static List<CardEntry> mCards;
+    private static List<Card> mCards;
     private DictWordSelectListener mDictWordSelectListener;
     private Context mContext;
 
@@ -54,7 +55,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
             return;
         }
         holder.itemView.setBackgroundResource(android.R.color.white);
-        holder.word.setText(mCards.get(position).getWord());
+        holder.word.setText(mCards.get(position).getQuestion());
         holder.setCardId(mCards.get(position).getId());
     }
 
@@ -67,7 +68,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         }
     }
 
-    public void setCards(List<CardEntry> cards) {
+    public void setCards(List<Card> cards) {
         mCards = cards;
         notifyDataSetChanged();
     }

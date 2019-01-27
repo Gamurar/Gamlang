@@ -23,7 +23,7 @@ public class Word {
         this.name = name;
     }
 
-    void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -55,7 +55,7 @@ public class Word {
         }
     }
 
-    void playPronunc() {
+    public void playPronunc() {
         if (soundURL == null) {
             Log.e(TAG, "There is no sound to play.");
             return;

@@ -15,12 +15,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.hfad.gamlang.database.CardEntry;
+import com.hfad.gamlang.Model.database.CardEntry;
+import com.hfad.gamlang.ViewModel.CardViewModel;
 import com.hfad.gamlang.tasks.ImagesFromLocalStorageQueryTask;
-import com.hfad.gamlang.utilities.AppExecutors;
 import com.hfad.gamlang.utilities.CardsAdapter;
-import com.hfad.gamlang.utilities.LearnWordsViewModel;
-import com.hfad.gamlang.utilities.StorageHelper;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
 import com.yuyakaido.android.cardstackview.CardStackView;
 
@@ -37,7 +35,6 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner {
     private Button mShowAnswer;
     private ImageView mPicture;
     private static boolean isAnswerShown = false;
-    private List<CardEntry> mCardEntries;
     private int mCardCount;
     private static int mCurrentCardId = 0;
     private CardEntry mCurrentWord;
@@ -55,55 +52,23 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         init(view);
         setupViewModel();
-
-//        mShowAnswer.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if(isAnswerShown) {
-//                    nextWord();
-//                } else {
-//                    showAnswer();
-//                }
-//            }
-//        });
         super.onViewCreated(view, savedInstanceState);
     }
 
     private void init(@NonNull View view) {
-//        mQuestion = view.findViewById(R.id.question);
-//        mAnswer = view.findViewById(R.id.answer);
-//        mPicture = view.findViewById(R.id.card_picture);
         mShowAnswer = view.findViewById(R.id.show_answer);
         mCardStack = view.findViewById(R.id.card_stack);
-        mAdapter = new CardsAdapter(getContext());
+        mAdapter = new CardsAdapter();
         CardStackLayoutManager manager = new CardStackLayoutManager(getContext());
         mCardStack.setLayoutManager(manager);
         mCardStack.setAdapter(mAdapter);
     }
 
     private void setupViewModel() {
-        LearnWordsViewModel viewModel = ViewModelProviders.of(getActivity()).get(LearnWordsViewModel.class);
-        viewModel.getCards().observe(this, (cardEntries) -> {
+        CardViewModel viewModel = ViewModelProviders.of(this).get(CardViewModel.class);
+        viewModel.getAllCards().observe(this, (cards) -> {
             Log.d(TAG, "setupViewModel: receive data from ViewModel to 'Learn words'");
-            if (cardEntries.isEmpty()) {
-                Log.d(TAG, "There is no cards retrieved from the DataBase");
-                return;
-            }
-//            mCardEntries = cardEntries;
-//            mCurrentCardId = 0;
-//            mCurrentWord = mCardEntries.get(mCurrentCardId);
-//            mQuestion.setText(mCurrentWord.getWord());
-//            mAnswer.setText(mCurrentWord.getTranslation());
-//            mCardCount = mCardEntries.size();
-            try {
-                CardEntry[] entries = new CardEntry[cardEntries.size()];
-                ArrayList<Card> cards
-                        = new ImagesFromLocalStorageQueryTask()
-                        .execute(cardEntries.toArray(entries)).get();
-                mAdapter.setCards(cards);
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
+            mAdapter.setCards((ArrayList<Card>) cards);
         });
     }
 
@@ -118,7 +83,7 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner {
         if (mCurrentCardId == mCardCount) {
             mCurrentCardId = 0;
         }
-        mCurrentWord = mCardEntries.get(mCurrentCardId);
+        //mCurrentWord = mCardEntries.get(mCurrentCardId);
 
         mAnswer.setVisibility(TextView.INVISIBLE);
         isAnswerShown = false;

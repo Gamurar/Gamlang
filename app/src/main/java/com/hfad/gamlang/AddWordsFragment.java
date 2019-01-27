@@ -16,9 +16,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hfad.gamlang.database.AppDatabase;
-import com.hfad.gamlang.database.CardEntry;
-import com.hfad.gamlang.tasks.ImagesQueryTask;
+import com.hfad.gamlang.Model.database.AppDatabase;
+import com.hfad.gamlang.Model.database.CardEntry;
+import com.hfad.gamlang.ViewModel.CardViewModel;
 import com.hfad.gamlang.tasks.TranslateQueryTask;
 import com.hfad.gamlang.utilities.AppExecutors;
 import com.hfad.gamlang.utilities.ImagesAdapter;
@@ -30,6 +30,8 @@ import java.util.HashSet;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -50,8 +52,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
     public static Word word = new Word("way");
 
     private static boolean canAddToDict = true;
-
-    private AppDatabase mDb;
+    private CardViewModel mViewModel;
     private StorageHelper storageHelper;
 
     @Nullable
@@ -97,7 +98,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         wordPictureRecyclerView.setAdapter(mAdapter);
         new TranslateQueryTask(this).translate();
 
-        mDb = AppDatabase.getInstance(getActivity().getApplicationContext());
+        mViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
         storageHelper = new StorageHelper(getContext());
     }
 
@@ -115,15 +116,10 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         } else {
             newCard = new CardEntry(word.name, word.getTranslation());
         }
-        final Toast toast = Toast.makeText(getContext(), "The word " + word.getName() + " added to the dictionary.", Toast.LENGTH_SHORT);
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                mDb.cardDao().insertCard(newCard);
-                Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
-                toast.show();
-            }
-        });
+        
+        mViewModel.insert(newCard);
+        Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
+        Toast.makeText(getContext(), "The word " + word.getName() + " added to the dictionary.", Toast.LENGTH_SHORT).show();
     }
 
 

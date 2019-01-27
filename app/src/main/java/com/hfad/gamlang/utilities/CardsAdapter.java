@@ -27,19 +27,18 @@ import java.util.Map;
 public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHolder> {
     private static final String TAG = "CardsAdapter";
     private ArrayList<Card> mCards;
-    private Context mContext;
 
 
 
-    public CardsAdapter(Context context) {
-        mContext = context;
+    public CardsAdapter() {
+
     }
 
 
     @NonNull
     @Override
     public CardViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        Context context = mContext;
+        Context context = viewGroup.getContext();
         int layoutIdForListItem = R.layout.card_stackitem;
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(layoutIdForListItem, viewGroup, false);

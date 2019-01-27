@@ -153,6 +153,7 @@ public class NetworkUtils {
     }
 
     public static String getGlosbeTranslationFromJSON(String JSONString) {
+        if (JSONString == null) return null;
         String translation = null;
         try {
             translation = new JSONObject(JSONString)

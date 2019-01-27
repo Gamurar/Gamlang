@@ -9,11 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.hfad.gamlang.database.AppDatabase;
-import com.hfad.gamlang.utilities.AppExecutors;
+import com.hfad.gamlang.ViewModel.CardViewModel;
 import com.hfad.gamlang.utilities.DictionaryAdapter;
-import com.hfad.gamlang.utilities.MyDictionaryViewModel;
-import com.hfad.gamlang.utilities.MyDictionaryViewModelFactory;
 
 import java.util.HashSet;
 
@@ -30,8 +27,7 @@ public class MyDictionaryFragment extends Fragment
     private RecyclerView mWordsList;
     private DictionaryAdapter mAdapter;
     private static HashSet<Integer> selectedCardsId;
-    private AppDatabase mDb;
-    private MyDictionaryViewModel mViewModel;
+    private CardViewModel mViewModel;
 
 
     @Nullable
@@ -49,15 +45,13 @@ public class MyDictionaryFragment extends Fragment
         mAdapter = new DictionaryAdapter(getContext(), this);
         mWordsList.setAdapter(mAdapter);
         //
-        mDb = AppDatabase.getInstance(getActivity().getApplicationContext());
         setupViewModel();
         super.onViewCreated(view, savedInstanceState);
     }
 
     private void setupViewModel() {
-        MyDictionaryViewModelFactory factory = new MyDictionaryViewModelFactory(mDb);
-        mViewModel = ViewModelProviders.of(this, factory).get(MyDictionaryViewModel.class);
-        mViewModel.getCards().observe(this, (cardEntries) -> {
+        mViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
+        mViewModel.getAllCards().observe(this, (cardEntries) -> {
             mAdapter.setCards(cardEntries);
 
         });
@@ -81,15 +75,11 @@ public class MyDictionaryFragment extends Fragment
     }
 
     private void deleteSelectedCards() {
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                Integer[] cardsIdToDelete = selectedCardsId.toArray(new Integer[selectedCardsId.size()]);
-                mViewModel.deleteCardsById(cardsIdToDelete);
-                Log.d(TAG, "run: The selected cards deleted");
-                selectedCardsId.clear();
-            }
-        });
+        Integer[] cardsIdToDelete = selectedCardsId.toArray(new Integer[selectedCardsId.size()]);
+        mViewModel.deleteById(cardsIdToDelete);
+        Log.d(TAG, "deleteSelectedCards: The selected cards deleted");
+        selectedCardsId.clear();
+
         setHasOptionsMenu(false);
         mAdapter.haveSelection = false;
     }

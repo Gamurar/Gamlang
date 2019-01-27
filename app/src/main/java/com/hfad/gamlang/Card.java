@@ -2,11 +2,7 @@ package com.hfad.gamlang;
 
 import android.graphics.Bitmap;
 
-import com.hfad.gamlang.database.CardEntry;
-
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 public class Card {
     private int id;
@@ -49,4 +45,11 @@ public class Card {
         this.pictures = pictures;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }

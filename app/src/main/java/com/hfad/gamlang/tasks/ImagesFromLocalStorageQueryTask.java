@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 
 import com.hfad.gamlang.Card;
-import com.hfad.gamlang.database.CardEntry;
+import com.hfad.gamlang.Model.database.CardEntry;
 import com.hfad.gamlang.utilities.StorageHelper;
 import com.squareup.picasso.Picasso;
 
