@@ -16,6 +16,7 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -71,6 +72,18 @@ public class CardRepository {
 
     public void delete(CardEntry cardEntry) {
         new DatabaseAsyncTask(cardDao, DELETE_TASK).execute(cardEntry);
+    }
+
+    public void delete(HashSet<Card> cards) {
+        Integer[] cardIds = new Integer[cards.size()];
+        int i = 0;
+        for (Card card : cards) {
+            cardIds[i] = card.getId();
+            i++;
+
+            new DeletePictureAsyncTask().execute(card.getPictureFileNames());
+        }
+        new DatabaseDeleteByIdAsyncTask(cardDao).execute(cardIds);
     }
 
     public void deleteById(Integer[] cardIds) {
@@ -136,19 +149,40 @@ public class CardRepository {
         }
     }
 
+    private static class DeletePictureAsyncTask extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... fileNames) {
+            for (String fileName : fileNames) {
+                File image = new File(mPicturesDirectory, fileName);
+                if (image.delete()) {
+                    Log.d(TAG, "The image "
+                    + image.getAbsolutePath()
+                    + " deleted!");
+                } else {
+                    Log.d(TAG, "The image "
+                            + image.getAbsolutePath()
+                            + " didn't delete!");
+                }
+            }
+            return null;
+        }
+    }
+
     private static class fetchImagesFromLocalStorageAsyncTask extends AsyncTask<CardEntry, ArrayList<Card>, ArrayList<Card>> {
 
         @Override
         protected ArrayList<Card> doInBackground(CardEntry... cardEntries) {
             ArrayList<Card> cards = new ArrayList<>();
             ArrayList<Bitmap> images = null;
+            String[] fileNames = null;
 
             for (CardEntry entry : cardEntries) {
                 if (entry.getImage() != null) {
                     images = new ArrayList<>();
                     try {
                         //get images for the card
-                        String[] fileNames = entry.getImage().split(" ");
+                        fileNames = entry.getImage().split(" ");
 
                         for (String fileName : fileNames) {
                             File file = new File(mPicturesDirectory, fileName);
@@ -164,7 +198,10 @@ public class CardRepository {
 
                 Card card = new Card(entry.getWord(), entry.getTranslation());
                 card.setId(entry.getId());
-                if (images != null && !images.isEmpty()) card.setPictures(images);
+                if (images != null && !images.isEmpty()) {
+                    card.setPictures(images);
+                    card.setPictureFileNames(fileNames);
+                }
 
                 cards.add(card);
             }

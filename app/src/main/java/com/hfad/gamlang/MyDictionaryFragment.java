@@ -26,7 +26,7 @@ public class MyDictionaryFragment extends Fragment
     private static final String TAG = "MyDictionaryFragment";
     private RecyclerView mWordsList;
     private DictionaryAdapter mAdapter;
-    private static HashSet<Integer> selectedCardsId;
+    private HashSet<Card> selectedCards;
     private CardViewModel mViewModel;
 
 
@@ -42,7 +42,7 @@ public class MyDictionaryFragment extends Fragment
         mWordsList = view.findViewById(R.id.rv_my_dictionary);
         mWordsList.setLayoutManager(new LinearLayoutManager(getContext()));
         mWordsList.setHasFixedSize(true);
-        mAdapter = new DictionaryAdapter(getContext(), this);
+        mAdapter = new DictionaryAdapter(this);
         mWordsList.setAdapter(mAdapter);
         //
         setupViewModel();
@@ -75,10 +75,9 @@ public class MyDictionaryFragment extends Fragment
     }
 
     private void deleteSelectedCards() {
-        Integer[] cardsIdToDelete = selectedCardsId.toArray(new Integer[selectedCardsId.size()]);
-        mViewModel.deleteById(cardsIdToDelete);
+        mViewModel.delete(selectedCards);
         Log.d(TAG, "deleteSelectedCards: The selected cards deleted");
-        selectedCardsId.clear();
+        selectedCards.clear();
 
         setHasOptionsMenu(false);
         mAdapter.haveSelection = false;
@@ -86,31 +85,31 @@ public class MyDictionaryFragment extends Fragment
 
 
     @Override
-    public void onFirstSelect(View view, int wordId) {
+    public void onFirstSelect(View view, Card card) {
         view.setBackgroundResource(R.color.colorSelected);
-        selectedCardsId = new HashSet<>();
-        selectedCardsId.add(wordId);
+        selectedCards = new HashSet<>();
+        selectedCards.add(card);
         setHasOptionsMenu(true);
     }
 
     //return true if there are still selected items in the list and false otherwise
     @Override
-    public boolean onNextSelect(View view, int wordId) {
-        if (selectedCardsId.contains(wordId)) {
-            return onUnselect(view, wordId);
+    public boolean onNextSelect(View view, Card card) {
+        if (selectedCards.contains(card)) {
+            return onUnselect(view, card);
         } else {
             view.setBackgroundResource(R.color.colorSelected);
-            selectedCardsId.add(wordId);
+            selectedCards.add(card);
             return true;
         }
     }
 
     //return true if there are still selected items in the list and false otherwise
     @Override
-    public boolean onUnselect(View view, int wordId) {
+    public boolean onUnselect(View view, Card card) {
         view.setBackgroundResource(android.R.color.white);
-        selectedCardsId.remove(wordId);
-        boolean isSelectedItem = !selectedCardsId.isEmpty();
+        selectedCards.remove(card);
+        boolean isSelectedItem = !selectedCards.isEmpty();
         if (!isSelectedItem) {
             setHasOptionsMenu(false);
         }

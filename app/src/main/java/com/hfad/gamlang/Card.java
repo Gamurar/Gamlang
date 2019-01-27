@@ -9,6 +9,7 @@ public class Card {
     private String question;
     private String answer;
     private ArrayList<Bitmap> pictures;
+    private String[] pictureFileNames;
 
     public Card(String question, String answer) {
         this.question = question;
@@ -51,5 +52,13 @@ public class Card {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String[] getPictureFileNames() {
+        return pictureFileNames;
+    }
+
+    public void setPictureFileNames(String[] pictureFileNames) {
+        this.pictureFileNames = pictureFileNames;
     }
 }

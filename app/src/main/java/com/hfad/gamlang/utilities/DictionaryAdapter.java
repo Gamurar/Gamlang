@@ -1,6 +1,6 @@
 package com.hfad.gamlang.utilities;
 
-import android.content.Context;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import com.hfad.gamlang.Card;
 import com.hfad.gamlang.R;
-import com.hfad.gamlang.Model.database.CardEntry;
 
 import java.util.List;
 
@@ -21,21 +20,19 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
 
     private static List<Card> mCards;
     private DictWordSelectListener mDictWordSelectListener;
-    private Context mContext;
 
     public boolean haveSelection = false;
 
     public interface DictWordSelectListener {
-        void onFirstSelect(View view, int wordId);
+        void onFirstSelect(View view, Card card);
 
-        boolean onNextSelect(View view, int wordId);
+        boolean onNextSelect(View view, Card card);
 
-        boolean onUnselect(View view, int wordId);
+        boolean onUnselect(View view, Card card);
     }
 
-    public DictionaryAdapter(Context context, DictWordSelectListener dictWordSelectListener) {
+    public DictionaryAdapter(DictWordSelectListener dictWordSelectListener) {
         mDictWordSelectListener = dictWordSelectListener;
-        mContext = context;
     }
 
 
@@ -97,10 +94,10 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         @Override
         public boolean onLongClick(View view) {
             if (!haveSelection) {
-                mDictWordSelectListener.onFirstSelect(cardView, cardId);
+                mDictWordSelectListener.onFirstSelect(cardView, mCards.get(getAdapterPosition()));
                 haveSelection = true;
             } else {
-                haveSelection = mDictWordSelectListener.onNextSelect(cardView, cardId);
+                haveSelection = mDictWordSelectListener.onNextSelect(cardView, mCards.get(getAdapterPosition()));
             }
             return true;
         }
@@ -108,7 +105,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         @Override
         public void onClick(View view) {
             if (haveSelection) {
-                haveSelection = mDictWordSelectListener.onNextSelect(cardView, cardId);
+                haveSelection = mDictWordSelectListener.onNextSelect(cardView, mCards.get(getAdapterPosition()));
             }
         }
     }

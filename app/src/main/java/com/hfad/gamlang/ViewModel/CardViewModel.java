@@ -6,6 +6,7 @@ import com.hfad.gamlang.Card;
 import com.hfad.gamlang.Model.CardRepository;
 import com.hfad.gamlang.Model.database.CardEntry;
 
+import java.util.HashSet;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -29,6 +30,8 @@ public class CardViewModel extends AndroidViewModel {
     public void delete(CardEntry cardEntry) {
         repository.delete(cardEntry);
     }
+
+    public void delete(HashSet<Card> cards) { repository.delete(cards); }
 
     public void deleteById(Integer[] cardIds) {
         repository.deleteById(cardIds);
