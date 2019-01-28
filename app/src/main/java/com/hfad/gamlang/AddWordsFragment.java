@@ -1,6 +1,7 @@
 package com.hfad.gamlang;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,21 +17,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hfad.gamlang.Model.database.AppDatabase;
 import com.hfad.gamlang.Model.database.CardEntry;
 import com.hfad.gamlang.ViewModel.CardViewModel;
-import com.hfad.gamlang.tasks.TranslateQueryTask;
-import com.hfad.gamlang.utilities.AppExecutors;
 import com.hfad.gamlang.utilities.ImagesAdapter;
-import com.hfad.gamlang.utilities.StorageHelper;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,20 +38,19 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
     private static final String TAG = "AddWordsFragment";
 
     private TextView wordTextView;
-    public TextView translationTextView;
-    public TextView imagesErrorMessage;
+    private TextView translationTextView;
+    private TextView imagesErrorMessage;
     private ImageView playSoundImageView;
+    private TextView mWordContext;
     private RecyclerView wordPictureRecyclerView;
-    public ProgressBar loadingIndicator;
-    public ProgressBar imagesLoadingIndicator;
+    private ProgressBar loadingIndicator;
+    private ProgressBar imagesLoadingIndicator;
     private Button addToDictBtn;
 
-    public ImagesAdapter mAdapter;
-    public static Word word = new Word("way");
+    private ImagesAdapter mAdapter;
 
     private static boolean canAddToDict = true;
     private CardViewModel mViewModel;
-    private StorageHelper storageHelper;
 
     @Nullable
     @Override
@@ -64,6 +61,9 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         init(view);
+        setupViewModel();
+        setWordFromContext();
+        mViewModel.translateWord(this);
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -71,24 +71,15 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         setHasOptionsMenu(true);
         wordTextView = view.findViewById(R.id.tv_word);
         translationTextView = view.findViewById(R.id.tv_translation);
+        mWordContext = view.findViewById(R.id.tv_word_context);
         loadingIndicator = view.findViewById(R.id.pb_loading_indicator);
         imagesLoadingIndicator = view.findViewById(R.id.pb_images_loading_indicator);
         playSoundImageView = view.findViewById(R.id.iv_play);
         wordPictureRecyclerView = view.findViewById(R.id.rv_word_pictures);
         addToDictBtn = view.findViewById(R.id.btn_add_to_dict);
         imagesErrorMessage = view.findViewById(R.id.tv_images_error_msg);
-        word.setName("way");
 
-        if (getArguments() != null) {
-            CharSequence text = getArguments().getCharSequence(Intent.EXTRA_PROCESS_TEXT);
-            if (text != null && !TextUtils.isEmpty(text)) {
-                word.setName(text.toString());
-            }
-        }
-        wordTextView.setText(word.getName());
-
-        playSoundImageView.setOnClickListener(soundBtn -> word.playPronunc());
-
+        //playSoundImageView.setOnClickListener(soundBtn -> mWord.playPronunc());
         addToDictBtn.setOnClickListener(btn -> addToDictionary());
 
         mAdapter = new ImagesAdapter(this);
@@ -96,27 +87,39 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
                 new GridLayoutManager(getContext(), 3)
         );
         wordPictureRecyclerView.setAdapter(mAdapter);
-        new TranslateQueryTask(this).translate();
+    }
 
+    private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
-        storageHelper = new StorageHelper(getContext());
+        mViewModel.getQueriedWord().observe(this, new Observer<Word>() {
+            @Override
+            public void onChanged(Word word) {
+                wordTextView.setText(word.getName());
+                if (word.isTranslated()) {
+                    translationTextView.setText(word.getTranslation());
+                }
+            }
+        });
+    }
+
+    private void setWordFromContext() {
+        if (getArguments() != null) {
+            CharSequence text = getArguments().getCharSequence(Intent.EXTRA_PROCESS_TEXT);
+            if (text != null && !TextUtils.isEmpty(text)) {
+                mViewModel.setQueriedWord(new Word(text.toString()));
+            }
+        }
     }
 
     private void addToDictionary() {
-        final CardEntry newCard;
-        if (selectedImages != null && !selectedImages.isEmpty()) {
-            StringBuilder strBuilder = new StringBuilder();
-            for (ImageViewBitmap image : selectedImages) {
-                strBuilder.append(storageHelper.saveImage(image));
-                strBuilder.append(" ");
-            }
-            String imagesString = strBuilder.toString();
+        Word word = mViewModel.getQueriedWord().getValue();
+        CardEntry newCard = new CardEntry(word.getName(), word.getTranslation());
 
-            newCard = new CardEntry(word.name, word.getTranslation(), imagesString);
-        } else {
-            newCard = new CardEntry(word.name, word.getTranslation());
+        if (selectedImages != null && !selectedImages.isEmpty()) {
+            String imagesString = mViewModel.savePictures(selectedImages);
+            newCard = new CardEntry(word.getName(), word.getTranslation(), imagesString);
         }
-        
+
         mViewModel.insert(newCard);
         Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
         Toast.makeText(getContext(), "The word " + word.getName() + " added to the dictionary.", Toast.LENGTH_SHORT).show();
@@ -135,11 +138,25 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 
         switch (itemId) {
             case R.id.actionRefresh: {
-                new TranslateQueryTask(this).translate();
+                mViewModel.translateWord(this);
                 break;
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void showTranslationErrorMessage() {
+        translationTextView.setText(R.string.error_no_translation);
+    }
+
+    public void showImagesErrorMessage() {
+        imagesErrorMessage.setText(R.string.error_no_images);
+        imagesErrorMessage.setVisibility(TextView.VISIBLE);
+        forbidAddToDict();
+    }
+
+    public void hideImagesErrorMessage() {
+        imagesErrorMessage.setText(R.string.error_no_images);
     }
 
     public void forbidAddToDict() {
@@ -149,11 +166,33 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         }
     }
 
-    public void allowAddToDict() {
+    private void allowAddToDict() {
         if (!canAddToDict) {
             canAddToDict = true;
             addToDictBtn.setEnabled(true);
         }
+    }
+
+    public void onLoadTranslation() {
+        loadingIndicator.setVisibility(View.VISIBLE);
+    }
+
+    public void onLoadTranslationFinished() {
+        loadingIndicator.setVisibility(View.INVISIBLE);
+    }
+
+    public void onLoadImages() {
+        imagesErrorMessage.setVisibility(TextView.INVISIBLE);
+        imagesLoadingIndicator.setVisibility(View.VISIBLE);
+    }
+
+    public void onLoadImagesFinished() {
+        imagesLoadingIndicator.setVisibility(View.INVISIBLE);
+    }
+
+    public void setImages(HashMap<String, Bitmap> images) {
+        mAdapter.setImages(images);
+        allowAddToDict();
     }
 
     private HashSet<ImageViewBitmap> selectedImages = new HashSet<>();

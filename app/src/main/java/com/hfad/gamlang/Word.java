@@ -12,12 +12,12 @@ import java.util.List;
 
 public class Word {
     private static final String TAG = "Word";
-    public String name;
-    public String soundURL;
+    private String name;
+    private String soundURL;
     private final String soundBaseURL
             = "https://api.lingvolive.com/sounds?uri=LingvoUniversal%20(En-Ru)%2F";
-    public ArrayList<Translation> translations
-            = new ArrayList<>();
+    private ArrayList<Translation> translations = new ArrayList<>();
+    public ArrayList<String> context = new ArrayList<>();
 
     public Word(String name) {
         this.name = name;
@@ -32,6 +32,7 @@ public class Word {
     }
 
     public void setTranslation(String translation) {
+        if (this.translations == null) this.translations = new ArrayList<>();
         this.translations.add(new Translation(translation));
     }
 
@@ -40,7 +41,7 @@ public class Word {
     }
 
     public String getTranslation() {
-        if (this.translations != null) {
+        if (this.translations != null && !this.translations.isEmpty()) {
             return this.translations.get(0).transVariants.get(0);
         } else {
             return "There is no translation.";
@@ -70,6 +71,23 @@ public class Word {
             e.printStackTrace();
         }
         mediaPlayer.start();
+    }
+
+    public void addContext(String context) {
+        if (this.context == null) this.context = new ArrayList<>();
+        this.context.add(context);
+    }
+
+    public ArrayList<String> getContext() {
+        if (context != null && !context.isEmpty()) {
+            return context;
+        } else {
+            return null;
+        }
+    }
+
+    public boolean isTranslated() {
+        return getTranslation() != null && !getTranslation().isEmpty();
     }
 
 

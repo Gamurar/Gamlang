@@ -22,6 +22,14 @@ public class Card {
         this.pictures = pictures;
     }
 
+    public Card(Card card) {
+        this.id = card.id;
+        this.question = card.question;
+        this.answer = card.answer;
+        this.pictures = card.pictures;
+        this.pictureFileNames = card.pictureFileNames;
+    }
+
     public String getQuestion() {
         return question;
     }
@@ -60,5 +68,9 @@ public class Card {
 
     public void setPictureFileNames(String[] pictureFileNames) {
         this.pictureFileNames = pictureFileNames;
+    }
+
+    public boolean hasPictures() {
+        return pictureFileNames != null && pictureFileNames.length > 0;
     }
 }

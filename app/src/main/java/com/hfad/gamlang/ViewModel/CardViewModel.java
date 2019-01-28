@@ -2,9 +2,12 @@ package com.hfad.gamlang.ViewModel;
 
 import android.app.Application;
 
+import com.hfad.gamlang.AddWordsFragment;
 import com.hfad.gamlang.Card;
 import com.hfad.gamlang.Model.CardRepository;
 import com.hfad.gamlang.Model.database.CardEntry;
+import com.hfad.gamlang.Word;
+import com.hfad.gamlang.views.ImageViewBitmap;
 
 import java.util.HashSet;
 import java.util.List;
@@ -12,15 +15,18 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 public class CardViewModel extends AndroidViewModel {
     private CardRepository repository;
-    private LiveData<List<Card>> cards;
+    private LiveData<List<Card>> mCards;
+    private MutableLiveData<Word> mWord;
 
     public CardViewModel(@NonNull Application application) {
         super(application);
         repository = new CardRepository(application);
-        cards = repository.getAllCards();
+        mCards = repository.getAllCards();
+        mWord = repository.getQueriedWord();
     }
 
     public void insert(CardEntry cardEntry) {
@@ -46,6 +52,19 @@ public class CardViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Card>> getAllCards() {
-        return cards;
+        return mCards;
+    }
+
+    public LiveData<Word> getQueriedWord() { return mWord; }
+
+    public void setQueriedWord(Word word) { mWord.setValue(word); }
+
+
+    public void translateWord(AddWordsFragment fragment) {
+        repository.translateWord(fragment);
+    }
+
+    public String savePictures(HashSet<ImageViewBitmap> imageViews) {
+        return repository.savePictures(imageViews);
     }
 }

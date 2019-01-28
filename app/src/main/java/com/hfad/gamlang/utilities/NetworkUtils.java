@@ -37,10 +37,10 @@ public class NetworkUtils {
     //ABBYY
     private static final String ABBYY_API_KEY
             = "ZTNhMDAwMzUtZmQ3OC00ZjYwLTk3NWQtNzY4YzM0ZGRkM2ExOmQwMDgwMDQ3ZGE4ZjRjZGZiNTJiZjZhNThhOTg3NzM2";
-    public static String authABBYYToken = null;
+    private static String authABBYYToken = null;
     private static final String ABBYY_BASE_URL
             = "https://developers.lingvolive.com";
-    public static final String ABBYY_AUTH
+    private static final String ABBYY_AUTH
             = "/api/v1/authenticate";
     public static final String ABBYY_TRANSLATE
             = "/api/v1/Translation";
@@ -57,18 +57,19 @@ public class NetworkUtils {
             = "563492ad6f917000010000010b67db13fe80472ea18059085d7f7a45";
     private static final String IMAGE_SEARCH_BASE_URL
             = "https://api.pexels.com/v1/search";
-    public static final String IMAGE_SEARCH_ACTION = "searchImages";
+    private static final String IMAGE_SEARCH_ACTION = "searchImages";
     private static final String PARAM_IMAGE_QUERY = "query";
     private static final String PARAM_IMAGE_PER_PAGE = "per_page";
     private static final String PARAM_IMAGE_PAGE = "page";
     static int imagesPerPage = 15;
 
     //Glosbe.com translation API
-    public static final String GlOSBE_TRANSLATION_ACTION = "/translate";
-    public static final String GlOSBE_BASE_URL = "https://glosbe.com/gapi";
-    public static final String GLOSBE_PARAM_WORD = "phrase";
-    public static final String GLOSBE_PARAM_ORIGIN_LANG = "from";
-    public static final String GLOSBE_PARAM_TRANSLATION_LANG = "dest";
+    private static final String GlOSBE_TRANSLATION_ACTION = "/translate";
+    private static final String GLOSBE_CONTEXT_ACTION = "/tm";
+    private static final String GlOSBE_BASE_URL = "https://glosbe.com/gapi";
+    private static final String GLOSBE_PARAM_WORD = "phrase";
+    private static final String GLOSBE_PARAM_ORIGIN_LANG = "from";
+    private static final String GLOSBE_PARAM_TRANSLATION_LANG = "dest";
 
     /**
      * Builds the URL used to query GitHub.
@@ -114,7 +115,7 @@ public class NetworkUtils {
         return url;
     }
 
-    public static String fetchGlosbeTranslationJSON(String word, Context context) throws IOException {
+    private static String fetchGlosbeTranslationJSON(String word, Context context) throws IOException {
         String origLang = PreferencesUtils.getPreferedOriginLangCode(context);
         String destLang = PreferencesUtils.getPreferedDestLangCode(context);
         Uri builtUri = Uri.parse(GlOSBE_BASE_URL + GlOSBE_TRANSLATION_ACTION).buildUpon()
@@ -152,7 +153,7 @@ public class NetworkUtils {
         return response.toString();
     }
 
-    public static String getGlosbeTranslationFromJSON(String JSONString) {
+    private static String getGlosbeTranslationFromJSON(String JSONString) {
         if (JSONString == null) return null;
         String translation = null;
         try {
@@ -168,6 +169,23 @@ public class NetworkUtils {
         return translation;
     }
 
+    private static String getGlosbeContextFromJSON(String JSONString) {
+        if (JSONString == null) return null;
+        String context = null;
+        try {
+            context = new JSONObject(JSONString)
+                    .getJSONArray("examples")
+                    .getJSONObject(0)
+                    .getString("first");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return context;
+    }
+
+
+
     public static String translateByGlosbe(String word, Context context) {
         String json = null;
         try {
@@ -177,6 +195,17 @@ public class NetworkUtils {
         }
 
         return getGlosbeTranslationFromJSON(json);
+    }
+
+    public static String contextByGlosbe(String word, Context context) {
+        String json = null;
+        try {
+            json = fetchGlosbeTranslationJSON(word, context);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return getGlosbeContextFromJSON(json);
     }
 
     /**

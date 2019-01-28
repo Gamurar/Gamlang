@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hfad.gamlang.Card;
@@ -49,11 +50,14 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder viewHolder, int i) {
         if (i < mCards.size()) {
+            viewHolder.answerContainer.setVisibility(LinearLayout.INVISIBLE);
             Card card = mCards.get(i);
             viewHolder.question.setText(card.getQuestion());
             viewHolder.answer.setText(card.getAnswer());
             if (card.getPictures() != null) {
                 viewHolder.imageView.setImageBitmap(card.getPictures().get(0));
+            } else {
+                viewHolder.imageView.setVisibility(View.INVISIBLE);
             }
         }
     }
@@ -77,12 +81,21 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
         TextView question;
         TextView answer;
         ImageView imageView;
+        LinearLayout answerContainer;
 
         private CardViewHolder(@NonNull View itemView) {
             super(itemView);
             question = itemView.findViewById(R.id.card_question);
             answer = itemView.findViewById(R.id.card_answer);
             imageView = itemView.findViewById(R.id.card_image);
+            answerContainer = itemView.findViewById(R.id.answer_container);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    answerContainer.setVisibility(LinearLayout.VISIBLE);
+                    Log.d(TAG, "onClick: Answer container clicked");
+                }
+            });
         }
 
     }
