@@ -3,8 +3,12 @@ package com.hfad.gamlang;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toolbar;
 
 import com.hfad.gamlang.ViewModel.CardViewModel;
 import com.hfad.gamlang.utilities.CardsAdapter;
@@ -41,6 +45,7 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner, Card
     }
 
     private void init(@NonNull View view) {
+        setHasOptionsMenu(true);
         CardStackView mCardStack = view.findViewById(R.id.card_stack);
         mAdapter = new CardsAdapter();
         CardStackLayoutManager manager = new CardStackLayoutManager(getContext(), this);
@@ -88,5 +93,22 @@ public class LearnWordsFragment extends Fragment implements LifecycleOwner, Card
     @Override
     public void onCardDisappeared(View view, int position) {
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.learn_words_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        switch (itemId) {
+            case R.id.action_refresh: {
+                mAdapter.notifyDataSetChanged();
+                break;
+            }
+        }
+        return true;
     }
 }
