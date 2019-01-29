@@ -15,6 +15,7 @@ public class CardEntry {
     private String word;
     private String translation;
     private String image;
+    private String pronunciation;
     @ColumnInfo(name = "updated_at")
     private Date updatedAt;
 
@@ -30,6 +31,15 @@ public class CardEntry {
         this.word = word;
         this.translation = translation;
         this.image = image;
+        this.updatedAt = new Date();
+    }
+
+    @Ignore
+    public CardEntry(String word, String translation, String image, String pronunciation) {
+        this.word = word;
+        this.translation = translation;
+        this.image = image;
+        this.pronunciation = pronunciation;
         this.updatedAt = new Date();
     }
 
@@ -70,6 +80,14 @@ public class CardEntry {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getPronunciation() {
+        return pronunciation;
+    }
+
+    public void setPronunciation(String pronunciation) {
+        this.pronunciation = pronunciation;
     }
 
     public Date getUpdatedAt() {

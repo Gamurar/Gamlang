@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -59,6 +60,12 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
             } else {
                 viewHolder.imageView.setVisibility(View.INVISIBLE);
             }
+
+            if (!card.hasSound()) {
+                viewHolder.playWord.setVisibility(ImageButton.GONE);
+            } else {
+                viewHolder.playWord.setVisibility(ImageButton.VISIBLE);
+            }
         }
     }
 
@@ -81,14 +88,22 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
         TextView question;
         TextView answer;
         ImageView imageView;
+        ImageButton playWord;
         LinearLayout answerContainer;
 
         private CardViewHolder(@NonNull View itemView) {
             super(itemView);
             question = itemView.findViewById(R.id.card_question);
+            playWord = itemView.findViewById(R.id.play_word);
             answer = itemView.findViewById(R.id.card_answer);
             imageView = itemView.findViewById(R.id.card_image);
             answerContainer = itemView.findViewById(R.id.answer_container);
+            playWord.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCards.get(getAdapterPosition()).pronounce();
+                }
+            });
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

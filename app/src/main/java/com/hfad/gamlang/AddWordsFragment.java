@@ -2,6 +2,8 @@ package com.hfad.gamlang;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,6 +24,7 @@ import com.hfad.gamlang.ViewModel.CardViewModel;
 import com.hfad.gamlang.utilities.ImagesAdapter;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -46,6 +49,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
     private ProgressBar loadingIndicator;
     private ProgressBar imagesLoadingIndicator;
     private Button addToDictBtn;
+    private Word mWord = new Word("universe");
 
     private ImagesAdapter mAdapter;
 
@@ -63,23 +67,24 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         init(view);
         setupViewModel();
         setWordFromContext();
-        mViewModel.translateWord(this);
+        mViewModel.translateWord(this, mWord.getName());
         super.onViewCreated(view, savedInstanceState);
     }
 
     private void init(@NonNull View view) {
         setHasOptionsMenu(true);
         wordTextView = view.findViewById(R.id.tv_word);
+        wordTextView.setText(mWord.getName());
         translationTextView = view.findViewById(R.id.tv_translation);
         mWordContext = view.findViewById(R.id.tv_word_context);
         loadingIndicator = view.findViewById(R.id.pb_loading_indicator);
         imagesLoadingIndicator = view.findViewById(R.id.pb_images_loading_indicator);
-        playSoundImageView = view.findViewById(R.id.iv_play);
+        playSoundImageView = view.findViewById(R.id.play_new_word);
         wordPictureRecyclerView = view.findViewById(R.id.rv_word_pictures);
         addToDictBtn = view.findViewById(R.id.btn_add_to_dict);
         imagesErrorMessage = view.findViewById(R.id.tv_images_error_msg);
 
-        //playSoundImageView.setOnClickListener(soundBtn -> mWord.playPronunc());
+        playSoundImageView.setOnClickListener(soundBtn -> mWord.pronounce());
         addToDictBtn.setOnClickListener(btn -> addToDictionary());
 
         mAdapter = new ImagesAdapter(this);
@@ -91,38 +96,42 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
-        mViewModel.getQueriedWord().observe(this, new Observer<Word>() {
-            @Override
-            public void onChanged(Word word) {
-                wordTextView.setText(word.getName());
-                if (word.isTranslated()) {
-                    translationTextView.setText(word.getTranslation());
-                }
-            }
-        });
+//        mViewModel.getQueriedWord().observe(this, new Observer<Word>() {
+//            @Override
+//            public void onChanged(Word word) {
+//                mWord = word;
+//                wordTextView.setText(mWord.getName());
+//                if (mWord.isTranslated()) {
+//                    translationTextView.setText(mWord.getTranslation());
+//                }
+//            }
+//        });
     }
 
     private void setWordFromContext() {
         if (getArguments() != null) {
             CharSequence text = getArguments().getCharSequence(Intent.EXTRA_PROCESS_TEXT);
             if (text != null && !TextUtils.isEmpty(text)) {
-                mViewModel.setQueriedWord(new Word(text.toString()));
+                mWord.setName(text.toString());
             }
         }
     }
 
     private void addToDictionary() {
-        Word word = mViewModel.getQueriedWord().getValue();
-        CardEntry newCard = new CardEntry(word.getName(), word.getTranslation());
-
+        CardEntry newCard = new CardEntry(mWord.getName(), mWord.getTranslation());
+        String soundURL = null;
         if (selectedImages != null && !selectedImages.isEmpty()) {
+            if (mWord.hasSoundURL()) {
+                soundURL = mWord.getSoundURL();
+                mViewModel.saveSound(soundURL);
+            }
             String imagesString = mViewModel.savePictures(selectedImages);
-            newCard = new CardEntry(word.getName(), word.getTranslation(), imagesString);
+            newCard = new CardEntry(mWord.getName(), mWord.getTranslation(), imagesString, soundURL);
         }
 
         mViewModel.insert(newCard);
         Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
-        Toast.makeText(getContext(), "The word " + word.getName() + " added to the dictionary.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "The word " + mWord.getName() + " added to the dictionary.", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -138,7 +147,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 
         switch (itemId) {
             case R.id.actionRefresh: {
-                mViewModel.translateWord(this);
+                mViewModel.translateWord(this, mWord.getName());
                 break;
             }
         }
@@ -190,9 +199,33 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         imagesLoadingIndicator.setVisibility(View.INVISIBLE);
     }
 
+    public void setWord(String name) {
+        wordTextView.setText(name);
+        mWord.setName(name);
+    }
+
+    public void setTranslation(String translation) {
+        translationTextView.setText(translation);
+        mWord.setTranslation(translation);
+    }
+
     public void setImages(HashMap<String, Bitmap> images) {
         mAdapter.setImages(images);
         allowAddToDict();
+    }
+
+    public void setSound(String soundUrl) {
+        try {
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setDataSource(soundUrl);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            mWord.setPronunciation(mediaPlayer, soundUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+            mWord.setPronunciation(soundUrl);
+        }
     }
 
     private HashSet<ImageViewBitmap> selectedImages = new HashSet<>();

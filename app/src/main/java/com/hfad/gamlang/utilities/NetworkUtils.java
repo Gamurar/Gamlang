@@ -1,9 +1,11 @@
 package com.hfad.gamlang.utilities;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.hfad.gamlang.Word;
@@ -40,15 +42,17 @@ public class NetworkUtils {
     private static String authABBYYToken = null;
     private static final String ABBYY_BASE_URL
             = "https://developers.lingvolive.com";
+    public static final String ABBYYsoundBaseUrl
+            = "https://api.lingvolive.com/sounds?uri=LingvoUniversal%20(En-Ru)%2F";
     private static final String ABBYY_AUTH
-            = "/api/v1/authenticate";
+            = "/api/v1.1/authenticate";
     public static final String ABBYY_TRANSLATE
             = "/api/v1/Translation";
-    public static final String ABBYY_SHORT_TRANSLATE
+    public static final String ABBYY_MINICARD
             = "/api/v1/Minicard";
-    private static final String PARAM_TEXT = "text";
-    private static final String PARAM_SRCLANG = "srcLang";
-    private static final String PARAM_DSTLANG = "dstLang";
+    private static final String ABBYY_PARAM_WORD = "text";
+    private static final String ABBYY_PARAM_SRCLANG = "srcLang";
+    private static final String ABBYY_PARAM_DSTLANG = "dstLang";
     private static final int ENG = 1033;
     private static final int RUS = 1049;
 
@@ -98,9 +102,9 @@ public class NetworkUtils {
             }
             default: {
                 builtUri = Uri.parse(ABBYY_BASE_URL + action).buildUpon()
-                        .appendQueryParameter(PARAM_TEXT, word)
-                        .appendQueryParameter(PARAM_SRCLANG, Integer.toString(ENG))
-                        .appendQueryParameter(PARAM_DSTLANG, Integer.toString(RUS))
+                        .appendQueryParameter(ABBYY_PARAM_WORD, word)
+                        .appendQueryParameter(ABBYY_PARAM_SRCLANG, Integer.toString(ENG))
+                        .appendQueryParameter(ABBYY_PARAM_DSTLANG, Integer.toString(RUS))
                         .build();
             }
         }
@@ -209,13 +213,16 @@ public class NetworkUtils {
     }
 
     /**
-     * This method returns the entire result from the HTTP response.
+     * This method returns the ABBYY autho.
      *
-     * @param url The URL to fetch the HTTP response from.
-     * @return The contents of the HTTP response.
+     * @return Returns API token on successfull authentication.
+     *         Token must be used in Bearer Authorization header in every translation API request. <br>
+     *         In case of unsuccessfull authentication returns 401 Unauthorized error.<br>
+     *         Token TTL is 24 hours. After 24 hours or when your receive 401 Unauthorized response for translation methods you have to call this method again and get new token.
      * @throws IOException Related to network and stream reading
      */
-    public static String getABBYYAuthToken(URL url) throws IOException {
+    public static String getABBYYAuthToken() throws IOException {
+        URL url = new URL(ABBYY_BASE_URL + ABBYY_AUTH);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
         String basicAuth = "Basic " + ABBYY_API_KEY;
@@ -243,6 +250,50 @@ public class NetworkUtils {
         } finally {
             urlConnection.disconnect();
         }
+    }
+
+    public static String fetchABBYYMinicardJSON(String authToken, String word) throws IOException {
+//        String srcLang = PreferencesUtils.getPreferedOriginLang(context);
+//        String destLang = PreferencesUtils.getPreferedDestLangCode(context);
+        Uri builtUri = Uri.parse(ABBYY_BASE_URL + ABBYY_MINICARD)
+                .buildUpon()
+                .appendQueryParameter(ABBYY_PARAM_WORD, word)
+                .appendQueryParameter(ABBYY_PARAM_SRCLANG, String.valueOf(ENG))
+                .appendQueryParameter(ABBYY_PARAM_DSTLANG, String.valueOf(RUS))
+                .build();
+
+        URL url = new URL(builtUri.toString());
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        String token = "Bearer " + authToken;
+
+        // optional default is GET
+        con.setRequestMethod("GET");
+
+        //add request header
+        con.setRequestProperty("Authorization", token);
+        con.setRequestProperty("User-Agent", USER_AGENT);
+
+        int responseCode = con.getResponseCode();
+        Log.i(TAG, "\nSending 'GET' request to URL : " + url);
+        Log.i(TAG, "Response Code : " + responseCode);
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        return response.toString();
+    }
+
+    public static String getSoundFromJSON(String jsonString) throws JSONException {
+        return new JSONObject(jsonString)
+                .getJSONObject("Translation")
+                .getString("SoundName");
     }
 
     public static String getABBYYTranslation(URL url) throws IOException {
@@ -314,7 +365,6 @@ public class NetworkUtils {
             Log.i(TAG, "translation: " + json.getString("Translation"));
             Word word = new Word(json.getString("Heading"));
             word.setTranslation(json.getString("Translation"));
-            word.setSound(json.getString("SoundName"));
             return word;
         } catch (JSONException e) {
             e.printStackTrace();

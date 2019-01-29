@@ -2,6 +2,8 @@ package com.hfad.gamlang.Model;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
@@ -10,20 +12,22 @@ import com.hfad.gamlang.AddWordsFragment;
 import com.hfad.gamlang.Card;
 import com.hfad.gamlang.Model.database.CardDao;
 import com.hfad.gamlang.Model.database.CardEntry;
-import com.hfad.gamlang.Word;
 import com.hfad.gamlang.utilities.NetworkUtils;
 import com.hfad.gamlang.utilities.PreferencesUtils;
 import com.hfad.gamlang.views.ImageViewBitmap;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-
-import androidx.lifecycle.MutableLiveData;
 
 public class Tasks {
 
@@ -55,7 +59,7 @@ public class Tasks {
                         fileNames = entry.getImage().split(" ");
 
                         for (String fileName : fileNames) {
-                            File file = new File(CardRepository.mPicturesDirectory, fileName);
+                            File file = new File(CardRepository.picturesDirectory, fileName);
                             Log.d(TAG, "doInBackground: path to the picture: \n"
                                     + file.getAbsolutePath());
                             Bitmap bitmap = Picasso.get().load(file).get();
@@ -64,6 +68,21 @@ public class Tasks {
                             card.setPictures(images);
                             card.setPictureFileNames(fileNames);
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (entry.getPronunciation() != null) {
+                    try {
+                        String fileName = entry.getPronunciation()
+                                .substring(NetworkUtils.ABBYYsoundBaseUrl.length());
+                        String filePath = CardRepository.musicDirectory + "/" + fileName;
+                        MediaPlayer mediaPlayer = new MediaPlayer();
+                        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                        mediaPlayer.setDataSource(filePath);
+                        mediaPlayer.prepare();
+                        card.setPronunciation(mediaPlayer);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -80,12 +99,11 @@ public class Tasks {
      * <p>
      * While execution finished, call MutableLiveData's postValue method to update the word.
      */
-    public static class translateQueryTask extends AsyncTask<MutableLiveData<Word>, Void, Void> {
+    public static class translateQueryTask extends AsyncTask<String, Void, String[]> {
 
         private static final String TAG = "TranslateQueryTask";
 
         private AddWordsFragment fragment;
-        private Word word;
 
         public translateQueryTask(AddWordsFragment addWordsFragment) {
             fragment = addWordsFragment;
@@ -99,33 +117,72 @@ public class Tasks {
         }
 
         @Override
-        protected Void doInBackground(MutableLiveData<Word>... words) {
+        protected String[] doInBackground(String... words) {
             Context context = fragment.getContext();
-            word = words[0].getValue();
+            String word = words[0];
 
             String translation = NetworkUtils.translateByGlosbe(
-                    word.getName(),
+                    word,
                     context);
 
             String wordContext = NetworkUtils.contextByGlosbe(
-                    word.getName(),
+                    word,
                     context);
 
-            if (translation != null && !translation.isEmpty()) word.setTranslation(translation);
-            if (wordContext != null && !wordContext.isEmpty()) word.addContext(wordContext);
+            String[] result = new String[2];
 
-            words[0].postValue(word);
+            if (translation != null && !translation.isEmpty()) result[0] = translation;
+            if (wordContext != null && !wordContext.isEmpty()) result[1] = wordContext;
 
-            return null;
+            return result;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(String[] result) {
             fragment.onLoadTranslationFinished();
-
-            if (!word.isTranslated()) {
+            String translation = result[0];
+            String context = result[1];
+            if (translation != null && !translation.isEmpty()) {
+                fragment.setTranslation(translation);
+            } else {
                 fragment.showTranslationErrorMessage();
                 fragment.forbidAddToDict();
+            }
+        }
+    }
+
+    public static class soundQueryAsyncTask extends AsyncTask<String, Void, String> {
+        private static final String TAG = "soundQueryAsyncTask";
+
+        private final String soundBaseURL
+                = "https://api.lingvolive.com/sounds?uri=LingvoUniversal%20(En-Ru)%2F";
+        private AddWordsFragment addWordsFragment;
+
+        public soundQueryAsyncTask(AddWordsFragment addWordsFragment) {
+            this.addWordsFragment = addWordsFragment;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String word = strings[0];
+            try {
+                String authToken = NetworkUtils.getABBYYAuthToken();
+                String JSON = NetworkUtils.fetchABBYYMinicardJSON(authToken, word);
+                String fileName = NetworkUtils.getSoundFromJSON(JSON);
+
+                return soundBaseURL + fileName;
+
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String soundUrl) {
+            if (soundUrl != null && !soundUrl.isEmpty()) {
+                addWordsFragment.setSound(soundUrl);
             }
         }
     }
@@ -207,7 +264,7 @@ public class Tasks {
          */
         @Override
         protected String doInBackground(ImageViewBitmap... imageViews) {
-            File mPicturesDirectory = CardRepository.mPicturesDirectory;
+            File mPicturesDirectory = CardRepository.picturesDirectory;
             StringBuilder strBuilder = new StringBuilder();
             for (ImageViewBitmap imageView : imageViews) {
                 Bitmap finalBitmap = imageView.getBitmap();
@@ -240,6 +297,42 @@ public class Tasks {
         }
     }
 
+    public static class savePronunciationAsyncTask extends AsyncTask<String, Void, Void> {
+        private static final String TAG = "savePronunciationAsyncT";
+
+        @Override
+        protected Void doInBackground(String... fileUrls) {
+            try {
+                String fileUrl = fileUrls[0];
+                String fileName = fileUrl.substring(NetworkUtils.ABBYYsoundBaseUrl.length());
+
+                URL sourceUrl = new URL(fileUrl);
+                HttpURLConnection con = (HttpURLConnection) sourceUrl.openConnection();
+                File newFile = new File(CardRepository.musicDirectory, fileName);
+                Log.d(TAG, "sound file path: " + newFile.getAbsolutePath());
+
+                FileOutputStream out = new FileOutputStream(newFile);//Get OutputStream for NewFile Location
+
+                InputStream is = con.getInputStream();//Get InputStream for connection
+
+                byte[] buffer = new byte[1024];//Set buffer type
+                int len = 0;//init length
+                while ((len = is.read(buffer)) != -1) {
+                    out.write(buffer, 0, len);//Write new file
+                }
+
+                //Close all connection after doing task
+                out.flush();
+                out.close();
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+    }
+
 
     /**
      * Deletes pictures from the local storage.
@@ -250,7 +343,7 @@ public class Tasks {
         @Override
         protected Void doInBackground(String... fileNames) {
             for (String fileName : fileNames) {
-                File image = new File(CardRepository.mPicturesDirectory, fileName);
+                File image = new File(CardRepository.picturesDirectory, fileName);
                 if (image.delete()) {
                     Log.d(TAG, "The image "
                             + image.getAbsolutePath()

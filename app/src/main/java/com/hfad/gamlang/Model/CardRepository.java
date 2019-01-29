@@ -9,7 +9,6 @@ import com.hfad.gamlang.Card;
 import com.hfad.gamlang.Model.database.AppDatabase;
 import com.hfad.gamlang.Model.database.CardDao;
 import com.hfad.gamlang.Model.database.CardEntry;
-import com.hfad.gamlang.Word;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
 import java.io.File;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 public class CardRepository {
@@ -29,14 +27,14 @@ public class CardRepository {
     public static final String DELETE_TASK = "delete_task";
     public static final String DELETE_ALL_TASK = "delete_all_task";
 
-    public static File mPicturesDirectory;
+    public static File picturesDirectory;
+    public static File musicDirectory;
 
 
     private CardDao cardDao;
     private LiveData<List<CardEntry>> mCardEntries;
     private LiveData<List<Card>> cards;
     private Context mContext;
-    private MutableLiveData<Word> queriedWord;
 
     public CardRepository(Application application) {
         mContext = application;
@@ -57,12 +55,11 @@ public class CardRepository {
         });
 
         File[] myDirs = application.getExternalFilesDirs(Environment.DIRECTORY_PICTURES);
-        mPicturesDirectory = myDirs.length > 1 ? myDirs[1] : myDirs[0];
+        picturesDirectory = myDirs.length > 1 ? myDirs[1] : myDirs[0];
 
-        if (queriedWord == null) {
-            queriedWord = new MutableLiveData<>();
-            queriedWord.setValue(new Word("apple"));
-        }
+        myDirs = application.getExternalFilesDirs(Environment.DIRECTORY_MUSIC);
+        musicDirectory = myDirs.length > 1 ? myDirs[1] : myDirs[0];
+
     }
 
     public LiveData<List<CardEntry>> getCardEntries() {
@@ -71,10 +68,6 @@ public class CardRepository {
 
     public LiveData<List<Card>> getAllCards() {
         return cards;
-    }
-
-    public MutableLiveData<Word> getQueriedWord() {
-        return queriedWord;
     }
 
     public void insert(CardEntry cardEntry) {
@@ -124,9 +117,12 @@ public class CardRepository {
         return cards;
     }
 
-    public void translateWord(AddWordsFragment fragment) {
-        new Tasks.translateQueryTask(fragment).execute(queriedWord);
-        new Tasks.imagesQueryTask(fragment).execute(queriedWord.getValue().getName());
+    public void translateWord(AddWordsFragment fragment, String word) {
+        new Tasks.translateQueryTask(fragment).execute(word);
+        new Tasks.soundQueryAsyncTask(fragment).execute(word);
+        new Tasks.imagesQueryTask(fragment).execute(word);
+        //test
+        new Tasks.savePronunciationAsyncTask().execute("https://api.lingvolive.com/sounds?uri=LingvoUniversal%20(En-Ru)%2Fapple.wav");
     }
 
     public String savePictures(HashSet<ImageViewBitmap> imageViews) {
@@ -142,5 +138,9 @@ public class CardRepository {
 
             return null;
         }
+    }
+
+    public void saveSound(String url) {
+        new Tasks.savePronunciationAsyncTask().execute(url);
     }
 }

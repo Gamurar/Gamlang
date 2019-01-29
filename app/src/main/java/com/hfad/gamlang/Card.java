@@ -1,6 +1,7 @@
 package com.hfad.gamlang;
 
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 
 import java.util.ArrayList;
 
@@ -10,6 +11,7 @@ public class Card {
     private String answer;
     private ArrayList<Bitmap> pictures;
     private String[] pictureFileNames;
+    private MediaPlayer pronunciation;
 
     public Card(String question, String answer) {
         this.question = question;
@@ -72,5 +74,23 @@ public class Card {
 
     public boolean hasPictures() {
         return pictureFileNames != null && pictureFileNames.length > 0;
+    }
+
+    public MediaPlayer getPronunciation() {
+        return pronunciation;
+    }
+
+    public void setPronunciation(MediaPlayer pronunciation) {
+        this.pronunciation = pronunciation;
+    }
+
+    public void pronounce() {
+        if (pronunciation != null) {
+            pronunciation.start();
+        }
+    }
+
+    public boolean hasSound() {
+        return pronunciation != null;
     }
 }
