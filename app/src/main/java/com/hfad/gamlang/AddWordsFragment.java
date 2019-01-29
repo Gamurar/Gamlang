@@ -76,7 +76,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         wordTextView = view.findViewById(R.id.tv_word);
         wordTextView.setText(mWord.getName());
         translationTextView = view.findViewById(R.id.tv_translation);
-        mWordContext = view.findViewById(R.id.tv_word_context);
+        //mWordContext = view.findViewById(R.id.tv_word_context);
         loadingIndicator = view.findViewById(R.id.pb_loading_indicator);
         imagesLoadingIndicator = view.findViewById(R.id.pb_images_loading_indicator);
         playSoundImageView = view.findViewById(R.id.play_new_word);

@@ -1,16 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:id="@+id/dict_cardview"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/dict_cardview"
-    android:layout_marginBottom="10dp">
+    android:layout_marginBottom="10dp"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:focusable="true">
 
-    <TextView
-        android:id="@+id/word_listitem"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="15dp"
-        android:background="?attr/selectableItemBackground"/>
+        android:layout_height="match_parent"
+        android:background="?attr/selectableItemBackground">
 
+
+        <com.github.abdularis.civ.AvatarImageView
+            android:id="@+id/dict_listitem_picture"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:highlightColor="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:avatarBackgroundColor="#1976D2"
+            app:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/word_listitem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:padding="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/dict_listitem_picture"
+            app:layout_constraintStart_toEndOf="@+id/dict_listitem_picture"
+            app:layout_constraintTop_toBottomOf="@+id/dict_listitem_picture"
+            tool:text="Word" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

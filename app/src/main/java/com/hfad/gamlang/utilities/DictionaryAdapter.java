@@ -4,8 +4,10 @@ package com.hfad.gamlang.utilities;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.abdularis.civ.AvatarImageView;
 import com.hfad.gamlang.Card;
 import com.hfad.gamlang.R;
 
@@ -51,9 +53,15 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         if (position >= mCards.size()) {
             return;
         }
+        Card card = mCards.get(position);
         holder.itemView.setBackgroundResource(android.R.color.white);
-        holder.word.setText(mCards.get(position).getQuestion());
-        holder.setCardId(mCards.get(position).getId());
+        holder.word.setText(card.getQuestion());
+        holder.setCardId(card.getId());
+        holder.picture.setText(card.getQuestion().toUpperCase());
+        if (card.hasPictures()) {
+            holder.picture.setImageBitmap(card.getPictures().get(0));
+            holder.picture.setState(AvatarImageView.SHOW_IMAGE);
+        }
     }
 
     @Override
@@ -76,14 +84,16 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         TextView word;
         CardView cardView;
         View listView;
+        AvatarImageView picture;
         int cardId;
 
         private CardViewHolder(@NonNull View itemView) {
             super(itemView);
             cardView = itemView.findViewById(R.id.dict_cardview);
             word = itemView.findViewById(R.id.word_listitem);
-            word.setOnLongClickListener(this);
-            word.setOnClickListener(this);
+            picture = itemView.findViewById(R.id.dict_listitem_picture);
+            cardView.setOnLongClickListener(this);
+            cardView.setOnClickListener(this);
             listView = itemView;
         }
 
