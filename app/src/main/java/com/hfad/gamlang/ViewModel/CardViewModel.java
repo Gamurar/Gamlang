@@ -8,6 +8,7 @@ import com.hfad.gamlang.Model.CardRepository;
 import com.hfad.gamlang.Model.database.CardEntry;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 

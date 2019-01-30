@@ -1,31 +1,34 @@
 package com.hfad.gamlang;
 
 import android.media.MediaPlayer;
-
-import com.hfad.gamlang.utilities.Pair;
+import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Word {
     private static final String TAG = "Word";
     private String name;
-    private ArrayList<Translation> translations = new ArrayList<>();
-    public ArrayList<String> context = new ArrayList<>();
+    private String translation;
+    private ArrayList<String> translations;
+    public ArrayList<String> context;
     private MediaPlayer pronunciation;
     private String soundURL;
 
     public Word(String name) {
-        this.name = name;
+        this.name = name.toLowerCase();
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name.toLowerCase();
     }
 
     public void setTranslation(String translation) {
-        if (this.translations == null) this.translations = new ArrayList<>();
-        this.translations.add(new Translation(translation));
+        if (translation != null && !translation.isEmpty()) {
+            this.translation = translation;
+        } else {
+            Log.e(TAG, "setTranslation: Wrong translation!");
+        }
+
     }
 
     public String getName() {
@@ -33,8 +36,8 @@ public class Word {
     }
 
     public String getTranslation() {
-        if (this.translations != null && !this.translations.isEmpty()) {
-            return this.translations.get(0).transVariants.get(0);
+        if (this.translation != null && !this.translation.isEmpty()) {
+            return this.translation;
         } else {
             return "There is no translation.";
         }
@@ -66,6 +69,10 @@ public class Word {
     }
 
     public void setPronunciation(MediaPlayer pronunciation, String soundURL) {
+        if (this.pronunciation != null) {
+            this.pronunciation.release();
+            this.pronunciation = null;
+        }
         this.pronunciation = pronunciation;
         this.soundURL = soundURL;
     }
@@ -81,25 +88,6 @@ public class Word {
     public void pronounce() {
         if (pronunciation != null) {
             pronunciation.start();
-        }
-    }
-
-
-    public static class Translation {
-        public ArrayList<String> transVariants
-                = new ArrayList<>();
-        public String partOfSpeech;
-        public String fullPartOfSpeech;
-        public List<Pair<String, String>> contexts
-                = new ArrayList<Pair<String, String>>();
-
-        public Translation(String translation) {
-            this.transVariants.add(translation);
-        }
-
-        public void addContextPair(String origContext, String transContext) {
-            Pair<String, String> pair = new Pair(origContext, transContext);
-            contexts.add(pair);
         }
     }
 }

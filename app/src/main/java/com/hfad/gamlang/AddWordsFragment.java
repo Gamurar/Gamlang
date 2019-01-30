@@ -1,5 +1,6 @@
 package com.hfad.gamlang;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -7,13 +8,17 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,13 +30,12 @@ import com.hfad.gamlang.utilities.ImagesAdapter;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,7 +44,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 
     private static final String TAG = "AddWordsFragment";
 
-    private TextView wordTextView;
+    private EditText mWordEditText;
     private TextView translationTextView;
     private TextView imagesErrorMessage;
     private ImageView playSoundImageView;
@@ -48,8 +52,9 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
     private RecyclerView wordPictureRecyclerView;
     private ProgressBar loadingIndicator;
     private ProgressBar imagesLoadingIndicator;
+    private Button translateBtn;
     private Button addToDictBtn;
-    private Word mWord = new Word("universe");
+    private Word mWord = new Word("");
 
     private ImagesAdapter mAdapter;
 
@@ -67,14 +72,14 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         init(view);
         setupViewModel();
         setWordFromContext();
-        mViewModel.translateWord(this, mWord.getName());
         super.onViewCreated(view, savedInstanceState);
     }
 
     private void init(@NonNull View view) {
-        setHasOptionsMenu(true);
-        wordTextView = view.findViewById(R.id.tv_word);
-        wordTextView.setText(mWord.getName());
+        //setHasOptionsMenu(true);
+        mWordEditText = view.findViewById(R.id.tv_word);
+        mWordEditText.setText(mWord.getName());
+        translateBtn = view.findViewById(R.id.btn_translate);
         translationTextView = view.findViewById(R.id.tv_translation);
         //mWordContext = view.findViewById(R.id.tv_word_context);
         loadingIndicator = view.findViewById(R.id.pb_loading_indicator);
@@ -85,6 +90,18 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         imagesErrorMessage = view.findViewById(R.id.tv_images_error_msg);
 
         playSoundImageView.setOnClickListener(soundBtn -> mWord.pronounce());
+        translateBtn.setOnClickListener(btn -> {
+            String word = mWordEditText.getText().toString();
+            if (!TextUtils.isEmpty(word)) {
+                closeKeyboard();
+                mWord.setName(word);
+                mAdapter.clear();
+                mViewModel.translateWord(this, mWord.getName());
+                hidePronunciation();
+            } else {
+                emptyFieldErrorMessage();
+            }
+        });
         addToDictBtn.setOnClickListener(btn -> addToDictionary());
 
         mAdapter = new ImagesAdapter(this);
@@ -100,7 +117,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 //            @Override
 //            public void onChanged(Word word) {
 //                mWord = word;
-//                wordTextView.setText(mWord.getName());
+//                mWordEditText.setText(mWord.getName());
 //                if (mWord.isTranslated()) {
 //                    translationTextView.setText(mWord.getTranslation());
 //                }
@@ -112,21 +129,22 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         if (getArguments() != null) {
             CharSequence text = getArguments().getCharSequence(Intent.EXTRA_PROCESS_TEXT);
             if (text != null && !TextUtils.isEmpty(text)) {
-                mWord.setName(text.toString());
+                setWord(text.toString());
+                mViewModel.translateWord(this, mWord.getName());
             }
         }
     }
 
     private void addToDictionary() {
         CardEntry newCard = new CardEntry(mWord.getName(), mWord.getTranslation());
-        String soundURL = null;
         if (selectedImages != null && !selectedImages.isEmpty()) {
-            if (mWord.hasSoundURL()) {
-                soundURL = mWord.getSoundURL();
-                mViewModel.saveSound(soundURL);
-            }
             String imagesString = mViewModel.savePictures(selectedImages);
-            newCard = new CardEntry(mWord.getName(), mWord.getTranslation(), imagesString, soundURL);
+            newCard.setImage(imagesString);
+        }
+        if (mWord.hasSoundURL()) {
+            String soundURL = mWord.getSoundURL();
+            mViewModel.saveSound(soundURL);
+            newCard.setPronunciation(soundURL);
         }
 
         mViewModel.insert(newCard);
@@ -147,6 +165,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 
         switch (itemId) {
             case R.id.actionRefresh: {
+                mAdapter.clear();
                 mViewModel.translateWord(this, mWord.getName());
                 break;
             }
@@ -156,6 +175,14 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 
     public void showTranslationErrorMessage() {
         translationTextView.setText(R.string.error_no_translation);
+    }
+
+    public void emptyFieldErrorMessage() {
+        translationTextView.setText(R.string.error_empty_field);
+    }
+
+    public void hideTranslationErrorMessage() {
+        translationTextView.setText("");
     }
 
     public void showImagesErrorMessage() {
@@ -200,18 +227,23 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
     }
 
     public void setWord(String name) {
-        wordTextView.setText(name);
+        mWordEditText.setText(name);
         mWord.setName(name);
     }
 
     public void setTranslation(String translation) {
         translationTextView.setText(translation);
         mWord.setTranslation(translation);
+        allowAddToDict();
     }
 
-    public void setImages(HashMap<String, Bitmap> images) {
+    public void setImages(ArrayList<Pair<String, Bitmap>> images) {
         mAdapter.setImages(images);
         allowAddToDict();
+    }
+
+    public void addImage(Pair<String, Bitmap> image) {
+        mAdapter.addImage(image);
     }
 
     public void setSound(String soundUrl) {
@@ -219,13 +251,17 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
             MediaPlayer mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setDataSource(soundUrl);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
+            mediaPlayer.setOnPreparedListener(mp -> {
+                showPronunciation();
+                mediaPlayer.start();
+            });
+            mediaPlayer.prepareAsync();
             mWord.setPronunciation(mediaPlayer, soundUrl);
         } catch (IOException e) {
             e.printStackTrace();
             mWord.setPronunciation(soundUrl);
         }
+
     }
 
     private HashSet<ImageViewBitmap> selectedImages = new HashSet<>();
@@ -239,6 +275,22 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
             selectedImages.remove(imgView);
             imgView.setBackgroundColor(getResources().getColor(android.R.color.white));
         }
+    }
+
+    private void closeKeyboard() {
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    private void showPronunciation() {
+        playSoundImageView.setVisibility(ImageButton.VISIBLE);
+    }
+
+    public void hidePronunciation() {
+        playSoundImageView.setVisibility(ImageButton.INVISIBLE);
     }
 
 

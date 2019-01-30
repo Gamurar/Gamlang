@@ -88,6 +88,9 @@ public class CardRepository {
             if (card.hasPictures()) {
                 new Tasks.deletePicturesAsyncTask().execute(card.getPictureFileNames());
             }
+            if (card.hasSound()) {
+                new Tasks.deleteSoundAsyncTask().execute(card.getSoundFileName());
+            }
         }
         new Tasks.databaseDeleteByIdAsyncTask(cardDao).execute(cardIds);
     }
@@ -121,8 +124,6 @@ public class CardRepository {
         new Tasks.translateQueryTask(fragment).execute(word);
         new Tasks.soundQueryAsyncTask(fragment).execute(word);
         new Tasks.imagesQueryTask(fragment).execute(word);
-        //test
-        new Tasks.savePronunciationAsyncTask().execute("https://api.lingvolive.com/sounds?uri=LingvoUniversal%20(En-Ru)%2Fapple.wav");
     }
 
     public String savePictures(HashSet<ImageViewBitmap> imageViews) {

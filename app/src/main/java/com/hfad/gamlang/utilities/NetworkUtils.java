@@ -122,6 +122,7 @@ public class NetworkUtils {
     private static String fetchGlosbeTranslationJSON(String word, Context context) throws IOException {
         String origLang = PreferencesUtils.getPreferedOriginLangCode(context);
         String destLang = PreferencesUtils.getPreferedDestLangCode(context);
+        word = word.toLowerCase();
         Uri builtUri = Uri.parse(GlOSBE_BASE_URL + GlOSBE_TRANSLATION_ACTION).buildUpon()
                 .appendQueryParameter(GLOSBE_PARAM_WORD, word)
                 .appendQueryParameter(GLOSBE_PARAM_ORIGIN_LANG, origLang)

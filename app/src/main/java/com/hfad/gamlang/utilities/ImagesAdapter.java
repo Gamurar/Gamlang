@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,15 +14,11 @@ import android.view.ViewGroup;
 import com.hfad.gamlang.R;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.ArrayList;
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
     private static final String TAG = "ImagesAdapter";
-    private Map<String, Bitmap> mImages;
-    private String[] mImgCodes;
-    private Iterator<Map.Entry<String, Bitmap>> mImagesIterator;
+    private ArrayList<Pair<String, Bitmap>> mImages;
     private ImageClickListener mImageClickListener;
 
     public interface ImageClickListener {
@@ -30,6 +27,7 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
 
     public ImagesAdapter(ImageClickListener imageClickListener) {
         mImageClickListener = imageClickListener;
+        mImages = new ArrayList<>();
     }
 
 
@@ -40,17 +38,15 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
         int layoutIdForListItem = R.layout.image_listitem;
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(layoutIdForListItem, viewGroup, false);
-        ImageViewHolder viewHolder = new ImageViewHolder(view);
 
-        return viewHolder;
+        return new ImageViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder imageViewHolder, int i) {
-        String imgCode = mImgCodes[i];
-        imageViewHolder.imgView.setImageBitmap(mImages.get(imgCode));
-        imageViewHolder.imgView.setCode(imgCode);
-
+        Pair<String, Bitmap> image = mImages.get(i);
+        imageViewHolder.imgView.setImageBitmap(image.second);
+        imageViewHolder.imgView.setCode(image.first);
     }
 
 
@@ -64,22 +60,19 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
         }
     }
 
-    public void setImages(HashMap<String, Bitmap> imgsURL) {
-        mImagesIterator = imgsURL.entrySet().iterator();
-        mImages = imgsURL;
-        mImgCodes = new String[mImages.size()];
-        for (int i = 0; i < mImages.size(); i++) {
-            mImgCodes[i] = mImagesIterator.next().getKey();
-        }
+    public void clear() {
+        mImages = new ArrayList<>();
         notifyDataSetChanged();
     }
 
-    public void setImage(String id, Bitmap image) {
-        if (mImages == null) {
-            mImages = new HashMap<>();
-        }
-        mImages.put(id, image);
+    public void setImages(ArrayList<Pair<String, Bitmap>> imgs) {
+        mImages = imgs;
         notifyDataSetChanged();
+    }
+
+    public void addImage(Pair<String, Bitmap> image) {
+        mImages.add(image);
+        notifyItemInserted(mImages.size()-1);
     }
 
     class ImageViewHolder extends RecyclerView.ViewHolder {

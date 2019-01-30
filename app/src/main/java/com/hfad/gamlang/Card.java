@@ -12,6 +12,7 @@ public class Card {
     private ArrayList<Bitmap> pictures;
     private String[] pictureFileNames;
     private MediaPlayer pronunciation;
+    private String soundFileName;
 
     public Card(String question, String answer) {
         this.question = question;
@@ -80,8 +81,9 @@ public class Card {
         return pronunciation;
     }
 
-    public void setPronunciation(MediaPlayer pronunciation) {
+    public void setPronunciation(MediaPlayer pronunciation, String fileName) {
         this.pronunciation = pronunciation;
+        this.soundFileName = fileName;
     }
 
     public void pronounce() {
@@ -92,5 +94,9 @@ public class Card {
 
     public boolean hasSound() {
         return pronunciation != null;
+    }
+
+    public String getSoundFileName() {
+        return this.soundFileName;
     }
 }

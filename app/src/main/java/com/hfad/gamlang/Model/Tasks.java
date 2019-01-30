@@ -7,11 +7,13 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
 import com.hfad.gamlang.AddWordsFragment;
 import com.hfad.gamlang.Card;
 import com.hfad.gamlang.Model.database.CardDao;
 import com.hfad.gamlang.Model.database.CardEntry;
+import com.hfad.gamlang.utilities.AppExecutors;
 import com.hfad.gamlang.utilities.NetworkUtils;
 import com.hfad.gamlang.utilities.PreferencesUtils;
 import com.hfad.gamlang.views.ImageViewBitmap;
@@ -28,19 +30,20 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.concurrent.Executor;
 
 public class Tasks {
 
     /**
-    * Fetch images from local storage and bind them with data from the local database
-    */
+     * Fetch images from local storage and bind them with data from the local database
+     */
     public static class createCardsAsyncTask extends AsyncTask<CardEntry, Void, ArrayList<Card>> {
 
         private static final String TAG = "createCardsAsyncTask";
 
         /**
          * @param cardEntries array of entries from the database
-         * @return            ArrayList of created cards
+         * @return ArrayList of created cards
          */
         @Override
         protected ArrayList<Card> doInBackground(CardEntry... cardEntries) {
@@ -82,7 +85,7 @@ public class Tasks {
                         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                         mediaPlayer.setDataSource(filePath);
                         mediaPlayer.prepare();
-                        card.setPronunciation(mediaPlayer);
+                        card.setPronunciation(mediaPlayer, filePath);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -113,6 +116,7 @@ public class Tasks {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            fragment.hideTranslationErrorMessage();
             fragment.onLoadTranslation();
         }
 
@@ -131,17 +135,17 @@ public class Tasks {
 
             String[] result = new String[2];
 
-            if (translation != null && !translation.isEmpty()) result[0] = translation;
-            if (wordContext != null && !wordContext.isEmpty()) result[1] = wordContext;
+            result[0] = translation;
+            result[1] = wordContext;
 
             return result;
         }
 
         @Override
         protected void onPostExecute(String[] result) {
-            fragment.onLoadTranslationFinished();
             String translation = result[0];
             String context = result[1];
+            fragment.onLoadTranslationFinished();
             if (translation != null && !translation.isEmpty()) {
                 fragment.setTranslation(translation);
             } else {
@@ -183,6 +187,8 @@ public class Tasks {
         protected void onPostExecute(String soundUrl) {
             if (soundUrl != null && !soundUrl.isEmpty()) {
                 addWordsFragment.setSound(soundUrl);
+            } else {
+                addWordsFragment.hidePronunciation();
             }
         }
     }
@@ -191,7 +197,7 @@ public class Tasks {
     /**
      * Fetch related to the word images from Google Images service by parsing the html page.
      */
-    public static class imagesQueryTask extends AsyncTask<String, HashMap<String, Bitmap>, HashMap<String, Bitmap>> {
+    public static class imagesQueryTask extends AsyncTask<String, Pair<String, Bitmap>, HashMap<String, Bitmap>> {
 
         private static final String TAG = "imagesQueryTask";
         private final AddWordsFragment addWordsFragment;
@@ -213,7 +219,7 @@ public class Tasks {
                 return null;
             } else {
                 HashMap<String, Bitmap> images = new LinkedHashMap<>();
-//            Executor mainThread = AppExecutors.getInstance().mainThread();
+                Executor mainThread = AppExecutors.getInstance().mainThread();
 
                 String siteDomain = PreferencesUtils.getSiteDomain(addWordsFragment.getContext());
                 ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word, siteDomain);
@@ -227,8 +233,9 @@ public class Tasks {
                                 String id = url.substring(url.lastIndexOf("tbn:") + 4);
 
                                 images.put(id, bitmap);
+                                Pair<String, Bitmap> image = new Pair<>(id, bitmap);
 
-                                //mainThread.execute(() -> onProgressUpdate(images));
+                                mainThread.execute(() -> onProgressUpdate(image));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -241,10 +248,15 @@ public class Tasks {
         }
 
         @Override
+        protected void onProgressUpdate(Pair<String, Bitmap>... images) {
+            addWordsFragment.addImage(images[0]);
+        }
+
+        @Override
         protected void onPostExecute(HashMap<String, Bitmap> images) {
             addWordsFragment.onLoadImagesFinished();
             if (images != null && !images.isEmpty()) {
-                addWordsFragment.setImages(images);
+                //addWordsFragment.setImages(images);
             } else {
                 addWordsFragment.showImagesErrorMessage();
             }
@@ -297,11 +309,14 @@ public class Tasks {
         }
     }
 
-    public static class savePronunciationAsyncTask extends AsyncTask<String, Void, Void> {
+    public static class savePronunciationAsyncTask extends AsyncTask<String, Void, String> {
         private static final String TAG = "savePronunciationAsyncT";
 
+        /**
+         * @return saved sound file name
+         */
         @Override
-        protected Void doInBackground(String... fileUrls) {
+        protected String doInBackground(String... fileUrls) {
             try {
                 String fileUrl = fileUrls[0];
                 String fileName = fileUrl.substring(NetworkUtils.ABBYYsoundBaseUrl.length());
@@ -325,11 +340,12 @@ public class Tasks {
                 out.flush();
                 out.close();
                 is.close();
+                return fileName;
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
             }
 
-            return null;
         }
     }
 
@@ -354,6 +370,28 @@ public class Tasks {
                             + " didn't delete!");
                 }
             }
+            return null;
+        }
+    }
+
+    public static class deleteSoundAsyncTask extends AsyncTask<String, Void, Void> {
+
+        private static final String TAG = "deleteSoundAsyncTask";
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            String filePath = strings[0];
+            File sound = new File(filePath);
+            if (sound.delete()) {
+                Log.d(TAG, "The sound "
+                        + sound.getAbsolutePath()
+                        + " deleted!");
+            } else {
+                Log.d(TAG, "The sound "
+                        + sound.getAbsolutePath()
+                        + " didn't delete!");
+            }
+
             return null;
         }
     }
@@ -401,8 +439,6 @@ public class Tasks {
             return null;
         }
     }
-
-
 
 
 }

@@ -1,71 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="#FFF">
-
-    <TextView
-        android:id="@+id/tv_word"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="40dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="way"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toTopOf="@+id/tv_translation"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_word"
-        tools:layout_editor_absoluteX="8dp" />
-
-    <TextView
-        android:id="@+id/tv_translation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="40dp"
-        android:layout_marginTop="40dp"
-        android:text="Translation"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_word" />
 
     <ImageButton
         android:id="@+id/play_new_word"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="#FFF"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_volume_up_24" />
+
+    <EditText
+        android:id="@+id/tv_word"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Enter a word"
+        android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@+id/play_new_word"
+        app:layout_constraintStart_toEndOf="@+id/play_new_word"
+        app:layout_constraintTop_toBottomOf="@+id/play_new_word" />
+
+    <Button
+        android:id="@+id/btn_translate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Translate"
         app:layout_constraintBottom_toTopOf="@+id/tv_word"
         app:layout_constraintStart_toEndOf="@+id/tv_word"
-        app:layout_constraintTop_toBottomOf="@+id/tv_word"
-        app:srcCompat="@drawable/ic_volume_up_24"
-        android:background="#FFF"
-        android:padding="10dp"/>
+        app:layout_constraintTop_toBottomOf="@+id/tv_word" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="104dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_translation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="@id/tv_word"
+        app:layout_constraintStart_toStartOf="@+id/tv_word"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        tools:text="Translation" />
 
     <!--TODO: add context in which the word uses -->
 
     <!--<TextView-->
-        <!--android:id="@+id/tv_word_context"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginStart="40dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:layout_marginEnd="40dp"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:text="Context context context context"-->
-        <!--app:layout_constraintBottom_toTopOf="@+id/rv_word_pictures"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toBottomOf="@+id/tv_translation" />-->
+    <!--android:id="@+id/tv_word_context"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginStart="40dp"-->
+    <!--android:layout_marginTop="8dp"-->
+    <!--android:layout_marginEnd="40dp"-->
+    <!--android:layout_marginBottom="8dp"-->
+    <!--android:text="Context context context context"-->
+    <!--app:layout_constraintBottom_toTopOf="@+id/rv_word_pictures"-->
+    <!--app:layout_constraintEnd_toEndOf="parent"-->
+    <!--app:layout_constraintStart_toStartOf="parent"-->
+    <!--app:layout_constraintTop_toBottomOf="@+id/tv_translation" />-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_word_pictures"
@@ -96,11 +106,12 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
         android:layout_marginTop="4dp"
         android:visibility="invisible"
-        app:layout_constraintStart_toStartOf="@+id/rv_word_pictures"
-        app:layout_constraintTop_toBottomOf="@+id/divider" />
+        app:layout_constraintBottom_toBottomOf="@+id/tv_translation"
+        app:layout_constraintEnd_toEndOf="@+id/tv_translation"
+        app:layout_constraintStart_toStartOf="@+id/tv_translation"
+        app:layout_constraintTop_toTopOf="@+id/tv_translation" />
 
     <ProgressBar
         android:id="@+id/pb_images_loading_indicator"
@@ -118,8 +129,8 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
         android:gravity="center"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/rv_word_pictures"
         app:layout_constraintEnd_toEndOf="@+id/rv_word_pictures"
         app:layout_constraintStart_toStartOf="@+id/rv_word_pictures"

@@ -86,7 +86,8 @@ public class MyDictionaryFragment extends Fragment
 
     @Override
     public void onFirstSelect(View view, Card card) {
-        view.setBackgroundResource(R.color.colorSelected);
+//        view.setBackgroundResource(R.color.colorAccentLight);
+        view.setBackgroundColor(R.attr.colorAccent);
         selectedCards = new HashSet<>();
         selectedCards.add(card);
         setHasOptionsMenu(true);
@@ -98,7 +99,8 @@ public class MyDictionaryFragment extends Fragment
         if (selectedCards.contains(card)) {
             return onUnselect(view, card);
         } else {
-            view.setBackgroundResource(R.color.colorSelected);
+            //view.setBackgroundResource(R.color.colorAccentLight);
+            view.setBackgroundColor(R.attr.colorAccent);
             selectedCards.add(card);
             return true;
         }
