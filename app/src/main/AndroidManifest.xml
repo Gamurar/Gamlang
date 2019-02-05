@@ -11,7 +11,7 @@
         android:label="Learn"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.hfad.gamlang.MainActivity"
+        <activity android:name="com.hfad.gamlang.View.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>

@@ -1,4 +1,4 @@
-package com.hfad.gamlang;
+package com.hfad.gamlang.View;
 
 /*
  * Copyright (C) 2016 The Android Open Source Project
@@ -20,6 +20,8 @@ package com.hfad.gamlang;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
+
+import com.hfad.gamlang.R;
 
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.EditTextPreference;

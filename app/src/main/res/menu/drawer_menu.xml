@@ -10,6 +10,8 @@
             android:title="My dictionary" />
         <item android:id="@+id/nav_add_words"
             android:title="Add words" />
+        <item android:id="@+id/nav_video"
+            android:title="Watch video" />
         <item android:id="@+id/nav_settings"
             android:title="Settings" />
     </group>

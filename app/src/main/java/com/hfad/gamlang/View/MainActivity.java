@@ -1,7 +1,6 @@
-package com.hfad.gamlang;
+package com.hfad.gamlang.View;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -10,9 +9,7 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.android.material.navigation.NavigationView;
-import com.hfad.gamlang.utilities.NetworkUtils;
-
-import java.io.IOException;
+import com.hfad.gamlang.R;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -107,6 +104,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_add_words: {
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new AddWordsFragment()).commit();
+                break;
+            }
+            case R.id.nav_video: {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new VideoFragment()).commit();
                 break;
             }
             case R.id.nav_settings: {

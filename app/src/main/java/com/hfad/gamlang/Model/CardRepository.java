@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Environment;
 
-import com.hfad.gamlang.AddWordsFragment;
+import com.hfad.gamlang.View.AddWordsFragment;
 import com.hfad.gamlang.Card;
 import com.hfad.gamlang.Model.database.AppDatabase;
 import com.hfad.gamlang.Model.database.CardDao;

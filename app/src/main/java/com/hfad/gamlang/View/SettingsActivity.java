@@ -1,7 +1,9 @@
-package com.hfad.gamlang;
+package com.hfad.gamlang.View;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+
+import com.hfad.gamlang.R;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;

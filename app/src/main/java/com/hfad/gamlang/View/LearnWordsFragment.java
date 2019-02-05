@@ -1,4 +1,4 @@
-package com.hfad.gamlang;
+package com.hfad.gamlang.View;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toolbar;
 
+import com.hfad.gamlang.Card;
+import com.hfad.gamlang.R;
 import com.hfad.gamlang.ViewModel.CardViewModel;
 import com.hfad.gamlang.utilities.CardsAdapter;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;

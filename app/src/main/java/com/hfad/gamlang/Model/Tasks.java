@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
-import com.hfad.gamlang.AddWordsFragment;
+import com.hfad.gamlang.View.AddWordsFragment;
 import com.hfad.gamlang.Card;
 import com.hfad.gamlang.Model.database.CardDao;
 import com.hfad.gamlang.Model.database.CardEntry;

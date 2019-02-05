@@ -2,13 +2,12 @@ package com.hfad.gamlang.ViewModel;
 
 import android.app.Application;
 
-import com.hfad.gamlang.AddWordsFragment;
+import com.hfad.gamlang.View.AddWordsFragment;
 import com.hfad.gamlang.Card;
 import com.hfad.gamlang.Model.CardRepository;
 import com.hfad.gamlang.Model.database.CardEntry;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 

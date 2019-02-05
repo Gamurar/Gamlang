@@ -1,4 +1,4 @@
-package com.hfad.gamlang;
+package com.hfad.gamlang.View;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +25,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hfad.gamlang.Model.database.CardEntry;
+import com.hfad.gamlang.R;
 import com.hfad.gamlang.ViewModel.CardViewModel;
+import com.hfad.gamlang.Word;
 import com.hfad.gamlang.utilities.ImagesAdapter;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
