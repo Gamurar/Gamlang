@@ -12,7 +12,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        tools:text="Translation"/>
+        tools:text="Translation"
+        android:layout_gravity="center"/>
 
     <Button
         android:id="@+id/btn_popup_addToDict"
@@ -20,6 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:text="@string/add_to_dict"/>
+        android:text="Add"
+        android:layout_gravity="center"/>
 
 </LinearLayout>
