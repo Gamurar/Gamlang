@@ -132,7 +132,6 @@ public class VideoFragment extends Fragment {
         public void onCues(List<Cue> cues) {
             if (cues != null && !cues.isEmpty()) {
                 String cue = cues.get(0).text.toString();
-                Log.d(TAG, "onCues: " + cue);
                 mSubtitles.setText(cue);
             }
         }

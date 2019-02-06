@@ -7,4 +7,7 @@
     <color name="colorAccentDark">#bb4d00</color>
     <color name="colorAccentLight">#ffad42</color>
     <color name="colorSelected">#EDEDD5</color>
+
+    <color name="gold">#FFD700</color>
+    <color name="pink">#FFC0CB</color>
 </resources>

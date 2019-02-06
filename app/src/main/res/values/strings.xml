@@ -35,6 +35,6 @@
                         <!--URLs-->
     <string name="media_url_video">http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4</string>
     <string name="media_url_sub">https://dl.dropboxusercontent.com/s/3axkrfxznzhqns1/MrRobotS01E01EN.srt</string>
-    <string name="video_url_mr_robot">https://www4.mp4upload.com:282/d/rcxtt2lbz3b4quuo2gurgj2lk65ntt4smlcj4qpdlzs554ptmfe3pkb3/video.mp4</string>
+    <string name="video_url_mr_robot">https://www4.mp4upload.com:282/d/rcxztpanz2tc2vuo2gurgj2lk5yt3gent2ixgbexlbqua3x6on24653a/video.mp4</string>
     
 </resources>

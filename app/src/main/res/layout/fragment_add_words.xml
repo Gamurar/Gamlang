@@ -28,6 +28,18 @@
         app:layout_constraintStart_toEndOf="@+id/play_new_word"
         app:layout_constraintTop_toBottomOf="@+id/play_new_word" />
 
+    <com.hfad.gamlang.views.ClickableWords
+        android:id="@+id/cw_sentence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/play_new_word"
+        app:layout_constraintStart_toEndOf="@+id/play_new_word"
+        app:layout_constraintTop_toBottomOf="@+id/play_new_word"
+        android:textSize="18sp"
+        android:background="@android:color/transparent" />
+
     <Button
         android:id="@+id/btn_translate"
         android:layout_width="wrap_content"

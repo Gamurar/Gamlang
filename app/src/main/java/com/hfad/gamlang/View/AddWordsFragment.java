@@ -29,6 +29,8 @@ import com.hfad.gamlang.R;
 import com.hfad.gamlang.ViewModel.CardViewModel;
 import com.hfad.gamlang.Word;
 import com.hfad.gamlang.utilities.ImagesAdapter;
+import com.hfad.gamlang.utilities.WordClick;
+import com.hfad.gamlang.views.ClickableWords;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
 import java.io.IOException;
@@ -48,13 +50,14 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 
     private EditText mWordEditText;
     private TextView translationTextView;
+    private ClickableWords mClickableSentence;
     private TextView imagesErrorMessage;
     private ImageView playSoundImageView;
     private TextView mWordContext;
     private RecyclerView wordPictureRecyclerView;
     private ProgressBar loadingIndicator;
     private ProgressBar imagesLoadingIndicator;
-    private Button translateBtn;
+    private Button mTranslateBtn;
     private Button addToDictBtn;
     private Word mWord = new Word("");
 
@@ -81,8 +84,9 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         //setHasOptionsMenu(true);
         mWordEditText = view.findViewById(R.id.tv_word);
         mWordEditText.setText(mWord.getName());
-        translateBtn = view.findViewById(R.id.btn_translate);
+        mTranslateBtn = view.findViewById(R.id.btn_translate);
         translationTextView = view.findViewById(R.id.tv_translation);
+        mClickableSentence = view.findViewById(R.id.cw_sentence);
         //mWordContext = view.findViewById(R.id.tv_word_context);
         loadingIndicator = view.findViewById(R.id.pb_loading_indicator);
         imagesLoadingIndicator = view.findViewById(R.id.pb_images_loading_indicator);
@@ -92,14 +96,12 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         imagesErrorMessage = view.findViewById(R.id.tv_images_error_msg);
 
         playSoundImageView.setOnClickListener(soundBtn -> mWord.pronounce());
-        translateBtn.setOnClickListener(btn -> {
+        mTranslateBtn.setOnClickListener(btn -> {
             String word = mWordEditText.getText().toString();
             if (!TextUtils.isEmpty(word)) {
                 closeKeyboard();
                 mWord.setName(word);
-                mAdapter.clear();
-                mViewModel.translateWord(this, mWord.getName());
-                hidePronunciation();
+                translate();
             } else {
                 emptyFieldErrorMessage();
             }
@@ -113,26 +115,26 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
         wordPictureRecyclerView.setAdapter(mAdapter);
     }
 
+    private void translate() {
+        mAdapter.clear();
+        hidePronunciation();
+        mViewModel.translateWord(this, mWord.getName());
+    }
+
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
-//        mViewModel.getQueriedWord().observe(this, new Observer<Word>() {
-//            @Override
-//            public void onChanged(Word word) {
-//                mWord = word;
-//                mWordEditText.setText(mWord.getName());
-//                if (mWord.isTranslated()) {
-//                    translationTextView.setText(mWord.getTranslation());
-//                }
-//            }
-//        });
     }
 
     private void setWordFromContext() {
         if (getArguments() != null) {
             CharSequence text = getArguments().getCharSequence(Intent.EXTRA_PROCESS_TEXT);
             if (text != null && !TextUtils.isEmpty(text)) {
-                setWord(text.toString());
-                mViewModel.translateWord(this, mWord.getName());
+                if (text.toString().contains(" ")) {
+                    showClickableSentence(text.toString());
+                } else {
+                    setWord(text.toString());
+                    mViewModel.translateWord(this, mWord.getName());
+                }
             }
         }
     }
@@ -293,6 +295,19 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 
     public void hidePronunciation() {
         playSoundImageView.setVisibility(ImageButton.INVISIBLE);
+    }
+
+    private void showClickableSentence(String sentence) {
+        mWordEditText.setVisibility(View.INVISIBLE);
+        mTranslateBtn.setVisibility(View.INVISIBLE);
+        mClickableSentence.setText(sentence, new WordClick() {
+            @Override
+            public void onClick(String word) {
+                mWord.setName(word);
+                translate();
+            }
+        });
+        mClickableSentence.setVisibility(View.VISIBLE);
     }
 
 
