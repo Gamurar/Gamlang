@@ -6,6 +6,7 @@ import com.hfad.gamlang.View.AddWordsFragment;
 import com.hfad.gamlang.Card;
 import com.hfad.gamlang.Model.CardRepository;
 import com.hfad.gamlang.Model.database.CardEntry;
+import com.hfad.gamlang.utilities.WordTranslation;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
 import java.util.HashSet;
@@ -53,6 +54,10 @@ public class CardViewModel extends AndroidViewModel {
 
     public void translateWord(AddWordsFragment fragment, String word) {
         repository.translateWord(fragment, word);
+    }
+
+    public void translateWordOnly(WordTranslation fragment, String word) {
+        repository.translateWordOnly(fragment, word);
     }
 
     public String savePictures(HashSet<ImageViewBitmap> imageViews) {

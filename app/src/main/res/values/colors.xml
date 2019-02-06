@@ -10,4 +10,5 @@
 
     <color name="gold">#FFD700</color>
     <color name="pink">#FFC0CB</color>
+    <color name="white">#FFF</color>
 </resources>

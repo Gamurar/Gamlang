@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Translate"
+        android:text="@string/translate"
         app:layout_constraintBottom_toTopOf="@+id/tv_word"
         app:layout_constraintStart_toEndOf="@+id/tv_word"
         app:layout_constraintTop_toBottomOf="@+id/tv_word" />
@@ -108,7 +108,7 @@
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:layout_marginBottom="36dp"
-        android:text="Add to dictionary"
+        android:text="@string/add_to_dict"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />

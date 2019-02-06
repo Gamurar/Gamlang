@@ -31,7 +31,8 @@
         android:textColor="@android:color/white"
         android:textAlignment="center"
         android:padding="10dp"
-        android:textSize="18sp"/>
+        android:textSize="18sp"
+        android:descendantFocusability="blocksDescendants"/>
 
     <LinearLayout
         android:layout_width="match_parent"

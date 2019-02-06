@@ -16,6 +16,7 @@ import com.hfad.gamlang.Model.database.CardEntry;
 import com.hfad.gamlang.utilities.AppExecutors;
 import com.hfad.gamlang.utilities.NetworkUtils;
 import com.hfad.gamlang.utilities.PreferencesUtils;
+import com.hfad.gamlang.utilities.WordTranslation;
 import com.hfad.gamlang.views.ImageViewBitmap;
 import com.squareup.picasso.Picasso;
 
@@ -106,23 +107,23 @@ public class Tasks {
 
         private static final String TAG = "TranslateQueryTask";
 
-        private AddWordsFragment fragment;
+        private WordTranslation fragment;
+        private Context mContext;
 
-        public translateQueryTask(AddWordsFragment addWordsFragment) {
+        public translateQueryTask(WordTranslation addWordsFragment, Context context) {
             fragment = addWordsFragment;
-
+            mContext = context;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            fragment.hideTranslationErrorMessage();
             fragment.onLoadTranslation();
         }
 
         @Override
         protected String[] doInBackground(String... words) {
-            Context context = fragment.getContext();
+            Context context = mContext;
             String word = words[0];
 
             String translation = NetworkUtils.translateByGlosbe(
@@ -150,7 +151,6 @@ public class Tasks {
                 fragment.setTranslation(translation);
             } else {
                 fragment.showTranslationErrorMessage();
-                fragment.forbidAddToDict();
             }
         }
     }

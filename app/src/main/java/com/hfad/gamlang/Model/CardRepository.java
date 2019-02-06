@@ -9,6 +9,7 @@ import com.hfad.gamlang.Card;
 import com.hfad.gamlang.Model.database.AppDatabase;
 import com.hfad.gamlang.Model.database.CardDao;
 import com.hfad.gamlang.Model.database.CardEntry;
+import com.hfad.gamlang.utilities.WordTranslation;
 import com.hfad.gamlang.views.ImageViewBitmap;
 
 import java.io.File;
@@ -121,9 +122,13 @@ public class CardRepository {
     }
 
     public void translateWord(AddWordsFragment fragment, String word) {
-        new Tasks.translateQueryTask(fragment).execute(word);
+        new Tasks.translateQueryTask(fragment, mContext).execute(word);
         new Tasks.soundQueryAsyncTask(fragment).execute(word);
         new Tasks.imagesQueryTask(fragment).execute(word);
+    }
+
+    public void translateWordOnly(WordTranslation fragment, String word) {
+        new Tasks.translateQueryTask(fragment, mContext).execute(word);
     }
 
     public String savePictures(HashSet<ImageViewBitmap> imageViews) {

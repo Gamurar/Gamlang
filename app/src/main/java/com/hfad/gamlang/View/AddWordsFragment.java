@@ -30,8 +30,12 @@ import com.hfad.gamlang.ViewModel.CardViewModel;
 import com.hfad.gamlang.Word;
 import com.hfad.gamlang.utilities.ImagesAdapter;
 import com.hfad.gamlang.utilities.WordClick;
+import com.hfad.gamlang.utilities.WordTranslation;
 import com.hfad.gamlang.views.ClickableWords;
 import com.hfad.gamlang.views.ImageViewBitmap;
+import com.zyyoona7.popup.EasyPopup;
+import com.zyyoona7.popup.XGravity;
+import com.zyyoona7.popup.YGravity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +48,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageClickListener {
+public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageClickListener, WordTranslation {
 
     private static final String TAG = "AddWordsFragment";
 
@@ -62,6 +66,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
     private Word mWord = new Word("");
 
     private ImagesAdapter mAdapter;
+    private EasyPopup mCirclePop;
 
     private static boolean canAddToDict = true;
     private CardViewModel mViewModel;
@@ -113,6 +118,9 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
                 new GridLayoutManager(getContext(), 3)
         );
         wordPictureRecyclerView.setAdapter(mAdapter);
+
+
+
     }
 
     private void translate() {
@@ -179,6 +187,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
 
     public void showTranslationErrorMessage() {
         translationTextView.setText(R.string.error_no_translation);
+        forbidAddToDict();
     }
 
     public void emptyFieldErrorMessage() {
@@ -214,6 +223,7 @@ public class AddWordsFragment extends Fragment implements ImagesAdapter.ImageCli
     }
 
     public void onLoadTranslation() {
+        hideTranslationErrorMessage();
         loadingIndicator.setVisibility(View.VISIBLE);
     }
 
