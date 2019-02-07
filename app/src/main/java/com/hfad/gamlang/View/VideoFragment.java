@@ -3,6 +3,7 @@ package com.hfad.gamlang.View;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -58,6 +59,7 @@ public class VideoFragment extends Fragment implements WordTranslation {
     private String mTranslation;
     private VideoFragment mThisFragment;
     private int mX, mY;
+    private int deviceWidth;
 
     @Nullable
     @Override
@@ -77,6 +79,7 @@ public class VideoFragment extends Fragment implements WordTranslation {
         mCirclePop = EasyPopup.create()
                 .setContentView(getContext(), R.layout.popup_menu)
 //                .setAnimationStyle(R.style.RightPopAnim)
+                .setOutsideTouchable(true)
                 .setFocusAndOutsideEnable(true)
                 .apply();
         mTranslateionTV = mCirclePop.findViewById(R.id.tv_popup_translation);
@@ -95,9 +98,13 @@ public class VideoFragment extends Fragment implements WordTranslation {
         mSubtitles.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if (mCirclePop.isShowing()) mCirclePop.dismiss();
                 if (event.getAction() == MotionEvent.ACTION_DOWN){
-                    mX = ((int)event.getX()) + 185;
-                    mY = ((int)event.getY()) - 5;
+                    deviceWidth = mSubtitles.getWidth();
+                    mX = (int) ((event.getX()) + (deviceWidth / 4));
+                    if (mX > deviceWidth) mX = deviceWidth;
+                    mY = (int) ((event.getY()) - (deviceWidth / 100));
+                    Log.d(TAG, "onTouch: X: " + mX + ", Y: " + mY);
                 }
                 mSubtitles.onTouchEvent(event);
                 mSubtitles.performClick();
@@ -183,11 +190,7 @@ public class VideoFragment extends Fragment implements WordTranslation {
     @Override
     public void setTranslation(String translation) {
         mTranslateionTV.setText(translation);
-        mCirclePop.showAtAnchorView(
-                mSubtitles,
-                YGravity.ABOVE, XGravity.LEFT,
-                mX, mY);
-        Log.d(TAG, "Coordinates: X - " + mX + ", Y - " + mY);
+        mCirclePop.showAtAnchorView(mSubtitles, YGravity.ABOVE, XGravity.LEFT, mX, mY);
     }
 
     @Override
