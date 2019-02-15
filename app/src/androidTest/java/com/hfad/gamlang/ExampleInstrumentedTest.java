@@ -1,4 +1,4 @@
-package com.hfad.gamlang;
+package com.gamurar.gamlang;
 
 import android.content.Context;
 import androidx.test.InstrumentationRegistry;

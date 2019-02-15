@@ -1,28 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hfad.gamlang">
+    package="com.gamurar.gamlang">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:windowSoftInputMode="adjustPan"
         android:allowBackup="true"
         android:icon="@drawable/ic_brain"
-        android:label="Learn"
+        android:label="Gamlang"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name="com.hfad.gamlang.View.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan">
-            <intent-filter>
-                <action android:name="android.intent.action.PROCESS_TEXT" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
+        android:theme="@style/AppTheme.NoActionBar"
+        android:fitsSystemWindows="true">
+        <activity
+            android:name=".View.MainActivity"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+        </activity>
+        <activity
+            android:name=".View.DrawerActivity">
+        </activity>
+        <activity
+            android:name=".View.AddWordsActivity"
+            android:parentActivityName="View.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="View.MainActivity" />
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".View.LearnWordsActivity"
+            android:parentActivityName="View.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="View.MainActivity" />
+        </activity>
+        <activity
+            android:name=".View.MyDictionaryActivity"
+            android:parentActivityName="View.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="View.MainActivity" />
+        </activity>
+        <activity
+            android:name=".View.VideoActivity"
+            android:parentActivityName="View.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="View.MainActivity" />
         </activity>
     </application>
 

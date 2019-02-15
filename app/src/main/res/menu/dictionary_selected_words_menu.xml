@@ -5,5 +5,6 @@
         android:title="@string/action_delete"
         app:showAsAction="ifRoom"
         android:orderInCategory="1"
-        android:icon="@drawable/ic_delete_white" />
+        android:icon="@drawable/ic_delete_white"
+        android:visible="false"/>
 </menu>

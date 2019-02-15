@@ -23,7 +23,7 @@
     android:orientation="vertical"
     tools:targetApi="28">
 
-    <com.hfad.gamlang.views.ClickableWords
+    <com.gamurar.gamlang.views.ClickableWords
         android:id="@+id/tv_subtitles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

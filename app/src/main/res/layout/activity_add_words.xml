@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?><!--<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"--><!--xmlns:app="http://schemas.android.com/apk/res-auto"--><!--xmlns:tools="http://schemas.android.com/tools"--><!--android:id="@+id/ScrollViewID"--><!--android:layout_width="fill_parent"--><!--android:layout_height="match_parent">-->
+
+<!--<androidx.constraintlayout.widget.ConstraintLayout--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent"--><!--android:background="#FFF">-->
+
+<!--<ImageButton--><!--android:id="@+id/play_new_word"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:background="#FFF"--><!--android:padding="10dp"--><!--android:visibility="invisible"--><!--app:layout_constraintBottom_toBottomOf="@+id/divider"--><!--app:layout_constraintStart_toStartOf="parent"--><!--app:layout_constraintTop_toBottomOf="@layout/toolbar"--><!--app:srcCompat="@drawable/ic_volume_up_24" />-->
+
+<!--&lt;!&ndash;<EditText&ndash;&gt;--><!--&lt;!&ndash;android:id="@+id/tv_word"&ndash;&gt;--><!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;--><!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;--><!--&lt;!&ndash;android:layout_marginStart="8dp"&ndash;&gt;--><!--&lt;!&ndash;android:hint="Enter a word"&ndash;&gt;--><!--&lt;!&ndash;android:inputType="text"&ndash;&gt;--><!--&lt;!&ndash;app:layout_constraintBottom_toTopOf="@+id/divider"&ndash;&gt;--><!--&lt;!&ndash;app:layout_constraintStart_toStartOf="@+id/play_new_word" />&ndash;&gt;-->
+
+<!--<com.gamurar.gamlang.views.ClickableWords--><!--android:id="@+id/cw_sentence"--><!--android:layout_width="0dp"--><!--android:layout_height="wrap_content"--><!--android:layout_marginStart="8dp"--><!--android:layout_marginEnd="8dp"--><!--android:layout_marginBottom="8dp"--><!--android:background="@android:color/transparent"--><!--android:textSize="18sp"--><!--app:layout_constraintBottom_toTopOf="@+id/guideline"--><!--app:layout_constraintEnd_toEndOf="parent"--><!--app:layout_constraintStart_toEndOf="@+id/play_new_word"--><!--tools:text="Word"/>-->
+
+<!--&lt;!&ndash;<Button&ndash;&gt;--><!--&lt;!&ndash;android:id="@+id/btn_translate"&ndash;&gt;--><!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;--><!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;--><!--&lt;!&ndash;android:layout_marginStart="8dp"&ndash;&gt;--><!--&lt;!&ndash;android:layout_marginTop="8dp"&ndash;&gt;--><!--&lt;!&ndash;android:text="@string/translate"&ndash;&gt;--><!--&lt;!&ndash;app:layout_constraintBottom_toTopOf="@+id/tv_word"&ndash;&gt;--><!--&lt;!&ndash;app:layout_constraintStart_toEndOf="@+id/tv_word"&ndash;&gt;--><!--&lt;!&ndash;app:layout_constraintTop_toBottomOf="@+id/tv_word" />&ndash;&gt;-->
+
+<!--<View--><!--android:id="@+id/divider"--><!--android:layout_width="match_parent"--><!--android:layout_height="1dp"--><!--android:background="?android:attr/listDivider"--><!--app:layout_constraintBottom_toTopOf="@+id/guideline"--><!--app:layout_constraintHorizontal_bias="1.0"--><!--app:layout_constraintLeft_toLeftOf="parent"--><!--app:layout_constraintRight_toRightOf="parent"--><!--app:layout_constraintTop_toTopOf="@+id/guideline" />-->
+
+<!--<TextView--><!--android:id="@+id/tv_translation"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_marginTop="16dp"--><!--app:layout_constraintStart_toStartOf="@+id/cw_sentence"--><!--app:layout_constraintTop_toBottomOf="@id/divider"--><!--tools:text="Translation" />-->
+
+
+<!--<TextView--><!--android:id="@+id/tv_context"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_marginTop="8dp"--><!--android:layout_marginEnd="8dp"--><!--android:layout_marginBottom="8dp"--><!--app:layout_constraintBottom_toTopOf="@+id/rv_word_pictures"--><!--app:layout_constraintEnd_toEndOf="parent"--><!--app:layout_constraintHorizontal_bias="0.0"--><!--app:layout_constraintStart_toStartOf="@+id/tv_translation"--><!--app:layout_constraintTop_toBottomOf="@+id/tv_translation" />-->
+
+<!--<androidx.recyclerview.widget.RecyclerView--><!--android:id="@+id/rv_word_pictures"--><!--android:layout_width="match_parent"--><!--android:layout_height="320dp"--><!--android:layout_marginTop="8dp"--><!--android:layout_marginBottom="8dp"--><!--android:paddingLeft="4dp"--><!--app:layout_constraintBottom_toBottomOf="parent"--><!--app:layout_constraintEnd_toEndOf="parent"--><!--app:layout_constraintStart_toStartOf="parent"--><!--app:layout_constraintTop_toBottomOf="@+id/tv_translation">-->
+
+<!--</androidx.recyclerview.widget.RecyclerView>-->
+
+<!--<Button--><!--android:id="@+id/btn_add_to_dict"--><!--android:layout_width="wrap_content"--><!--android:layout_height="48dp"--><!--android:layout_marginTop="16dp"--><!--android:layout_marginBottom="16dp"--><!--android:text="@string/add_to_dict"--><!--app:layout_constraintBottom_toBottomOf="parent"--><!--app:layout_constraintLeft_toLeftOf="parent"--><!--app:layout_constraintRight_toRightOf="parent"--><!--app:layout_constraintTop_toBottomOf="@+id/rv_word_pictures" />-->
+
+<!--<ProgressBar--><!--android:id="@+id/pb_loading_indicator"--><!--style="?android:attr/progressBarStyle"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_marginTop="4dp"--><!--android:visibility="invisible"--><!--app:layout_constraintBottom_toBottomOf="@+id/tv_translation"--><!--app:layout_constraintEnd_toEndOf="@+id/tv_translation"--><!--app:layout_constraintStart_toStartOf="@+id/tv_translation"--><!--app:layout_constraintTop_toTopOf="@+id/tv_translation" />-->
+
+<!--<ProgressBar--><!--android:id="@+id/pb_images_loading_indicator"--><!--style="?android:attr/progressBarStyle"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:visibility="invisible"--><!--app:layout_constraintBottom_toBottomOf="@+id/rv_word_pictures"--><!--app:layout_constraintEnd_toEndOf="@+id/rv_word_pictures"--><!--app:layout_constraintStart_toStartOf="@+id/rv_word_pictures"--><!--app:layout_constraintTop_toTopOf="@+id/rv_word_pictures" />-->
+
+<!--<TextView--><!--android:id="@+id/tv_images_error_msg"--><!--style="?android:attr/progressBarStyle"--><!--android:layout_width="match_parent"--><!--android:layout_height="wrap_content"--><!--android:gravity="center"--><!--android:visibility="invisible"--><!--app:layout_constraintBottom_toBottomOf="@+id/rv_word_pictures"--><!--app:layout_constraintEnd_toEndOf="@+id/rv_word_pictures"--><!--app:layout_constraintStart_toStartOf="@+id/rv_word_pictures"--><!--app:layout_constraintTop_toTopOf="@+id/rv_word_pictures" />-->
+
+<!--<androidx.constraintlayout.widget.Guideline--><!--android:id="@+id/guideline"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:orientation="horizontal"--><!--app:layout_constraintBottom_toBottomOf="parent"--><!--app:layout_constraintGuide_begin="108dp"--><!--app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--<FrameLayout--><!--android:id="@+id/toolbar_container"--><!--android:layout_width="match_parent"--><!--android:layout_height="wrap_content"--><!--app:layout_constraintEnd_toEndOf="parent"--><!--app:layout_constraintStart_toStartOf="parent"--><!--app:layout_constraintTop_toTopOf="parent">-->
+
+<!--<include--><!--android:id="@+id/toolbar"--><!--layout="@layout/toolbar" />-->
+
+<!--<com.miguelcatalan.materialsearchview.MaterialSearchView--><!--android:id="@+id/search_view"--><!--android:layout_width="match_parent"--><!--android:layout_height="wrap_content" />--><!--</FrameLayout>-->
+
+
+<!--</androidx.constraintlayout.widget.ConstraintLayout>--><!--</ScrollView>-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!--<include-->
+        <!--android:id="@+id/toolbar"-->
+        <!--layout="@layout/toolbar" />-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/explore"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:layout_margin="20dp"
+            android:textColor="@android:color/black"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:id="@+id/btn_close_explore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            app:srcCompat="@drawable/ic_close_black_24dp"
+            android:background="@android:color/transparent"
+            android:padding="20dp"
+            android:gravity="end"
+            android:onClick="closeExplore"/>
+
+    </LinearLayout>
+
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/lang_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabMode="fixed"
+        app:tabGravity="fill" />
+
+
+    <androidx.viewpager.widget.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+    </androidx.viewpager.widget.ViewPager>
+
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </FrameLayout>
+</LinearLayout>

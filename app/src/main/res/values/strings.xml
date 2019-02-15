@@ -1,11 +1,26 @@
 <resources>
     <string name="app_name">Gamlang</string>
-    
+
+    <!--Main menu-->
+    <string name="learn">Learn</string>
+    <string name="dictionary">Dictionary</string>
+    <string name="watch_video">Watch</string>
+    <string name="add_words">Add words</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="add_to_dict">Add to dictionary</string>
     <string name="translate">Translate</string>
+
+    <string name="context_pattern">- %1$s \n\n- %2$s</string>
+
+    <!--Explore fragment-->
+    <string name="explore">Explore</string>
+    <string name="suggestions">Suggestions for you</string>
+    <string name="search_new_words_label">Find new words to learn</string>
+    <string name="search_word_hint_en">Search for a word in English</string>
+    <string name="search_word_hint_ru">Search for a word in Russian</string>
 
     <!--Error messages-->
     <string name="error_empty_field">Nothing to translate… :\'(</string>
@@ -16,10 +31,10 @@
     <!--Actions-->
     <string name="action_refresh">Refresh</string>
     <string name="action_delete">Delete</string>
-    
-    
-                    <!--Preferences-->
-    
+
+
+    <!--Preferences-->
+
     <!--Languages-->
     <string name="pref_lang_eng_label">English</string>
     <string name="pref_lang_ro_label">Romanian</string>
@@ -35,9 +50,10 @@
     <string name="pref_to_lang_label">Translate to language</string>
     <string name="pref_to_lang_key" translatable="false">translate_to_lang</string>
 
-                        <!--URLs-->
+    <!--URLs-->
     <string name="media_url_video">http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4</string>
     <string name="media_url_sub">https://dl.dropboxusercontent.com/s/3axkrfxznzhqns1/MrRobotS01E01EN.srt</string>
     <string name="video_url_mr_robot">https://www4.mp4upload.com:282/d/rcxtt2lbz2tc2vuo2gurgj2lk6xhj6unkll6pfxwdzwzlsftqal2vona/video.mp4</string>
-    
+    <string name="title_activity_main">MainActivity</string>
+
 </resources>

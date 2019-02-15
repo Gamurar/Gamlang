@@ -1,4 +1,4 @@
-package com.hfad.gamlang;
+package com.gamurar.gamlang;
 
 import org.junit.Test;
 
