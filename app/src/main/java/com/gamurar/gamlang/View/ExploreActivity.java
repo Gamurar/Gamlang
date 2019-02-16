@@ -32,6 +32,7 @@ import com.gamurar.gamlang.ViewModel.ExploreViewModel;
 import com.gamurar.gamlang.ViewModel.ExploreViewModelFactory;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesAdapter;
+import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.SuggestionAdapter;
 import com.gamurar.gamlang.utilities.WordClick;
 import com.gamurar.gamlang.utilities.WordContext;
@@ -61,7 +62,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.ImageClickListener, WordTranslation, WordContext {
+public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.ImageClickListener, WordTranslation, WordContext, ImagesLoadable {
 
     private static final String TAG = "ExploreActivity";
     private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
@@ -307,7 +308,7 @@ public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.
         loadingIndicator.setVisibility(View.INVISIBLE);
     }
 
-    public void onLoadImages() {
+    public void onLoadImagesStart() {
         imagesErrorMessage.setVisibility(TextView.INVISIBLE);
         imagesLoadingIndicator.setVisibility(View.VISIBLE);
     }

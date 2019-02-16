@@ -1,19 +1,14 @@
 package com.gamurar.gamlang.utilities;
 
-import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
-import android.util.Pair;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.Word;
 
@@ -35,8 +30,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * These utilities will be used to communicate with the network.
@@ -77,9 +70,10 @@ public class NetworkUtils {
     static int imagesPerPage = 15;
 
     //Glosbe.com translation API
+    private static final String GLOSBE_BASE_URL = "https://glosbe.com";
     private static final String GlOSBE_TRANSLATION_ACTION = "/translate";
     private static final String GLOSBE_CONTEXT_ACTION = "/tm";
-    private static final String GlOSBE_BASE_URL = "https://glosbe.com/gapi";
+    private static final String GlOSBE_BASE_URL_API = "https://glosbe.com/gapi";
     private static final String GLOSBE_PARAM_WORD = "phrase";
     private static final String GLOSBE_PARAM_ORIGIN_LANG = "from";
     private static final String GLOSBE_PARAM_TRANSLATION_LANG = "dest";
@@ -148,7 +142,7 @@ public class NetworkUtils {
 //        String fromLang = PreferencesUtils.getPrefFromLangCode(context);
 //        String toLang = PreferencesUtils.getPrefToLangCode(context);
         word = word.toLowerCase();
-        Uri builtUri = Uri.parse(GlOSBE_BASE_URL + action).buildUpon()
+        Uri builtUri = Uri.parse(GlOSBE_BASE_URL_API + action).buildUpon()
                 .appendQueryParameter(GLOSBE_PARAM_WORD, word)
                 .appendQueryParameter(GLOSBE_PARAM_ORIGIN_LANG, fromLang)
                 .appendQueryParameter(GLOSBE_PARAM_TRANSLATION_LANG, toLang)
@@ -457,7 +451,7 @@ public class NetworkUtils {
         ArrayList<String> imgsUrl = new ArrayList<>();
         word = word.replaceAll(" ", "+");
         String url;
-        if (siteDomain.equals("com")) {
+        if (siteDomain.equals("en")) {
             url = "https://www.google.com"
                     + "/search?q=" + word
                     + "&sout=1&tbm=isch&gs_l=img";
@@ -502,10 +496,16 @@ public class NetworkUtils {
         Elements defs = glosbePage.getElementsContainingOwnText("IPA:");
         if (defs.hasText()) {
             String IPAs = defs.get(0).nextElementSibling().text();
-            String pattern = "(/)([^/]+)(/.+)";
+            String pattern = "(.+/)([^/]+)(/.+)";
             return IPAs.replaceFirst(pattern, "$2");
         }
         return null;
+    }
+
+    public static String extractGlosbeSound(Document glosbePage) {
+        Elements players = glosbePage.getElementsByClass("audioPlayer");
+
+        return GLOSBE_BASE_URL + players.get(0).attr("data-url-ogg");
     }
 
     public static void wikiOpenSearchRequest(String word) {

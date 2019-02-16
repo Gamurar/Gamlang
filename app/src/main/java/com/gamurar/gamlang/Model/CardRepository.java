@@ -12,6 +12,7 @@ import com.gamurar.gamlang.Model.database.AppDatabase;
 import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.Word;
+import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.PreferencesUtils;
 import com.gamurar.gamlang.utilities.ProgressableAdapter;
@@ -146,7 +147,11 @@ public class CardRepository {
     public void translateWord(ExploreActivity fragment, String word) {
         new Tasks.translateQueryTask(fragment, mFromLangCode, mToLangCode).execute(word);
         new Tasks.soundQueryAsyncTask(fragment).execute(word);
-        new Tasks.imagesQueryTask(fragment).execute(word);
+        new Tasks.imagesQueryTask(fragment, mFromLangCode).execute(word);
+    }
+
+    public void fetchImages(String word, ImagesLoadable imagesLoadable) {
+        new Tasks.imagesQueryTask(imagesLoadable, mFromLangCode).execute(word);
     }
 
     public void translateWordOnly(WordTranslation fragment, String word) {

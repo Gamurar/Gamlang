@@ -25,9 +25,10 @@
     <!--Pick image fragment-->
     <string name="add_images">Add Image(s)</string>
     <string name="pick_image">Pick an image</string>
+    <string name="popular_images">Popular Images</string>
 
     <!--Word-->
-    <string name="IPA">[%1$s]</string>
+    <string name="IPA">[%1$s] •\u0020</string>
 
     <!--Error messages-->
     <string name="error_empty_field">Nothing to translate… :\'(</string>

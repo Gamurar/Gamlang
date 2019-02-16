@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.Word;
+import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.Updatable;
 
 import androidx.annotation.NonNull;
@@ -31,8 +32,9 @@ public class CardCreationViewModel extends AndroidViewModel {
         return mWord;
     }
 
-    public void gatherWordInfo(Updatable updatable) {
+    public void gatherWordInfo(Updatable updatable, ImagesLoadable imagesLoadable) {
         Log.d(TAG, "Word object: " + mWord);
         mRepository.gatherWordInfo(mWord, updatable);
+        mRepository.fetchImages(mWord.getName(), imagesLoadable);
     }
 }

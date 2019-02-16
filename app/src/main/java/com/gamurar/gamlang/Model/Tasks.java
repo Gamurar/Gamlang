@@ -13,9 +13,8 @@ import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.Word;
-import com.gamurar.gamlang.utilities.AppExecutors;
+import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.NetworkUtils;
-import com.gamurar.gamlang.utilities.PreferencesUtils;
 import com.gamurar.gamlang.utilities.ProgressableAdapter;
 import com.gamurar.gamlang.utilities.Updatable;
 import com.gamurar.gamlang.utilities.WordContext;
@@ -35,7 +34,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.concurrent.Executor;
 
 public class Tasks {
 
@@ -208,16 +206,18 @@ public class Tasks {
     public static class imagesQueryTask extends AsyncTask<String, Pair<String, Bitmap>, HashMap<String, Bitmap>> {
 
         private static final String TAG = "imagesQueryTask";
-        private final ExploreActivity exploreActivity;
+        private ImagesLoadable imagesLoadable;
+        private String mLang;
 
-        public imagesQueryTask(ExploreActivity exploreActivity) {
-            this.exploreActivity = exploreActivity;
+        public imagesQueryTask(ImagesLoadable imagesLoadable, String lang) {
+            this.imagesLoadable = imagesLoadable;
+            mLang = lang;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            exploreActivity.onLoadImages();
+            imagesLoadable.onLoadImagesStart();
         }
 
         @Override
@@ -227,10 +227,7 @@ public class Tasks {
                 return null;
             } else {
                 HashMap<String, Bitmap> images = new LinkedHashMap<>();
-                Executor mainThread = AppExecutors.getInstance().mainThread();
-
-                String siteDomain = PreferencesUtils.getSiteDomain(exploreActivity);
-                ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word, siteDomain);
+                ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word, mLang);
                 if (imgsURL != null && !imgsURL.isEmpty()) {
                     for (String url : imgsURL) {
                         if (url != null && !TextUtils.isEmpty(url)) {
@@ -242,8 +239,7 @@ public class Tasks {
 
                                 images.put(id, bitmap);
                                 Pair<String, Bitmap> image = new Pair<>(id, bitmap);
-
-                                mainThread.execute(() -> onProgressUpdate(image));
+                                publishProgress(image);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -257,16 +253,14 @@ public class Tasks {
 
         @Override
         protected void onProgressUpdate(Pair<String, Bitmap>... images) {
-            exploreActivity.addImage(images[0]);
+            imagesLoadable.addImage(images[0]);
         }
 
         @Override
         protected void onPostExecute(HashMap<String, Bitmap> images) {
-            exploreActivity.onLoadImagesFinished();
-            if (images != null && !images.isEmpty()) {
-                //exploreActivity.setImages(images);
-            } else {
-                exploreActivity.showImagesErrorMessage();
+            imagesLoadable.onLoadImagesFinished();
+            if (images == null || images.isEmpty()) {
+                imagesLoadable.showImagesErrorMessage();
             }
         }
     }
@@ -499,7 +493,14 @@ public class Tasks {
             Document glosbePage = NetworkUtils.getGlosbePage(word, mFromLang, mToLang);
             if (glosbePage != null) {
                 word.setIPA(NetworkUtils.extractGlosbeIPA(glosbePage));
-                Log.d(TAG, "Word object: " + word);
+                try {
+                    String soundURL = NetworkUtils.extractGlosbeSound(glosbePage);
+                    MediaPlayer mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    mediaPlayer.setDataSource(soundURL);
+                    mediaPlayer.prepare();
+                    word.setPronunciation(mediaPlayer, soundURL);
+                } catch (IOException e) { e.printStackTrace(); }
             }
             return null;
         }

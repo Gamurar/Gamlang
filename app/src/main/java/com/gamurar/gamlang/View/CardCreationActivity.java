@@ -1,6 +1,7 @@
 package com.gamurar.gamlang.View;
 
 import android.os.Bundle;
+import android.view.View;
 
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.CardCreationViewModel;
@@ -38,7 +39,11 @@ public class CardCreationActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         PickImageFragment fragment = new PickImageFragment();
-        viewModel.gatherWordInfo(fragment);
+        viewModel.gatherWordInfo(fragment, fragment);
         fragmentTransaction.add(R.id.fragment_container, fragment).commit();
+    }
+
+    public void closeActivity(View view) {
+        onBackPressed();
     }
 }
