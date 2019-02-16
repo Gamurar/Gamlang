@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel;
 public class ExploreViewModel extends ViewModel {
     private CardRepository mRepository;
     private LiveData<String[]> mOpenSearchWords;
+    private boolean mReversed;
 
     public ExploreViewModel(Context context) {
         mRepository = new CardRepository(context);
@@ -31,5 +32,9 @@ public class ExploreViewModel extends ViewModel {
     }
 
     public void reverseSearchLang() { mRepository.reverseSearchLang(); }
+
+    public boolean isReversed() {
+        return mRepository.isReversed();
+    }
 
 }

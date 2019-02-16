@@ -197,6 +197,10 @@ public class CardRepository {
         mIsReversed = !mIsReversed;
     }
 
+    public boolean isReversed() {
+        return mIsReversed;
+    }
+
     public void gatherWordInfo(Word word, Updatable updatable) {
         Log.d(TAG, "Word object: " + word);
         new Tasks.gatherWordInfo(mFromLangCode, mToLangCode, updatable).execute(word);

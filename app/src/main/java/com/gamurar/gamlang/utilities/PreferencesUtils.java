@@ -58,7 +58,7 @@ public class PreferencesUtils {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(context.getString(R.string.pref_from_lang_key), toLang);
         editor.putString(context.getString(R.string.pref_to_lang_key), fromLang);
-        editor.commit();
+        editor.apply();
     }
 
     public static String getLangCode(String prefLang, Context context) {

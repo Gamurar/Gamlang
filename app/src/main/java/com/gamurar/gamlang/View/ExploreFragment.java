@@ -33,10 +33,6 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (getArguments() != null) {
-            isReversed = true;
-            Log.d(TAG, "onCreateView: Russian search selected");
-        }
         parentActivity = (ExploreActivity) getActivity();
         mAdapter = parentActivity.suggestionAdapter;
         mAdapter.clear();
@@ -77,7 +73,13 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     @Override
     public void onClick(String word, String translation) {
         Intent intent = new Intent(getActivity(), CardCreationActivity.class);
-        intent.putExtra(CardCreationActivity.EXTRA_WORD_INFO, new String[] {word, translation});
+        String[] wordExtra;
+        if (mViewModel.isReversed()) {
+            wordExtra = new String[] {translation, word};
+        } else {
+            wordExtra = new String[] {word, translation};
+        }
+        intent.putExtra(CardCreationActivity.EXTRA_WORD_INFO, wordExtra);
         startActivity(intent);
     }
 
