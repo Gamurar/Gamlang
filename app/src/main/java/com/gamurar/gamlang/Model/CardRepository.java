@@ -2,17 +2,20 @@ package com.gamurar.gamlang.Model;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.gamurar.gamlang.View.AddWordsActivity;
+import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.database.AppDatabase;
 import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Model.database.CardEntry;
+import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.PreferencesUtils;
 import com.gamurar.gamlang.utilities.ProgressableAdapter;
+import com.gamurar.gamlang.utilities.Updatable;
 import com.gamurar.gamlang.utilities.WordTranslation;
 import com.gamurar.gamlang.views.ImageViewBitmap;
 
@@ -140,7 +143,7 @@ public class CardRepository {
         return cards;
     }
 
-    public void translateWord(AddWordsActivity fragment, String word) {
+    public void translateWord(ExploreActivity fragment, String word) {
         new Tasks.translateQueryTask(fragment, mFromLangCode, mToLangCode).execute(word);
         new Tasks.soundQueryAsyncTask(fragment).execute(word);
         new Tasks.imagesQueryTask(fragment).execute(word);
@@ -187,6 +190,11 @@ public class CardRepository {
 
     public void reverseSearchLang() {
         mIsReversed = !mIsReversed;
+    }
+
+    public void gatherWordInfo(Word word, Updatable updatable) {
+        Log.d(TAG, "Word object: " + word);
+        new Tasks.gatherWordInfo(mFromLangCode, mToLangCode, updatable).execute(word);
     }
 }
 

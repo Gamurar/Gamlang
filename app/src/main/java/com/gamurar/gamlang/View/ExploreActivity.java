@@ -61,9 +61,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-public class AddWordsActivity extends AppCompatActivity implements ImagesAdapter.ImageClickListener, WordTranslation, WordContext {
+public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.ImageClickListener, WordTranslation, WordContext {
 
-    private static final String TAG = "AddWordsActivity";
+    private static final String TAG = "ExploreActivity";
     private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
 
     private static final int NUM_PAGES = 2;
@@ -98,7 +98,7 @@ public class AddWordsActivity extends AppCompatActivity implements ImagesAdapter
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_words);
+        setContentView(R.layout.activity_explore);
         //setActionBar();
         mPager = findViewById(R.id.pager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
@@ -254,7 +254,7 @@ public class AddWordsActivity extends AppCompatActivity implements ImagesAdapter
             }
 //            case R.id.actionRefresh: {
 //                mAdapter.clear();
-//                mViewModel.translateWord(this, mWord.getName());
+//                viewModel.translateWord(this, mWord.getName());
 //                break;
 //            }
         }

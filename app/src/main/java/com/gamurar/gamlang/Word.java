@@ -9,13 +9,21 @@ public class Word {
     private static final String TAG = "Word";
     private String name;
     private String translation;
+    private String IPA;
     private ArrayList<String> translations;
     public ArrayList<String> context;
     private MediaPlayer pronunciation;
     private String soundURL;
 
+    public Word() {}
+
     public Word(String name) {
         this.name = name.toLowerCase();
+    }
+
+    public Word(String word, String translation) {
+        this.name = word;
+        this.translation = translation;
     }
 
     public void setName(String name) {
@@ -89,5 +97,17 @@ public class Word {
         if (pronunciation != null) {
             pronunciation.start();
         }
+    }
+
+    public String getIPA() {
+        return IPA;
+    }
+
+    public void setIPA(String IPA) {
+        this.IPA = IPA;
+    }
+
+    public void onUpdate() {
+
     }
 }

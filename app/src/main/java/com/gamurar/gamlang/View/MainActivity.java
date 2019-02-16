@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.gamurar.gamlang.R;
+import com.gamurar.gamlang.Word;
+import com.gamurar.gamlang.utilities.AppExecutors;
+import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         mMenuLearn.setOnClickListener(new StartActivity(LearnWordsActivity.class));
         mMenuDictionary.setOnClickListener(new StartActivity(MyDictionaryActivity.class));
         mMenuWatch.setOnClickListener(new StartActivity(VideoActivity.class));
-        mMenuAddWords.setOnClickListener(new StartActivity(AddWordsActivity.class));
+        mMenuAddWords.setOnClickListener(new StartActivity(ExploreActivity.class));
     }
 
     private class StartActivity implements View.OnClickListener {

@@ -1,5 +1,6 @@
 package com.gamurar.gamlang.View;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,7 +27,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     private SuggestionAdapter mAdapter;
     private SearchView mSearchView;
     private boolean isReversed = false;
-    private AddWordsActivity parentActivity;
+    private ExploreActivity parentActivity;
 
 
     @Nullable
@@ -36,7 +37,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
             isReversed = true;
             Log.d(TAG, "onCreateView: Russian search selected");
         }
-        parentActivity = (AddWordsActivity) getActivity();
+        parentActivity = (ExploreActivity) getActivity();
         mAdapter = parentActivity.suggestionAdapter;
         mAdapter.clear();
         return inflater.inflate(R.layout.fragment_explore, container, false);
@@ -75,7 +76,9 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
 
     @Override
     public void onClick(String word, String translation) {
-        //TODO: start pick image activity for the word
+        Intent intent = new Intent(getActivity(), CardCreationActivity.class);
+        intent.putExtra(CardCreationActivity.EXTRA_WORD_INFO, new String[] {word, translation});
+        startActivity(intent);
     }
 
     public RecyclerView getRecyclerView() {

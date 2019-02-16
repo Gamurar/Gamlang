@@ -36,7 +36,7 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
         setContentView(R.layout.activity_drawer);
         initViews();
 //        if (getIntent().hasExtra(Intent.EXTRA_PROCESS_TEXT)) {
-//            AddWordsActivity addWord = new AddWordsActivity();
+//            ExploreActivity addWord = new ExploreActivity();
 //            Log.d(TAG, "Text to pass to the add words fragment: "
 //                    + getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT));
 //            addWord.setArguments(getIntent().getExtras());
@@ -103,7 +103,7 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
 //            }
 //            case R.id.nav_add_words: {
 //                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-//                        new AddWordsActivity()).commit();
+//                        new ExploreActivity()).commit();
 //                break;
 //            }
 //            case R.id.nav_video: {

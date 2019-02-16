@@ -2,10 +2,11 @@ package com.gamurar.gamlang.ViewModel;
 
 import android.app.Application;
 
-import com.gamurar.gamlang.View.AddWordsActivity;
+import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.Model.database.CardEntry;
+import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.WordTranslation;
 import com.gamurar.gamlang.views.ImageViewBitmap;
 
@@ -19,6 +20,7 @@ import androidx.lifecycle.LiveData;
 public class CardViewModel extends AndroidViewModel {
     private CardRepository repository;
     private LiveData<List<Card>> mCards;
+    private Word mWord;
 
     public CardViewModel(@NonNull Application application) {
         super(application);
@@ -53,7 +55,7 @@ public class CardViewModel extends AndroidViewModel {
         return mCards;
     }
 
-    public void translateWord(AddWordsActivity fragment, String word) {
+    public void translateWord(ExploreActivity fragment, String word) {
         repository.translateWord(fragment, word);
     }
 
@@ -67,5 +69,13 @@ public class CardViewModel extends AndroidViewModel {
 
     public void saveSound(String url) {
         repository.saveSound(url);
+    }
+
+    public void setWord(Word word) {
+        mWord = word;
+    }
+
+    public Word getWord() {
+        return mWord;
     }
 }

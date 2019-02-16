@@ -3,7 +3,6 @@ package com.gamurar.gamlang.utilities;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Pair;
@@ -14,8 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.gamurar.gamlang.R;
-import com.gamurar.gamlang.View.AddWordsActivity;
-import com.gamurar.gamlang.View.PickImageFragment;
 
 import java.util.ArrayList;
 

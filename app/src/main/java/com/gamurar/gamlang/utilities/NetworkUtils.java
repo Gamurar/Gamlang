@@ -35,6 +35,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * These utilities will be used to communicate with the network.
@@ -482,6 +484,28 @@ public class NetworkUtils {
         }
 
         return imgsUrl;
+    }
+
+    public static Document getGlosbePage(Word word, String fromLang, String toLang) {
+        String url = "https://glosbe.com/" + fromLang + "/" + toLang + "/" + word.getName();
+        try {
+            Log.d(TAG, "parse Glosbe url: " + url);
+
+            return Jsoup.connect(url).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String extractGlosbeIPA(Document glosbePage) {
+        Elements defs = glosbePage.getElementsContainingOwnText("IPA:");
+        if (defs.hasText()) {
+            String IPAs = defs.get(0).nextElementSibling().text();
+            String pattern = "(/)([^/]+)(/.+)";
+            return IPAs.replaceFirst(pattern, "$2");
+        }
+        return null;
     }
 
     public static void wikiOpenSearchRequest(String word) {

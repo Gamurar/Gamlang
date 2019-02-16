@@ -22,6 +22,13 @@
     <string name="search_word_hint_en">Search for a word in English</string>
     <string name="search_word_hint_ru">Search for a word in Russian</string>
 
+    <!--Pick image fragment-->
+    <string name="add_images">Add Image(s)</string>
+    <string name="pick_image">Pick an image</string>
+
+    <!--Word-->
+    <string name="IPA">[%1$s]</string>
+
     <!--Error messages-->
     <string name="error_empty_field">Nothing to translate… :\'(</string>
     <string name="error_no_translation">Can\'t translate, check your internet connection</string>

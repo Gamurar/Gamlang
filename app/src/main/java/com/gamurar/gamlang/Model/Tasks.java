@@ -1,6 +1,5 @@
 package com.gamurar.gamlang.Model;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -9,20 +8,23 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
-import com.gamurar.gamlang.View.AddWordsActivity;
+import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Model.database.CardEntry;
+import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.AppExecutors;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.PreferencesUtils;
 import com.gamurar.gamlang.utilities.ProgressableAdapter;
+import com.gamurar.gamlang.utilities.Updatable;
 import com.gamurar.gamlang.utilities.WordContext;
 import com.gamurar.gamlang.utilities.WordTranslation;
 import com.gamurar.gamlang.views.ImageViewBitmap;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
+import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -166,10 +168,10 @@ public class Tasks {
 
         private final String soundBaseURL
                 = "https://api.lingvolive.com/sounds?uri=LingvoUniversal%20(En-Ru)%2F";
-        private AddWordsActivity addWordsActivity;
+        private ExploreActivity exploreActivity;
 
-        public soundQueryAsyncTask(AddWordsActivity addWordsActivity) {
-            this.addWordsActivity = addWordsActivity;
+        public soundQueryAsyncTask(ExploreActivity exploreActivity) {
+            this.exploreActivity = exploreActivity;
         }
 
         @Override
@@ -192,9 +194,9 @@ public class Tasks {
         @Override
         protected void onPostExecute(String soundUrl) {
             if (soundUrl != null && !soundUrl.isEmpty()) {
-                addWordsActivity.setSound(soundUrl);
+                exploreActivity.setSound(soundUrl);
             } else {
-                addWordsActivity.hidePronunciation();
+                exploreActivity.hidePronunciation();
             }
         }
     }
@@ -206,16 +208,16 @@ public class Tasks {
     public static class imagesQueryTask extends AsyncTask<String, Pair<String, Bitmap>, HashMap<String, Bitmap>> {
 
         private static final String TAG = "imagesQueryTask";
-        private final AddWordsActivity addWordsActivity;
+        private final ExploreActivity exploreActivity;
 
-        public imagesQueryTask(AddWordsActivity addWordsActivity) {
-            this.addWordsActivity = addWordsActivity;
+        public imagesQueryTask(ExploreActivity exploreActivity) {
+            this.exploreActivity = exploreActivity;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            addWordsActivity.onLoadImages();
+            exploreActivity.onLoadImages();
         }
 
         @Override
@@ -227,7 +229,7 @@ public class Tasks {
                 HashMap<String, Bitmap> images = new LinkedHashMap<>();
                 Executor mainThread = AppExecutors.getInstance().mainThread();
 
-                String siteDomain = PreferencesUtils.getSiteDomain(addWordsActivity);
+                String siteDomain = PreferencesUtils.getSiteDomain(exploreActivity);
                 ArrayList<String> imgsURL = NetworkUtils.fetchRelatedImagesUrl(word, siteDomain);
                 if (imgsURL != null && !imgsURL.isEmpty()) {
                     for (String url : imgsURL) {
@@ -255,16 +257,16 @@ public class Tasks {
 
         @Override
         protected void onProgressUpdate(Pair<String, Bitmap>... images) {
-            addWordsActivity.addImage(images[0]);
+            exploreActivity.addImage(images[0]);
         }
 
         @Override
         protected void onPostExecute(HashMap<String, Bitmap> images) {
-            addWordsActivity.onLoadImagesFinished();
+            exploreActivity.onLoadImagesFinished();
             if (images != null && !images.isEmpty()) {
-                //addWordsActivity.setImages(images);
+                //exploreActivity.setImages(images);
             } else {
-                addWordsActivity.showImagesErrorMessage();
+                exploreActivity.showImagesErrorMessage();
             }
         }
     }
@@ -474,6 +476,38 @@ public class Tasks {
         protected void onProgressUpdate(Pair... values) {
             super.onProgressUpdate(values);
             mAdapter.insert(values[0]);
+        }
+    }
+
+    public static class gatherWordInfo extends AsyncTask<Word, Void, Void> {
+        private static final String TAG = "gatherWordInfo";
+
+        private String mFromLang;
+        private String mToLang;
+        private Updatable mUpdatable;
+
+
+        gatherWordInfo(String fromLang, String toLang, Updatable updatable) {
+            mFromLang = fromLang;
+            mToLang = toLang;
+            mUpdatable = updatable;
+        }
+
+        @Override
+        protected Void doInBackground(Word... words) {
+            Word word = words[0];
+            Document glosbePage = NetworkUtils.getGlosbePage(word, mFromLang, mToLang);
+            if (glosbePage != null) {
+                word.setIPA(NetworkUtils.extractGlosbeIPA(glosbePage));
+                Log.d(TAG, "Word object: " + word);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            mUpdatable.update();
         }
     }
 
