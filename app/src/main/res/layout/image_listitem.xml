@@ -7,13 +7,14 @@
 
     <com.gamurar.gamlang.views.ImageViewBitmap
         android:id="@+id/iv_word_picture"
-        android:layout_width="115dp"
-        android:layout_height="83dp"
-        android:layout_marginBottom="5dp"
-        android:paddingBottom="6px"
-        android:paddingLeft="6px"
-        android:paddingRight="6px"
-        android:paddingTop="6px"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        android:layout_width="95dp"
+        android:layout_height="95dp"
+        android:layout_margin="2dp"
+        app:srcCompat="@drawable/ic_launcher_background"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+        app:riv_corner_radius="10dip"
+        app:riv_border_width="2dip"
+        app:riv_border_color="@android:color/white"/>
 
 </LinearLayout>

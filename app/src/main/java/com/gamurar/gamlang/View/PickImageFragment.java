@@ -2,19 +2,26 @@ package com.gamurar.gamlang.View;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.CardCreationViewModel;
+import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesAdapter;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.Updatable;
 import com.gamurar.gamlang.views.ImageViewBitmap;
+
+import java.util.HashSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +39,7 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
     private CardCreationViewModel viewModel;
     private ImagesAdapter mAdapter;
     private ImageButton mPlayBtn;
+    private Button mAddImagesBtn;
 
     @Nullable
     @Override
@@ -54,16 +62,13 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
         mIPA = view.findViewById(R.id.IPA);
         mImagesRV = view.findViewById(R.id.rv_word_pictures);
         mPlayBtn = view.findViewById(R.id.play_btn);
+        mAddImagesBtn = view.findViewById(R.id.btn_add_images);
 
         mWord.setText(viewModel.getWord().getName());
         mTranslation.setText(viewModel.getWord().getTranslation());
 
-        mPlayBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewModel.getWord().pronounce();
-            }
-        });
+        mPlayBtn.setOnClickListener(v -> viewModel.getWord().pronounce());
+        mAddImagesBtn.setOnClickListener(v -> addToDictionary());
 
         mAdapter = new ImagesAdapter(this);
         mImagesRV.setLayoutManager(
@@ -81,9 +86,16 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
         }
     }
 
+    private HashSet<ImageViewBitmap> selectedImages = new HashSet<>();
     @Override
     public void onImageClick(ImageViewBitmap imgView) {
-
+        if (!selectedImages.contains(imgView)) {
+            selectedImages.add(imgView);
+            imgView.setBorderColor(getResources().getColor(R.color.colorPrimary));
+        } else {
+            selectedImages.remove(imgView);
+            imgView.setBorderColor(getResources().getColor(android.R.color.white));
+        }
     }
 
     @Override
@@ -105,4 +117,24 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
     public void showImagesErrorMessage() {
 
     }
+
+    private void addToDictionary() {
+        Word word = viewModel.getWord();
+        CardEntry newCard = new CardEntry(word.getName(), word.getTranslation());
+        if (selectedImages != null && !selectedImages.isEmpty()) {
+            String imagesString = viewModel.savePictures(selectedImages);
+            newCard.setImage(imagesString);
+        }
+        if (word.hasSoundURL()) {
+            String soundURL = word.getSoundURL();
+            viewModel.saveSound(soundURL);
+            newCard.setPronunciation(soundURL);
+        }
+
+        viewModel.insert(newCard);
+        Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
+        Toast.makeText(getContext(), "The word " + word.getName() + " added to the dictionary.", Toast.LENGTH_SHORT).show();
+    }
+
+
 }

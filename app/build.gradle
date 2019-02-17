@@ -56,4 +56,5 @@ dependencies {
     implementation 'com.android.volley:volley:1.1.1'
     implementation 'com.google.dagger:dagger:2.21'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.21'
+    implementation 'com.makeramen:roundedimageview:2.3.0'
 }

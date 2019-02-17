@@ -4,11 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
 
+import com.makeramen.roundedimageview.RoundedImageView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 
 
-public class ImageViewBitmap extends AppCompatImageView {
+public class ImageViewBitmap extends RoundedImageView {
 
     private Bitmap mBitmap;
     private String mCode;
