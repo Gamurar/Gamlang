@@ -496,7 +496,7 @@ public class NetworkUtils {
         Elements defs = glosbePage.getElementsContainingOwnText("IPA:");
         if (defs.hasText()) {
             String IPAs = defs.get(0).nextElementSibling().text();
-            String pattern = "(.+/)([^/]+)(/.+)";
+            String pattern = "(.*/)([^/]+)(/.*)";
             return IPAs.replaceFirst(pattern, "$2");
         }
         return null;
