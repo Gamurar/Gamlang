@@ -2,7 +2,7 @@
 
 <!--<androidx.constraintlayout.widget.ConstraintLayout--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent"--><!--android:background="#FFF">-->
 
-<!--<ImageButton--><!--android:id="@+id/play_new_word"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:background="#FFF"--><!--android:padding="10dp"--><!--android:visibility="invisible"--><!--app:layout_constraintBottom_toBottomOf="@+id/divider"--><!--app:layout_constraintStart_toStartOf="parent"--><!--app:layout_constraintTop_toBottomOf="@layout/toolbar"--><!--app:srcCompat="@drawable/ic_volume_up_24" />-->
+<!--<ImageButton--><!--android:id="@+id/play_new_word"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:background="#FFF"--><!--android:padding="10dp"--><!--android:visibility="invisible"--><!--app:layout_constraintBottom_toBottomOf="@+id/divider"--><!--app:layout_constraintStart_toStartOf="parent"--><!--app:layout_constraintTop_toBottomOf="@layout/toolbar"--><!--app:srcCompat="@drawable/ic_volume_up_white" />-->
 
 <!--&lt;!&ndash;<EditText&ndash;&gt;--><!--&lt;!&ndash;android:id="@+id/tv_word"&ndash;&gt;--><!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;--><!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;--><!--&lt;!&ndash;android:layout_marginStart="8dp"&ndash;&gt;--><!--&lt;!&ndash;android:hint="Enter a word"&ndash;&gt;--><!--&lt;!&ndash;android:inputType="text"&ndash;&gt;--><!--&lt;!&ndash;app:layout_constraintBottom_toTopOf="@+id/divider"&ndash;&gt;--><!--&lt;!&ndash;app:layout_constraintStart_toStartOf="@+id/play_new_word" />&ndash;&gt;-->
 

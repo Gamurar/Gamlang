@@ -17,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.16000003"
-        app:srcCompat="@drawable/ic_volume_up_24" />
+        app:srcCompat="@drawable/ic_volume_up_white" />
 
     <TextView
         android:id="@+id/word"

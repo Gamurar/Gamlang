@@ -27,6 +27,7 @@
         </activity>
         <activity
             android:name=".View.ExploreActivity"
+            android:launchMode="singleTop"
             android:parentActivityName="View.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -41,6 +42,7 @@
         </activity>
         <activity
             android:name=".View.LearnWordsActivity"
+            android:launchMode="singleTop"
             android:parentActivityName="View.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -48,6 +50,7 @@
         </activity>
         <activity
             android:name=".View.MyDictionaryActivity"
+            android:launchMode="singleTop"
             android:parentActivityName="View.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -55,6 +58,7 @@
         </activity>
         <activity
             android:name=".View.VideoActivity"
+            android:launchMode="singleTop"
             android:parentActivityName="View.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -66,6 +70,13 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".View.ExploreActivity" />
+        </activity>
+        <activity
+            android:name=".View.SettingsActivity"
+            android:parentActivityName="View.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="View.MainActivity" />
         </activity>
     </application>
 

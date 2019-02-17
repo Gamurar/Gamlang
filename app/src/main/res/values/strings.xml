@@ -22,10 +22,14 @@
     <string name="search_word_hint_en">Search for a word in English</string>
     <string name="search_word_hint_ru">Search for a word in Russian</string>
 
-    <!--Pick image fragment-->
+    <!--Card creation-->
     <string name="add_images">Add Image(s)</string>
     <string name="pick_image">Pick an image</string>
     <string name="popular_images">Popular Images</string>
+    <string name="card_added">Card added</string>
+    <string name="what_to_do_next">What do you want to do next?</string>
+    <string name="add_another_word">Add a word</string>
+    <string name="learn_words">Learn words</string>
 
     <!--Word-->
     <string name="IPA">[%1$s] •\u0020</string>

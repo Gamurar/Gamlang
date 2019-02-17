@@ -81,8 +81,8 @@ public class Tasks {
 
                 if (entry.getPronunciation() != null) {
                     try {
-                        String fileName = entry.getPronunciation()
-                                .substring(NetworkUtils.ABBYYsoundBaseUrl.length());
+                        String fileURL = entry.getPronunciation();
+                        String fileName = getFileNameFromURL(fileURL);
                         String filePath = CardRepository.musicDirectory + "/" + fileName;
                         MediaPlayer mediaPlayer = new MediaPlayer();
                         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -321,7 +321,7 @@ public class Tasks {
         protected String doInBackground(String... fileUrls) {
             try {
                 String fileUrl = fileUrls[0];
-                String fileName = fileUrl.substring(NetworkUtils.ABBYYsoundBaseUrl.length());
+                String fileName = getFileNameFromURL(fileUrl);
 
                 URL sourceUrl = new URL(fileUrl);
                 HttpURLConnection con = (HttpURLConnection) sourceUrl.openConnection();
@@ -510,6 +510,11 @@ public class Tasks {
             super.onPostExecute(aVoid);
             mUpdatable.update();
         }
+    }
+
+    private static String getFileNameFromURL(String url) {
+        String pattern = "(.*/)(.*$)";
+        return url.replaceAll(pattern, "$2");
     }
 
 

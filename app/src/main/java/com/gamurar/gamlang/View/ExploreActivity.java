@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,17 +14,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.CardViewModel;
 import com.gamurar.gamlang.ViewModel.ExploreViewModel;
@@ -34,24 +29,21 @@ import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesAdapter;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.SuggestionAdapter;
+import com.gamurar.gamlang.utilities.SystemUtils;
 import com.gamurar.gamlang.utilities.WordClick;
 import com.gamurar.gamlang.utilities.WordContext;
 import com.gamurar.gamlang.utilities.WordTranslation;
 import com.gamurar.gamlang.views.ClickableWords;
-import com.gamurar.gamlang.views.ImageViewBitmap;
 import com.google.android.material.tabs.TabLayout;
 import com.zyyoona7.popup.EasyPopup;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -62,7 +54,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.ImageClickListener, WordTranslation, WordContext, ImagesLoadable {
+public class ExploreActivity extends AppCompatActivity implements WordTranslation, WordContext, ImagesLoadable {
 
     private static final String TAG = "ExploreActivity";
     private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
@@ -71,7 +63,6 @@ public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
 
-    //    private EditText mWordEditText;
     private TextView translationTextView;
     private ClickableWords mClickableSentence;
     private TextView imagesErrorMessage;
@@ -80,7 +71,6 @@ public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.
     private RecyclerView wordPictureRecyclerView;
     private ProgressBar loadingIndicator;
     private ProgressBar imagesLoadingIndicator;
-    //    private Button mTranslateBtn;
     private Button addToDictBtn;
     private ActionBar mActionBar;
     private Word mWord = new Word("");
@@ -139,57 +129,27 @@ public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.
     }
 
     private void init() {
-//        mSearchView = findViewById(R.id.search_view);
-////        mWordEditText = findViewById(R.id.tv_word);
-////        mWordEditText.setText(mWord.getName());
-////        mTranslateBtn = findViewById(R.id.btn_translate);
-//        translationTextView = findViewById(R.id.tv_translation);
-//        mClickableSentence = findViewById(R.id.cw_sentence);
-//        mWordContext = findViewById(R.id.tv_context);
-//        loadingIndicator = findViewById(R.id.pb_loading_indicator);
-//        imagesLoadingIndicator = findViewById(R.id.pb_images_loading_indicator);
-//        playSoundImageView = findViewById(R.id.play_new_word);
-//        wordPictureRecyclerView = findViewById(R.id.rv_word_pictures);
-//        addToDictBtn = findViewById(R.id.btn_add_to_dict);
-//        imagesErrorMessage = findViewById(R.id.tv_images_error_msg);
 
         playSoundImageView.setOnClickListener(soundBtn -> mWord.pronounce());
-//        mTranslateBtn.setOnClickListener(btn -> {
-//            String word = mWordEditText.getText().toString();
-//            if (!TextUtils.isEmpty(word)) {
-//                closeKeyboard();
-//                mWord.setName(word);
-//                translate();
-//            } else {
-//                emptyFieldErrorMessage();
-//            }
-//        });
-        addToDictBtn.setOnClickListener(btn -> addToDictionary());
-
-        mAdapter = new ImagesAdapter(this);
-        wordPictureRecyclerView.setLayoutManager(
-                new GridLayoutManager(this, 3)
-        );
-        wordPictureRecyclerView.setAdapter(mAdapter);
 
         if (getIntent().hasExtra(Intent.EXTRA_PROCESS_TEXT)) {
             setWordFromContext();
         }
     }
 
-    private void setActionBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window mWindow = this.getWindow();
-            mWindow.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            mWindow.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            mWindow.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
-        }
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        mActionBar = getSupportActionBar();
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-        mActionBar.setTitle(R.string.add_words);
-    }
+//    private void setActionBar() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            Window mWindow = this.getWindow();
+//            mWindow.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//            mWindow.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//            mWindow.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
+//        }
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//        mActionBar = getSupportActionBar();
+//        mActionBar.setDisplayHomeAsUpEnabled(true);
+//        mActionBar.setTitle(R.string.add_words);
+//    }
 
     private void translate() {
         mAdapter.clear();
@@ -216,31 +176,11 @@ public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.
         }
     }
 
-    private void addToDictionary() {
-        CardEntry newCard = new CardEntry(mWord.getName(), mWord.getTranslation());
-        if (selectedImages != null && !selectedImages.isEmpty()) {
-            String imagesString = mViewModel.savePictures(selectedImages);
-            newCard.setImage(imagesString);
-        }
-        if (mWord.hasSoundURL()) {
-            String soundURL = mWord.getSoundURL();
-            mViewModel.saveSound(soundURL);
-            newCard.setPronunciation(soundURL);
-        }
-
-        mViewModel.insert(newCard);
-        Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
-        Toast.makeText(this, "The word " + mWord.getName() + " added to the dictionary.", Toast.LENGTH_SHORT).show();
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.add_word_from_context_menu, menu);
-//        MenuItem item = menu.findItem(R.id.action_search);
-//        mSearchView.setMenuItem(item);
-//        mSearchView.showSearch();
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -253,11 +193,6 @@ public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.
                 onBackPressed();
                 break;
             }
-//            case R.id.actionRefresh: {
-//                mAdapter.clear();
-//                viewModel.translateWord(this, mWord.getName());
-//                break;
-//            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -353,21 +288,9 @@ public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.
             e.printStackTrace();
             mWord.setPronunciation(soundUrl);
         }
-
     }
 
-    private HashSet<ImageViewBitmap> selectedImages = new HashSet<>();
 
-    @Override
-    public void onImageClick(ImageViewBitmap imgView) {
-        if (!selectedImages.contains(imgView)) {
-            selectedImages.add(imgView);
-            imgView.setBackground(getResources().getDrawable(R.drawable.image_shadow));
-        } else {
-            selectedImages.remove(imgView);
-            imgView.setBackgroundColor(getResources().getColor(android.R.color.white));
-        }
-    }
 
     private void closeKeyboard() {
         View view = this.getCurrentFocus();
@@ -386,8 +309,6 @@ public class ExploreActivity extends AppCompatActivity implements ImagesAdapter.
     }
 
     private void showClickableSentence(String sentence) {
-//        mWordEditText.setVisibility(View.INVISIBLE);
-//        mTranslateBtn.setVisibility(View.INVISIBLE);
         mClickableSentence.setText(sentence, new WordClick() {
             @Override
             public void onClick(String word) {

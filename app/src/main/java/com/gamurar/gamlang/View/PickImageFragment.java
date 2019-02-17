@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +41,7 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
     private ImagesAdapter mAdapter;
     private ImageButton mPlayBtn;
     private Button mAddImagesBtn;
+    private CardCreationActivity parent;
 
     @Nullable
     @Override
@@ -54,7 +56,7 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
     }
 
     private void init(View view) {
-        CardCreationActivity parent = (CardCreationActivity) getActivity();
+        parent = (CardCreationActivity) getActivity();
         viewModel = parent.viewModel;
 
         mWord = view.findViewById(R.id.word);
@@ -133,7 +135,7 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
 
         viewModel.insert(newCard);
         Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
-        Toast.makeText(getContext(), "The word " + word.getName() + " added to the dictionary.", Toast.LENGTH_SHORT).show();
+        parent.onCardAdded();
     }
 
 

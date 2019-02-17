@@ -44,7 +44,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Question" />
+                tools:text="Question"
+                android:textColor="@android:color/black"/>
 
             <ImageButton
                 android:id="@+id/play_word"
@@ -58,7 +59,7 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/card_question"
                 app:layout_constraintTop_toBottomOf="@+id/card_question"
-                app:srcCompat="@drawable/ic_volume_up_24" />
+                app:srcCompat="@drawable/ic_volume_up_black" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <View
