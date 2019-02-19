@@ -4,21 +4,30 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.database.AppDatabase;
 import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Model.database.CardEntry;
+import com.gamurar.gamlang.View.ExploreFragment;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
+import com.gamurar.gamlang.utilities.MySingleton;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.PreferencesUtils;
 import com.gamurar.gamlang.utilities.ProgressableAdapter;
 import com.gamurar.gamlang.utilities.Updatable;
 import com.gamurar.gamlang.utilities.WordTranslation;
 import com.gamurar.gamlang.views.ImageViewBitmap;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.File;
 import java.util.ConcurrentModificationException;
@@ -44,12 +53,14 @@ public class CardRepository {
     private CardDao cardDao;
     private LiveData<List<CardEntry>> mCardEntries;
     private LiveData<List<Card>> cards;
-    public static MutableLiveData<String[]> wikiOpenSearchWords;
-    public static RequestQueue requestQueue;
+    public static String[] wikiOpenSearchWords;
     private Context mContext;
-    private String mFromLangCode;
-    private String mToLangCode;
-    private boolean mIsReversed = false;
+    private static String mFromLangCode;
+    private static String mToLangCode;
+    private static boolean mIsReversed = false;
+    public static RequestQueue requestQueue;
+    public static NetworkUtils.WikiOpenSearchResponseListener wikiResponseListener;
+    private static ProgressableAdapter mAdapter;
 
     public CardRepository(Context context) {
         mContext = context;
@@ -80,10 +91,15 @@ public class CardRepository {
     }
 
     public void initRemote() {
-        wikiOpenSearchWords = new MutableLiveData<>();
-        requestQueue = Volley.newRequestQueue(mContext);
+        requestQueue = MySingleton.getInstance(mContext).getRequestQueue();
         mFromLangCode = PreferencesUtils.getPrefFromLangCode(mContext);
         mToLangCode = PreferencesUtils.getPrefToLangCode(mContext);
+    }
+
+    public void initOpenSearch(ProgressableAdapter adapter) {
+        mAdapter = adapter;
+        wikiResponseListener = new NetworkUtils.WikiOpenSearchResponseListener(adapter);
+        Log.d(TAG, "initOpenSearch: Repository Adapter: " + mAdapter);
     }
 
     public LiveData<List<CardEntry>> getCardEntries() {
@@ -177,19 +193,19 @@ public class CardRepository {
         new Tasks.savePronunciationAsyncTask().execute(url);
     }
 
-    public LiveData<String[]> getOpenSearchLiveData() {
+    public String[] getOpenSearchLiveData() {
         return wikiOpenSearchWords;
     }
 
-    public void openSearch(String word) {
+    public static void openSearch(String word) {
         NetworkUtils.wikiOpenSearchRequest(word);
     }
 
-    public void loadSuggestionCards(String[] word, ProgressableAdapter adapter) {
+    public static void loadSuggestionCards(String[] words) {
         if (mIsReversed) {
-            new Tasks.loadSuggestionCards(adapter, mToLangCode, mFromLangCode).execute(word);
+            new Tasks.loadSuggestionCards(mAdapter, mToLangCode, mFromLangCode).execute(words);
         } else {
-            new Tasks.loadSuggestionCards(adapter, mFromLangCode, mToLangCode).execute(word);
+            new Tasks.loadSuggestionCards(mAdapter, mFromLangCode, mToLangCode).execute(words);
         }
     }
 
@@ -204,6 +220,10 @@ public class CardRepository {
     public void gatherWordInfo(Word word, Updatable updatable) {
         Log.d(TAG, "Word object: " + word);
         new Tasks.gatherWordInfo(mFromLangCode, mToLangCode, updatable).execute(word);
+    }
+
+    public void setReversed(boolean isReversed) {
+        mIsReversed = isReversed;
     }
 }
 

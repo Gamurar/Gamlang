@@ -12,6 +12,7 @@ import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Model.database.CardEntry;
+import com.gamurar.gamlang.View.ExploreFragment;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.NetworkUtils;
@@ -22,6 +23,7 @@ import com.gamurar.gamlang.utilities.WordTranslation;
 import com.gamurar.gamlang.views.ImageViewBitmap;
 import com.squareup.picasso.Picasso;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.json.JSONException;
 import org.jsoup.nodes.Document;
 
@@ -443,7 +445,7 @@ public class Tasks {
     }
 
     public static class loadSuggestionCards extends AsyncTask<String, Pair, Void> {
-        private ProgressableAdapter mAdapter;
+        private final ProgressableAdapter mAdapter;
         private String fromLang;
         private String toLang ;
 
@@ -454,12 +456,19 @@ public class Tasks {
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (!ExploreFragment.sLastTyped.equals(ExploreFragment.sLastSearched)) {
+                this.cancel(true);
+            }
+        }
+
+        @Override
         protected Void doInBackground(String... words) {
             for (String word : words) {
                 String translation = NetworkUtils.translateByGlosbe(word, fromLang, toLang);
                 if (translation != null && !translation.isEmpty()) {
-                    Pair<String, String> pair = new Pair<>(word, translation);
-                    publishProgress(pair);
+                    publishProgress(new Pair<>(word, translation));
                 }
             }
 
@@ -469,7 +478,20 @@ public class Tasks {
         @Override
         protected void onProgressUpdate(Pair... values) {
             super.onProgressUpdate(values);
-            mAdapter.insert(values[0]);
+                if (ExploreFragment.sLastTyped.equals(ExploreFragment.sLastSearched)) {
+                    mAdapter.insert(values[0]);
+                } else {
+                    this.cancel(true);
+                    mAdapter.clear();
+                    if (!ExploreFragment.sLastTyped.isEmpty())
+                        NetworkUtils.requestWikiOpenSearchAgain();
+                }
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
         }
     }
 

@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -14,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -24,12 +26,10 @@ import android.widget.TextView;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.CardViewModel;
 import com.gamurar.gamlang.ViewModel.ExploreViewModel;
-import com.gamurar.gamlang.ViewModel.ExploreViewModelFactory;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesAdapter;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.SuggestionAdapter;
-import com.gamurar.gamlang.utilities.SystemUtils;
 import com.gamurar.gamlang.utilities.WordClick;
 import com.gamurar.gamlang.utilities.WordContext;
 import com.gamurar.gamlang.utilities.WordTranslation;
@@ -47,7 +47,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,7 +55,7 @@ import androidx.viewpager.widget.ViewPager;
 
 public class ExploreActivity extends AppCompatActivity implements WordTranslation, WordContext, ImagesLoadable {
 
-    private static final String TAG = "ExploreActivity";
+    private static final String TAG = "Adapter problem";
     private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
 
     private static final int NUM_PAGES = 2;
@@ -91,36 +90,13 @@ public class ExploreActivity extends AppCompatActivity implements WordTranslatio
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_explore);
         //setActionBar();
+        mExploreViewModel = ViewModelProviders.of(this).get(ExploreViewModel.class);
+
         mPager = findViewById(R.id.pager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
         TabLayout tabs = findViewById(R.id.lang_tabs);
         tabs.setupWithViewPager(mPager);
-        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                suggestionAdapter.clear();
-                mExploreViewModel.reverseSearchLang();
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
-        mFirstExploreFragment = new ExploreFragment();
-        mSecondExploreFragment = new ExploreFragment();
-        Bundle reverseBundle = new Bundle();
-        reverseBundle.putBoolean(EXPLORE_FRAGMENT_TAG, true);
-        mSecondExploreFragment.setArguments(reverseBundle);
-        suggestionAdapter = new SuggestionAdapter(this, mFirstExploreFragment);
-
 
 //        mActionBar.setTitle(R.string.explore);
 //        init();
@@ -333,24 +309,25 @@ public class ExploreActivity extends AppCompatActivity implements WordTranslatio
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+        ExploreFragment[] fragments;
+
         public ScreenSlidePagerAdapter(FragmentManager fm) {
             super(fm);
+            Bundle reverseBundle = new Bundle();
+            reverseBundle.putBoolean(ExploreFragment.KEY_IS_REVERSED, true);
+            ExploreFragment mFirstExploreFragment = new ExploreFragment();
+            ExploreFragment mSecondExploreFragment = new ExploreFragment();
+            mSecondExploreFragment.setArguments(reverseBundle);
+            mFirstExploreFragment.setViewModel(mExploreViewModel);
+            mSecondExploreFragment.setViewModel(mExploreViewModel);
+            fragments = new ExploreFragment[2];
+            fragments[0] = mFirstExploreFragment;
+            fragments[1] = mSecondExploreFragment;
         }
 
         @Override
         public Fragment getItem(int position) {
-            switch (position) {
-                case 0: {
-                    return mFirstExploreFragment;
-                }
-                case 1: {
-                    return mSecondExploreFragment;
-                }
-                default:
-                    return mFirstExploreFragment;
-            }
-
-
+            return fragments[position];
         }
 
         @Override
@@ -367,30 +344,79 @@ public class ExploreActivity extends AppCompatActivity implements WordTranslatio
                 default: return getString(R.string.pref_lang_eng_label);
             }
         }
+
+        @NonNull
+        @Override
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
+            Log.d(TAG, "instantiateItem() from Pager adapter called");
+            return super.instantiateItem(container, position);
+        }
+
+        @Override
+        public void startUpdate(@NonNull ViewGroup container) {
+            Log.d(TAG, "startUpdate() from Pager adapter called");
+            super.startUpdate(container);
+        }
+
+        @Override
+        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+            Log.d(TAG, "destroyItem() from Pager adapter called");
+            super.destroyItem(container, position, object);
+        }
+
+        @Override
+        public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+            Log.d(TAG, "setPrimaryItem() from Pager adapter called");
+            Log.d(TAG, "setPrimaryItem() - position: " + position);
+            super.setPrimaryItem(container, position, object);
+            mExploreViewModel.initOpenSearch(fragments[position].getAdapter(), isReversed(position));
+        }
+
+        @Override
+        public void finishUpdate(@NonNull ViewGroup container) {
+            Log.d(TAG, "finishUpdate() from Pager adapter called");
+            super.finishUpdate(container);
+        }
+
+        @Override
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+            Log.d(TAG, "isViewFromObject() from Pager adapter called");
+            return super.isViewFromObject(view, object);
+        }
+
+        @Nullable
+        @Override
+        public Parcelable saveState() {
+            return super.saveState();
+        }
+
+        @Override
+        public void restoreState(@Nullable Parcelable state, @Nullable ClassLoader loader) {
+            super.restoreState(state, loader);
+        }
+
+        private boolean isReversed(int position) {
+            return position == 2;
+        }
     }
 
     public void closeExplore(View view) {
         onBackPressed();
     }
 
-    public ExploreViewModel setExploreRecyclerView(RecyclerView rv) {
-        rv.setLayoutManager(
-                new GridLayoutManager(this, 2)
-        );
-        rv.setAdapter(suggestionAdapter);
+//    public ExploreViewModel setExploreRecyclerView(RecyclerView rv) {
+//        mExploreViewModel = ViewModelProviders.of(this).get(ExploreViewModel.class);
+//        mSuggestions = rv;
+//        rv.setLayoutManager(
+//                new GridLayoutManager(this, 2));
+//        rv.setAdapter(mExploreViewModel.getAdapter());
+//
+//        return mExploreViewModel;
+//    }
 
-        ExploreViewModelFactory factory = new ExploreViewModelFactory(this);
-        mExploreViewModel = ViewModelProviders.of(this, factory).get(ExploreViewModel.class);
-        mExploreViewModel.getOpenSearchWords().observe(this, new Observer<String[]>() {
-            @Override
-            public void onChanged(String[] words) {
-                Log.d(TAG, "suggested words changed");
-                mExploreViewModel.loadSearchCards(words, suggestionAdapter);
-            }
-        });
-
-        return mExploreViewModel;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume() called");
     }
-
-
 }

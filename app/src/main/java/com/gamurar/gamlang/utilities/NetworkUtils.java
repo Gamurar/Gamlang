@@ -10,6 +10,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.gamurar.gamlang.Model.CardRepository;
+import com.gamurar.gamlang.Model.Tasks;
+import com.gamurar.gamlang.View.ExploreFragment;
 import com.gamurar.gamlang.Word;
 
 import org.json.JSONArray;
@@ -79,13 +81,12 @@ public class NetworkUtils {
     private static final String GLOSBE_PARAM_TRANSLATION_LANG = "dest";
 
     //Wikitionary opensearch API
-    private static final String WIKI_OPENSEARCH_ACTION = "https://en.wiktionary.org/w/api.php?action=opensearch";
+    public static final String WIKI_OPENSEARCH_ACTION = "https://en.wiktionary.org/w/api.php?action=opensearch";
     private static final String WIKI_PARAM_SEARCH = "search";
     private static final String WIKI_PARAM_LIMIT = "limit";
     private static final String PARAM_FORMAT = "format";
     private static final String jsonFormat = "json";
     private static final String wikiResultsLimit = "3";
-
     /**
      * Builds the URL used to query GitHub.
      *
@@ -509,32 +510,60 @@ public class NetworkUtils {
     }
 
     public static void wikiOpenSearchRequest(String word) {
+        if (!ExploreFragment.sLastTyped.equals(word)) {
+            requestWikiOpenSearchAgain();
+        }
         String url = buildUrl(word, WIKI_OPENSEARCH_ACTION).toString();
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        Log.d(TAG, "wikiOpenSearchRequest response:  " + response.toString());
-                        try {
-                            JSONArray jsonWords = response.getJSONArray(1);
-                            String[] words = new String[jsonWords.length()];
-
-                            for (int i = 0; i < jsonWords.length(); i++) {
-                                words[i] = jsonWords.getString(i);
-                            }
-                            CardRepository.wikiOpenSearchWords.postValue(words);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-                });
+                (Request.Method.GET, url, null,
+                        CardRepository.wikiResponseListener,
+                        new ErrorListener());
         CardRepository.requestQueue.add(jsonArrayRequest);
-        CardRepository.requestQueue.start();
+        ExploreFragment.sIsSearching = true;
+        ExploreFragment.sLastSearched = word;
+    }
+
+    public static class WikiOpenSearchResponseListener implements Response.Listener<JSONArray> {
+        ProgressableAdapter mAdapter;
+
+        public WikiOpenSearchResponseListener(ProgressableAdapter adapter) {
+            mAdapter = adapter;
+        }
+
+        @Override
+        public void onResponse(JSONArray response) {
+            ExploreFragment.sIsSearching = false;
+            if (!ExploreFragment.sLastTyped.equals(ExploreFragment.sLastSearched)) {
+                requestWikiOpenSearchAgain();
+                return;
+            }
+            Log.d(TAG, "wikiOpenSearchRequest response:  " + response.toString());
+            try {
+                JSONArray jsonWords = response.getJSONArray(1);
+                String[] words = new String[jsonWords.length()];
+
+                for (int i = 0; i < jsonWords.length(); i++) {
+                    words[i] = jsonWords.getString(i);
+                }
+                CardRepository.loadSuggestionCards(words);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static class ErrorListener implements Response.ErrorListener {
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+        }
+    }
+
+    public static void requestWikiOpenSearchAgain() {
+        String query = ExploreFragment.sLastTyped;
+        ExploreFragment.sLastSearched = query;
+        wikiOpenSearchRequest(query);
     }
 
 

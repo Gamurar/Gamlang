@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,7 +64,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Ca
     }
 
     public void clear() {
-        mCards = new ArrayList<>();
+        mCards.clear();
         notifyDataSetChanged();
     }
 
@@ -79,9 +80,10 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Ca
 
     @Override
     public void insert(Object item) {
+        Log.d(TAG, "insert: Adapter that receives query responses: " + this);
         if (item instanceof Pair) {
             Pair<String, String> pair = (Pair<String, String>) item;
-            addCard(pair);
+                addCard(pair);
         }
     }
 
