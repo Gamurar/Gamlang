@@ -397,6 +397,38 @@ public class NetworkUtils {
         return response.toString();
     }
 
+    /**
+     * @return response from the get request
+     * */
+    public static String GETRequest(URL url) {
+        try {
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+
+            int responseCode = con.getResponseCode();
+            Log.i(TAG, "\nSending 'GET' request to URL : " + url);
+            Log.i(TAG, "Response Code : " + responseCode);
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            Log.i(TAG, "Response: " + response);
+
+            return response.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public static Word getWordFromShortTranslation(String JSONString) {
         try {
             JSONObject json = new JSONObject(JSONString)
@@ -509,60 +541,27 @@ public class NetworkUtils {
         return GLOSBE_BASE_URL + players.get(0).attr("data-url-ogg");
     }
 
-    public static void wikiOpenSearchRequest(String word) {
-        if (!ExploreFragment.sLastTyped.equals(word)) {
-            requestWikiOpenSearchAgain();
-        }
-        String url = buildUrl(word, WIKI_OPENSEARCH_ACTION).toString();
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
-                (Request.Method.GET, url, null,
-                        CardRepository.wikiResponseListener,
-                        new ErrorListener());
-        CardRepository.requestQueue.add(jsonArrayRequest);
-        ExploreFragment.sIsSearching = true;
-        ExploreFragment.sLastSearched = word;
-    }
+    public static String[] wikiOpenSearchRequest(String word) {
+        URL url = buildUrl(word, WIKI_OPENSEARCH_ACTION);
+        String response = GETRequest(url);
+        try {
+            if (response == null) return null;
+            JSONArray jsonWords = new JSONArray(response).getJSONArray(1);
+            String[] words = new String[jsonWords.length()];
 
-    public static class WikiOpenSearchResponseListener implements Response.Listener<JSONArray> {
-        ProgressableAdapter mAdapter;
-
-        public WikiOpenSearchResponseListener(ProgressableAdapter adapter) {
-            mAdapter = adapter;
-        }
-
-        @Override
-        public void onResponse(JSONArray response) {
-            ExploreFragment.sIsSearching = false;
-            if (!ExploreFragment.sLastTyped.equals(ExploreFragment.sLastSearched)) {
-                requestWikiOpenSearchAgain();
-                return;
+            for (int i = 0; i < jsonWords.length(); i++) {
+                words[i] = jsonWords.getString(i);
             }
-            Log.d(TAG, "wikiOpenSearchRequest response:  " + response.toString());
-            try {
-                JSONArray jsonWords = response.getJSONArray(1);
-                String[] words = new String[jsonWords.length()];
-
-                for (int i = 0; i < jsonWords.length(); i++) {
-                    words[i] = jsonWords.getString(i);
-                }
-                CardRepository.loadSuggestionCards(words);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public static class ErrorListener implements Response.ErrorListener {
-
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            error.printStackTrace();
+            return words;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
     public static void requestWikiOpenSearchAgain() {
-        String query = ExploreFragment.sLastTyped;
-        ExploreFragment.sLastSearched = query;
+        String query = LiveSearchHelper.lastTyped;
+        LiveSearchHelper.lastSearched = query;
         wikiOpenSearchRequest(query);
     }
 

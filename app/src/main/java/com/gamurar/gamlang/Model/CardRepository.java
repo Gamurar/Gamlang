@@ -1,6 +1,7 @@
 package com.gamurar.gamlang.Model;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
@@ -17,7 +18,9 @@ import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.View.ExploreFragment;
 import com.gamurar.gamlang.Word;
+import com.gamurar.gamlang.utilities.AppExecutors;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
+import com.gamurar.gamlang.utilities.LiveSearchHelper;
 import com.gamurar.gamlang.utilities.MySingleton;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.PreferencesUtils;
@@ -34,6 +37,7 @@ import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -59,7 +63,6 @@ public class CardRepository {
     private static String mToLangCode;
     private static boolean mIsReversed = false;
     public static RequestQueue requestQueue;
-    public static NetworkUtils.WikiOpenSearchResponseListener wikiResponseListener;
     private static ProgressableAdapter mAdapter;
 
     public CardRepository(Context context) {
@@ -98,7 +101,6 @@ public class CardRepository {
 
     public void initOpenSearch(ProgressableAdapter adapter) {
         mAdapter = adapter;
-        wikiResponseListener = new NetworkUtils.WikiOpenSearchResponseListener(adapter);
         Log.d(TAG, "initOpenSearch: Repository Adapter: " + mAdapter);
     }
 
@@ -174,6 +176,13 @@ public class CardRepository {
         new Tasks.translateQueryTask(fragment, mFromLangCode, mToLangCode).execute(word);
     }
 
+    public String translateByGlosbe(String word) {
+        if (isReversed())
+            return NetworkUtils.translateByGlosbe(word, mToLangCode, mFromLangCode);
+        else
+            return NetworkUtils.translateByGlosbe(word, mFromLangCode, mToLangCode);
+    }
+
     public String savePictures(HashSet<ImageViewBitmap> imageViews) {
         try {
             String fileNames = new Tasks.savePicturesAsyncTask()
@@ -197,8 +206,51 @@ public class CardRepository {
         return wikiOpenSearchWords;
     }
 
-    public static void openSearch(String word) {
-        NetworkUtils.wikiOpenSearchRequest(word);
+    public static void openSearch() {
+//        AppExecutors.getInstance().networkIO().execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                Tasks.loadSuggestionCards loadCardsTask = new Tasks.loadSuggestionCards(mAdapter, mFromLangCode, mToLangCode);
+//                while (LiveSearchHelper.isTyping) {
+//                    String query;
+//                    while (LiveSearchHelper.lastTyped.isEmpty()) {
+//
+//                        this.wait();
+//                    }
+//                    LiveSearchHelper.lastSearched = query;
+//                    String[] words = NetworkUtils.wikiOpenSearchRequest(query);
+//                    if (LiveSearchHelper.lastTyped.equals(query)) {
+//                        loadCardsTask.execute(words);
+//                    }
+//
+//                }
+//            }
+//        });
+
+
+//        String[] words;
+//        Runnable wikiOpenSearch = new Runnable() {
+//            @Override
+//            public void run() {
+//                String word = LiveSearchHelper.lastTyped;
+//                LiveSearchHelper.lastSearched = word;
+//                LiveSearchHelper.isSearching = true;
+//                words = NetworkUtils.wikiOpenSearchRequest(word);
+//            }
+//        };
+//
+//        Runnable main = new Runnable() {
+//            @Override
+//            public void run() {
+//                Executor executor = AsyncTask.SERIAL_EXECUTOR;
+//                while (LiveSearchHelper.isTyping) {
+//                    executor.execute(wikiOpenSearch);
+//                }
+//            }
+//
+//        };
+
+
     }
 
     public static void loadSuggestionCards(String[] words) {
@@ -224,6 +276,23 @@ public class CardRepository {
 
     public void setReversed(boolean isReversed) {
         mIsReversed = isReversed;
+    }
+
+    private class OpenSearchRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            Tasks.loadSuggestionCards loadCardsTask = new Tasks.loadSuggestionCards(mAdapter, mFromLangCode, mToLangCode);
+            while (LiveSearchHelper.isTyping) {
+                String query = LiveSearchHelper.lastTyped;
+                LiveSearchHelper.lastSearched = query;
+                String[] words = NetworkUtils.wikiOpenSearchRequest(query);
+                if (LiveSearchHelper.lastTyped.equals(query)) {
+                    loadCardsTask.execute(words);
+                }
+
+            }
+        }
     }
 }
 

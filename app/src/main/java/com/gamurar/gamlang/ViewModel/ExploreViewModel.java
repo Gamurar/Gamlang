@@ -25,8 +25,12 @@ public class ExploreViewModel extends AndroidViewModel {
 
     public void queryOpenSearch(String query) {
         if (!query.isEmpty()) {
-            CardRepository.openSearch(query);
+//            CardRepository.openSearch(query);
         }
+    }
+
+    public void startOpenSearch() {
+        CardRepository.openSearch();
     }
 
     public void initOpenSearch(SuggestionAdapter adapter, boolean isReversed) {
@@ -40,8 +44,14 @@ public class ExploreViewModel extends AndroidViewModel {
 
     public void reverseSearchLang() { mRepository.reverseSearchLang(); }
 
+    public void setLangReversed(boolean isReversed) { mRepository.setReversed(isReversed); }
+
     public boolean isReversed() {
         return mRepository.isReversed();
+    }
+
+    public String translateByGlosbe(String word) {
+        return mRepository.translateByGlosbe(word);
     }
 
 }

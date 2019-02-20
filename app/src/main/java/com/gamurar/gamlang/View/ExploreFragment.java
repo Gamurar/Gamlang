@@ -4,16 +4,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.appcompat.widget.SearchView;
 
+import com.gamurar.gamlang.Model.Tasks;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.ExploreViewModel;
+import com.gamurar.gamlang.utilities.AppExecutors;
+import com.gamurar.gamlang.utilities.LiveSearchHelper;
+import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.SuggestionAdapter;
 import com.gamurar.gamlang.utilities.SystemUtils;
+
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.lang.reflect.Array;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,6 +32,17 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import io.reactivex.Notification;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 public class ExploreFragment extends Fragment implements SuggestionAdapter.ExploreCardClickListener {
 
@@ -33,10 +55,6 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     private boolean isReversed = false;
     private ExploreActivity parentActivity;
     private RecyclerView mRecyclerView;
-
-    public static boolean sIsSearching = false;
-    public static String sLastTyped;
-    public static String sLastSearched;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -70,24 +88,19 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
         if (getArguments() != null && getArguments().getBoolean(KEY_IS_REVERSED)) {
             mSearchView.setQueryHint(getString(R.string.search_word_hint_ru));
         }
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                mAdapter.clear();
-                sLastTyped = query;
-                mViewModel.queryOpenSearch(query);
-                SystemUtils.closeKeyboard(getActivity());
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                mAdapter.clear();
-                sLastTyped = newText;
-                mViewModel.queryOpenSearch(newText);
-                return true;
-            }
-        });
+//        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                return true;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                mAdapter.clear();
+//                return true;
+//            }
+//        });
+        setUpSearchObservable();
     }
 
     @Override
@@ -119,6 +132,66 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
 
     public void setViewModel(ExploreViewModel viewModel) {
         mViewModel = viewModel;
+    }
+
+    private void setUpSearchObservable() {
+        LiveSearchHelper.RxSearchObservable.fromView(mSearchView)
+                .debounce(300, TimeUnit.MILLISECONDS)
+                .filter(new Predicate<String>() {
+                    @Override
+                    public boolean test(String text) {
+                        return !text.isEmpty();
+                    }
+                })
+                .distinct()
+                .switchMap(new Function<String, ObservableSource<String>>() {
+                    @Override
+                    public ObservableSource<String> apply(String query) throws Exception {
+                        AppExecutors.getInstance().mainThread().execute(() -> mAdapter.clear());
+                        if (query == null) return Observable.just("");
+                        Log.d(TAG, "WikiOpenSearch api call: " + query);
+                        String words[] = NetworkUtils.wikiOpenSearchRequest(query);
+                        if (words == null || words.length < 1) return Observable.just("");
+                        return Observable.fromArray(words);
+                    }
+                })
+                .flatMap(new Function<String, ObservableSource<Pair<String,String>>>() {
+                    @Override
+                    public ObservableSource<Pair<String,String>> apply(String word) throws Exception {
+                        if (word == null) return Observable.just(new Pair<>(word, ""));
+                        Log.d(TAG, "Glosbe translation api call: " + word);
+                        String translation = mViewModel.translateByGlosbe(word);
+                        if (translation == null) return Observable.just(new Pair<>(word, ""));
+                        return Observable.just(new Pair<>(word, translation));
+//                        return new Pair<>(query, translation);
+                    }
+
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Pair<String, String>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.d(TAG, "onSubscribe()");
+                    }
+
+                    @Override
+                    public void onNext(Pair<String, String> pair) {
+                        if (!pair.first.isEmpty() && !pair.second.isEmpty()) {
+                            mAdapter.insert(pair);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete()");
+                    }
+                });
     }
 
 

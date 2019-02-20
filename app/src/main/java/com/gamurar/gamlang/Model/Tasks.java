@@ -15,6 +15,7 @@ import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.View.ExploreFragment;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
+import com.gamurar.gamlang.utilities.LiveSearchHelper;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.ProgressableAdapter;
 import com.gamurar.gamlang.utilities.Updatable;
@@ -458,13 +459,14 @@ public class Tasks {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (!ExploreFragment.sLastTyped.equals(ExploreFragment.sLastSearched)) {
+            if (!LiveSearchHelper.lastTyped.equals(LiveSearchHelper.lastSearched)) {
                 this.cancel(true);
             }
         }
 
         @Override
         protected Void doInBackground(String... words) {
+            if (isCancelled()) return null;
             for (String word : words) {
                 String translation = NetworkUtils.translateByGlosbe(word, fromLang, toLang);
                 if (translation != null && !translation.isEmpty()) {
@@ -478,20 +480,14 @@ public class Tasks {
         @Override
         protected void onProgressUpdate(Pair... values) {
             super.onProgressUpdate(values);
-                if (ExploreFragment.sLastTyped.equals(ExploreFragment.sLastSearched)) {
+                if (LiveSearchHelper.lastTyped.equals(LiveSearchHelper.lastSearched)) {
                     mAdapter.insert(values[0]);
                 } else {
                     this.cancel(true);
                     mAdapter.clear();
-                    if (!ExploreFragment.sLastTyped.isEmpty())
+                    if (!LiveSearchHelper.lastTyped.isEmpty())
                         NetworkUtils.requestWikiOpenSearchAgain();
                 }
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
         }
     }
 

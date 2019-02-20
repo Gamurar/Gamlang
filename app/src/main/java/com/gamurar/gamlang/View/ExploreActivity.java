@@ -369,7 +369,8 @@ public class ExploreActivity extends AppCompatActivity implements WordTranslatio
             Log.d(TAG, "setPrimaryItem() from Pager adapter called");
             Log.d(TAG, "setPrimaryItem() - position: " + position);
             super.setPrimaryItem(container, position, object);
-            mExploreViewModel.initOpenSearch(fragments[position].getAdapter(), isReversed(position));
+            boolean isReversed = position == 1;
+            mExploreViewModel.setLangReversed(isReversed);
         }
 
         @Override

@@ -13,8 +13,12 @@ import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.SystemUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import io.reactivex.Observable;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -30,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
+        testingRxJava();
     }
 
     private void init() {
@@ -62,5 +67,19 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, mActivity);
             startActivity(intent);
         }
+    }
+
+
+    private void testingRxJava() {
+        /*
+        * *********************LEARNING**********************/
+
+
+
+
+
+
+        /*
+         * **********************LEARNING*********************/
     }
 }
