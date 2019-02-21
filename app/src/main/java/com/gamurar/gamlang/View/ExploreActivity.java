@@ -48,7 +48,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -310,14 +309,24 @@ public class ExploreActivity extends AppCompatActivity implements WordTranslatio
 
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
         ExploreFragment[] fragments;
+        String fromLang;
+        String toLang;
 
         public ScreenSlidePagerAdapter(FragmentManager fm) {
             super(fm);
-            Bundle reverseBundle = new Bundle();
-            reverseBundle.putBoolean(ExploreFragment.KEY_IS_REVERSED, true);
+            fromLang = mExploreViewModel.getFromLang();
+            toLang = mExploreViewModel.getToLang();
+            Bundle fromBundle = new Bundle();
+            Bundle toBundle = new Bundle();
+            fromBundle.putString(ExploreFragment.KEY_LANG, fromLang);
+            toBundle.putString(ExploreFragment.KEY_LANG, toLang);
+
             ExploreFragment mFirstExploreFragment = new ExploreFragment();
             ExploreFragment mSecondExploreFragment = new ExploreFragment();
-            mSecondExploreFragment.setArguments(reverseBundle);
+
+            mFirstExploreFragment.setArguments(fromBundle);
+            mSecondExploreFragment.setArguments(toBundle);
+
             mFirstExploreFragment.setViewModel(mExploreViewModel);
             mSecondExploreFragment.setViewModel(mExploreViewModel);
             fragments = new ExploreFragment[2];
@@ -338,11 +347,7 @@ public class ExploreActivity extends AppCompatActivity implements WordTranslatio
         @Nullable
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0: return getString(R.string.pref_lang_eng_label);
-                case 1: return getString(R.string.pref_lang_ru_label);
-                default: return getString(R.string.pref_lang_eng_label);
-            }
+            return position == 0 ? fromLang : toLang;
         }
 
         @NonNull

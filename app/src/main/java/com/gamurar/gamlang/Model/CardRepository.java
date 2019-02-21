@@ -278,6 +278,14 @@ public class CardRepository {
         mIsReversed = isReversed;
     }
 
+    public String getPrefFromLang() {
+        return PreferencesUtils.getPrefFromLang(mContext);
+    }
+
+    public String getPrefToLang() {
+        return PreferencesUtils.getPrefToLang(mContext);
+    }
+
     private class OpenSearchRunnable implements Runnable {
 
         @Override

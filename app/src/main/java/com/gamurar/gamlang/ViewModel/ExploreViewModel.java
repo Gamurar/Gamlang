@@ -54,4 +54,8 @@ public class ExploreViewModel extends AndroidViewModel {
         return mRepository.translateByGlosbe(word);
     }
 
+    public String getFromLang() { return mRepository.getPrefFromLang(); }
+
+    public String getToLang() { return mRepository.getPrefToLang(); }
+
 }

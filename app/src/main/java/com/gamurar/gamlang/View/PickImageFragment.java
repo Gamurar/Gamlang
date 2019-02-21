@@ -93,7 +93,7 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
     public void onImageClick(ImageViewBitmap imgView) {
         if (!selectedImages.contains(imgView)) {
             selectedImages.add(imgView);
-            imgView.setBorderColor(getResources().getColor(R.color.colorPrimary));
+            imgView.setBorderColor(getResources().getColor(R.color.colorAccent));
         } else {
             selectedImages.remove(imgView);
             imgView.setBorderColor(getResources().getColor(android.R.color.white));

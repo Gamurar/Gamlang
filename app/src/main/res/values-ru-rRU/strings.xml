@@ -33,4 +33,8 @@
     <string name="what_to_do_next">Куда дальше пойдём?</string>
     <string name="explore">Поиск</string>
     <string name="settings">Настройки</string>
+    <string name="search_word_hint">Искать слово на %1$s</string>
+    <string name="pref_lang_eng_value">английский</string>
+    <string name="pref_lang_ro_value">румынский</string>
+    <string name="pref_lang_ru_value">русский</string>
 </resources>

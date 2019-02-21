@@ -513,6 +513,10 @@ public class Tasks {
                 word.setIPA(NetworkUtils.extractGlosbeIPA(glosbePage));
                 try {
                     String soundURL = NetworkUtils.extractGlosbeSound(glosbePage);
+                    if (soundURL == null || soundURL.isEmpty()) {
+                        soundURL = NetworkUtils.extractForvoSound(word.getName(), mFromLang);
+                        if (soundURL == null) return null;
+                    }
                     MediaPlayer mediaPlayer = new MediaPlayer();
                     mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                     mediaPlayer.setDataSource(soundURL);

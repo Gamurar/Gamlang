@@ -21,6 +21,7 @@
     <string name="search_new_words_label">Find new words to learn</string>
     <string name="search_word_hint_en">Search for a word in English</string>
     <string name="search_word_hint_ru">Search for a word in Russian</string>
+    <string name="search_word_hint">Search for a word in %1$s</string>
     <string name="settings">Settings</string>
 
     <!--Card creation-->
@@ -53,9 +54,9 @@
     <string name="pref_lang_ro_label">Romanian</string>
     <string name="pref_lang_ru_label">Russian</string>
 
-    <string name="pref_lang_eng_value" translatable="false">english</string>
-    <string name="pref_lang_ro_value" translatable="false">romanian</string>
-    <string name="pref_lang_ru_value" translatable="false">russian</string>
+    <string name="pref_lang_eng_value">english</string>
+    <string name="pref_lang_ro_value">romanian</string>
+    <string name="pref_lang_ru_value">russian</string>
 
     <string name="pref_from_lang_label">Translate from language</string>
     <string name="pref_from_lang_key" translatable="false">translate_from_lang</string>

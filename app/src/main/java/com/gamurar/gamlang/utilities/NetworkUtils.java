@@ -30,6 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
 
@@ -86,7 +87,7 @@ public class NetworkUtils {
     private static final String WIKI_PARAM_LIMIT = "limit";
     private static final String PARAM_FORMAT = "format";
     private static final String jsonFormat = "json";
-    private static final String wikiResultsLimit = "3";
+    private static final String wikiResultsLimit = "10";
     /**
      * Builds the URL used to query GitHub.
      *
@@ -529,16 +530,42 @@ public class NetworkUtils {
         Elements defs = glosbePage.getElementsContainingOwnText("IPA:");
         if (defs.hasText()) {
             String IPAs = defs.get(0).nextElementSibling().text();
-            String pattern = "(.*/)([^/]+)(/.*)";
+            String pattern = "(.*[/\\[])([^/]+)([/\\]].*)";
             return IPAs.replaceFirst(pattern, "$2");
         }
         return null;
     }
 
     public static String extractGlosbeSound(Document glosbePage) {
-        Elements players = glosbePage.getElementsByClass("audioPlayer");
+        try {
+            return glosbePage.getElementById("add-translation-container")
+                    .nextElementSibling().getElementsByAttribute("data-url-ogg")
+                    .get(0).attr("data-url-ogg");
+        } catch (Throwable e) {
+            Log.e(TAG, e.getMessage(), e);
+            return null;
+        }
+    }
 
-        return GLOSBE_BASE_URL + players.get(0).attr("data-url-ogg");
+    public static String extractForvoSound(String word, String langCode) {
+        String url = "https://forvo.com/word/" + word + "/#" + langCode;
+        Log.d(TAG, "Forvo page url: " + url);
+        try {
+            Log.d(TAG, "parse Forvo url: " + url);
+            Document page = Jsoup.connect(url).get();
+            String func = page.getElementById("language-container-" + langCode)
+                    .getElementsByAttribute("onclick").get(0).attr("onclick");
+            String pattern = "(^Play\\(\\d*,'.*','.*',(?:false|true),')(.+)(','.*','h'\\);return false;$)";
+            String cipher = func.replaceFirst(pattern, "$2");
+            String baseUrl = "https://audio00.forvo.com/audios";
+            String decoded = new String(android.util.Base64.decode(cipher, android.util.Base64.DEFAULT));
+            String soundUrl = baseUrl + "/mp3/" + decoded;
+            Log.d(TAG, "Forvo sound url: " + soundUrl);
+            return soundUrl;
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            return null;
+        }
     }
 
     public static String[] wikiOpenSearchRequest(String word) {

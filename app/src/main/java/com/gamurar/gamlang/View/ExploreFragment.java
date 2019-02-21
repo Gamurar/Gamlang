@@ -5,13 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
+import android.util.StateSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.appcompat.widget.SearchView;
 
-import com.gamurar.gamlang.Model.Tasks;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.ExploreViewModel;
 import com.gamurar.gamlang.utilities.AppExecutors;
@@ -20,25 +21,18 @@ import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.SuggestionAdapter;
 import com.gamurar.gamlang.utilities.SystemUtils;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-import java.lang.reflect.Array;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import io.reactivex.Notification;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
@@ -47,7 +41,7 @@ import io.reactivex.subjects.PublishSubject;
 public class ExploreFragment extends Fragment implements SuggestionAdapter.ExploreCardClickListener {
 
     private static final String TAG = "ExploreFragment";
-    public static final String KEY_IS_REVERSED = "reverse_language";
+    public static final String KEY_LANG = "language_key";
 
     private ExploreViewModel mViewModel;
     private SuggestionAdapter mAdapter;
@@ -85,22 +79,29 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
         mRecyclerView.setAdapter(mAdapter);
 
         mSearchView = view.findViewById(R.id.sv_find_new_words);
-        if (getArguments() != null && getArguments().getBoolean(KEY_IS_REVERSED)) {
-            mSearchView.setQueryHint(getString(R.string.search_word_hint_ru));
+        if (getArguments() != null) {
+            String lang = getArguments().getString(KEY_LANG);
+            mSearchView.setQueryHint(getString(R.string.search_word_hint, lang));
         }
-//        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                return true;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                mAdapter.clear();
-//                return true;
-//            }
-//        });
-        setUpSearchObservable();
+
+
+        final PublishSubject<String> subject = PublishSubject.create();
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                SystemUtils.closeKeyboard(getActivity());
+                subject.onNext(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                mAdapter.clear();
+                subject.onNext(newText);
+                return true;
+            }
+        });
+        setUpSearchObservable(subject);
     }
 
     @Override
@@ -120,6 +121,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
         }
         intent.putExtra(CardCreationActivity.EXTRA_WORD_INFO, wordExtra);
         startActivity(intent);
+        mSearchView.setQuery("", false);
     }
 
     public RecyclerView getRecyclerView() {
@@ -134,9 +136,8 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
         mViewModel = viewModel;
     }
 
-    private void setUpSearchObservable() {
-        LiveSearchHelper.RxSearchObservable.fromView(mSearchView)
-                .debounce(300, TimeUnit.MILLISECONDS)
+    private void setUpSearchObservable(PublishSubject<String> subject) {
+        subject.debounce(300, TimeUnit.MILLISECONDS)
                 .filter(new Predicate<String>() {
                     @Override
                     public boolean test(String text) {
@@ -147,7 +148,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                 .switchMap(new Function<String, ObservableSource<String>>() {
                     @Override
                     public ObservableSource<String> apply(String query) throws Exception {
-                        AppExecutors.getInstance().mainThread().execute(() -> mAdapter.clear());
+//                        AppExecutors.getInstance().mainThread().execute(() -> mAdapter.clear());
                         if (query == null) return Observable.just("");
                         Log.d(TAG, "WikiOpenSearch api call: " + query);
                         String words[] = NetworkUtils.wikiOpenSearchRequest(query);
