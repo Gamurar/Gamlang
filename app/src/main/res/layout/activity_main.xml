@@ -35,22 +35,20 @@
             android:textColor="#52BAFF"
             android:textSize="14sp" />
 
-        <com.github.abdularis.civ.AvatarImageView
+        <com.github.abdularis.civ.CircleImageView
             android:id="@+id/avatar"
             android:layout_width="82dp"
             android:layout_height="82dp"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:src="@drawable/avatar"
-            app:avatarBackgroundColor="#1976D2"
-            app:highlightColor="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:state="IMAGE"
-            app:textSize="22sp" />
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true" />
 
     </RelativeLayout>
 
@@ -88,7 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Learn"
+                android:text="@string/learn"
                 android:textColor="#6f6f6f"
                 android:textSize="18sp" />
 
@@ -127,7 +125,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Dictionary"
+                android:text="@string/dictionary"
                 android:textColor="#6f6f6f"
                 android:textSize="18sp" />
 
@@ -139,7 +137,7 @@
         android:id="@+id/menu_watch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="32dp"
         android:clickable="true"
         android:focusable="true"
@@ -149,7 +147,8 @@
         app:layout_constraintEnd_toEndOf="@+id/menu_learn"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/menu_learn"
-        app:layout_constraintTop_toTopOf="@+id/guideline">
+        app:layout_constraintTop_toBottomOf="@+id/menu_learn"
+        app:layout_constraintVertical_bias="0.0">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -168,7 +167,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Watch"
+                android:text="@string/watch_video"
                 android:textColor="#6f6f6f"
                 android:textSize="18sp" />
 
@@ -180,7 +179,7 @@
         android:id="@+id/menu_settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="32dp"
         android:clickable="true"
         android:focusable="true"
@@ -190,7 +189,8 @@
         app:layout_constraintEnd_toEndOf="@+id/menu_dictionary"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/menu_dictionary"
-        app:layout_constraintTop_toTopOf="@+id/guideline">
+        app:layout_constraintTop_toBottomOf="@+id/menu_dictionary"
+        app:layout_constraintVertical_bias="0.0">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -209,7 +209,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Settings"
+                android:text="@string/settings"
                 android:textColor="#6f6f6f"
                 android:textSize="18sp" />
 
@@ -222,7 +222,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="186dp" />
+        app:layout_constraintGuide_begin="163dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_words"

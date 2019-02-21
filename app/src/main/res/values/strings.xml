@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Gamlang</string>
+    <string name="app_name" translatable="false">Gamlang</string>
 
     <!--Main menu-->
     <string name="learn">Learn</string>
@@ -13,7 +13,7 @@
     <string name="add_to_dict">Add to dictionary</string>
     <string name="translate">Translate</string>
 
-    <string name="context_pattern">- %1$s \n\n- %2$s</string>
+    <string name="context_pattern" translatable="false">- %1$s \n\n- %2$s</string>
 
     <!--Explore fragment-->
     <string name="explore">Explore</string>
@@ -21,6 +21,7 @@
     <string name="search_new_words_label">Find new words to learn</string>
     <string name="search_word_hint_en">Search for a word in English</string>
     <string name="search_word_hint_ru">Search for a word in Russian</string>
+    <string name="settings">Settings</string>
 
     <!--Card creation-->
     <string name="add_images">Add Image(s)</string>
@@ -32,7 +33,7 @@
     <string name="learn_words">Learn words</string>
 
     <!--Word-->
-    <string name="IPA">[%1$s] •\u0020</string>
+    <string name="IPA" translatable="false">[%1$s] •\u0020</string>
 
     <!--Error messages-->
     <string name="error_empty_field">Nothing to translate… :\'(</string>
@@ -52,9 +53,9 @@
     <string name="pref_lang_ro_label">Romanian</string>
     <string name="pref_lang_ru_label">Russian</string>
 
-    <string name="pref_lang_eng_value">english</string>
-    <string name="pref_lang_ro_value">romanian</string>
-    <string name="pref_lang_ru_value">russian</string>
+    <string name="pref_lang_eng_value" translatable="false">english</string>
+    <string name="pref_lang_ro_value" translatable="false">romanian</string>
+    <string name="pref_lang_ru_value" translatable="false">russian</string>
 
     <string name="pref_from_lang_label">Translate from language</string>
     <string name="pref_from_lang_key" translatable="false">translate_from_lang</string>
@@ -63,9 +64,9 @@
     <string name="pref_to_lang_key" translatable="false">translate_to_lang</string>
 
     <!--URLs-->
-    <string name="media_url_video">http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4</string>
-    <string name="media_url_sub">https://dl.dropboxusercontent.com/s/3axkrfxznzhqns1/MrRobotS01E01EN.srt</string>
-    <string name="video_url_mr_robot">https://www4.mp4upload.com:282/d/rcxtt2lbz2tc2vuo2gurgj2lk6xhj6unkll6pfxwdzwzlsftqal2vona/video.mp4</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="media_url_video" translatable="false">http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4</string>
+    <string name="media_url_sub" translatable="false">https://dl.dropboxusercontent.com/s/3axkrfxznzhqns1/MrRobotS01E01EN.srt</string>
+    <string name="video_url_mr_robot" translatable="false">https://www4.mp4upload.com:282/d/rcxtt2lbz2tc2vuo2gurgj2lk6xhj6unkll6pfxwdzwzlsftqal2vona/video.mp4</string>
+    <string name="title_activity_main" translatable="false">MainActivity</string>
 
 </resources>

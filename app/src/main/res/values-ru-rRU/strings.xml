@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gamlang</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="add_another_word">Добавить слово</string>
+    <string name="add_images">Добавить изображения</string>
+    <string name="add_to_dict">Добавить в словарь</string>
+    <string name="add_words">Добавить слова</string>
+    <string name="card_added">Карточка добавлена</string>
+    <string name="dictionary">Словарь</string>
+    <string name="error_add_to_dictionary">Нечего добавлять в словарь</string>
+    <string name="error_empty_field">Нечего переводить...:\'(</string>
+    <string name="error_no_images">Ошибка при загрузке изображений</string>
+    <string name="error_no_translation">Ошибка при переводе, пожалуйста, проверьте интернет соединение</string>
+    <string name="learn">Учить</string>
+    <string name="learn_words">Учить слова</string>
+    <string name="navigation_drawer_close">Закрыть навигацию</string>
+    <string name="navigation_drawer_open">Открыть навигацию</string>
+    <string name="pick_image">Выберите изображение</string>
+    <string name="popular_images">Популярные картинки</string>
+    <string name="pref_from_lang_label">Переводить с</string>
+    <string name="pref_lang_eng_label">Английский</string>
+    <string name="pref_lang_ro_label">Румынский</string>
+    <string name="pref_lang_ru_label">Русский</string>
+    <string name="pref_to_lang_label">Переводить на</string>
+    <string name="search_new_words_label">Найти новые слова</string>
+    <string name="search_word_hint_en">Поиск слова на Английском</string>
+    <string name="search_word_hint_ru">Поиск слова на Русском</string>
+    <string name="suggestions">Рекомендации для Вас</string>
+    <string name="translate">Перевести</string>
+    <string name="watch_video">Смотреть</string>
+    <string name="what_to_do_next">Куда дальше пойдём?</string>
+    <string name="explore">Поиск</string>
+    <string name="settings">Настройки</string>
+</resources>
