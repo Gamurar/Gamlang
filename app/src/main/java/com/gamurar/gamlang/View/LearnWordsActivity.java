@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.R;
@@ -29,7 +30,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProviders;
 
-public class LearnWordsActivity extends AppCompatActivity implements LifecycleOwner, CardStackListener {
+public class LearnWordsActivity extends AppCompatActivity implements LifecycleOwner {
 
     private static final String TAG = "LearnWordsActivity";
     private ArrayList<Card> mCards;
@@ -41,7 +42,7 @@ public class LearnWordsActivity extends AppCompatActivity implements LifecycleOw
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learn_words);
         init();
-        setupViewModel();
+//        setupViewModel();
     }
 
     private void init() {
@@ -51,16 +52,15 @@ public class LearnWordsActivity extends AppCompatActivity implements LifecycleOw
             mWindow.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             mWindow.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
         }
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.myToolbar);
         setSupportActionBar(toolbar);
         mActionBar = getSupportActionBar();
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setTitle(R.string.learn);
-        CardStackView mCardStack = findViewById(R.id.card_stack);
-        mAdapter = new CardsAdapter();
-        CardStackLayoutManager manager = new CardStackLayoutManager(this, this);
-        mCardStack.setLayoutManager(manager);
-        mCardStack.setAdapter(mAdapter);
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, new LearnSessionFragment())
+                .commit();
     }
 
     private void setupViewModel() {
@@ -72,53 +72,20 @@ public class LearnWordsActivity extends AppCompatActivity implements LifecycleOw
         });
     }
 
-    @Override
-    public void onCardDragging(Direction direction, float ratio) {
-
-    }
-
-    @Override
-    public void onCardSwiped(Direction direction) {
-
-    }
-
-    @Override
-    public void onCardRewound() {
-
-    }
-
-    @Override
-    public void onCardCanceled() {
-
-    }
-
-    @Override
-    public void onCardAppeared(View view, int position) {
-        if (mCards != null && mCards.size() > position) {
-            Card card = mCards.get(position);
-            if (card.hasSound()) card.pronounce();
-        }
-    }
-
-    @Override
-    public void onCardDisappeared(View view, int position) {
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.learn_words_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.learn_words_menu, menu);
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         switch (itemId) {
-            case R.id.action_refresh: {
-                mAdapter.notifyDataSetChanged();
-                break;
-            }
+//            case R.id.action_refresh: {
+//                mAdapter.notifyDataSetChanged();
+//                break;
+//            }
             case android.R.id.home: {
                 onBackPressed();
                 break;

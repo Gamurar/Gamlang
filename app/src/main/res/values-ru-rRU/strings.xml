@@ -37,4 +37,6 @@
     <string name="pref_lang_eng_value">английский</string>
     <string name="pref_lang_ro_value">румынский</string>
     <string name="pref_lang_ru_value">русский</string>
+    <string name="dont_remember">Не помню</string>
+    <string name="remember">Помню</string>
 </resources>

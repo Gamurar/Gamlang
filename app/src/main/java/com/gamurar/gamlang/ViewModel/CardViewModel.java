@@ -3,7 +3,6 @@ package com.gamurar.gamlang.ViewModel;
 import android.app.Application;
 
 import com.gamurar.gamlang.View.ExploreActivity;
-import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.Word;
@@ -19,7 +18,7 @@ import androidx.lifecycle.LiveData;
 
 public class CardViewModel extends AndroidViewModel {
     private CardRepository repository;
-    private LiveData<List<Card>> mCards;
+    private LiveData<List<com.gamurar.gamlang.Card>> mCards;
     private Word mWord;
 
     public CardViewModel(@NonNull Application application) {
@@ -29,15 +28,11 @@ public class CardViewModel extends AndroidViewModel {
         mCards = repository.getAllCards();
     }
 
-    public void insert(CardEntry cardEntry) {
-        repository.insert(cardEntry);
-    }
-
     public void delete(CardEntry cardEntry) {
-        repository.delete(cardEntry);
+        repository.deleteCard(cardEntry);
     }
 
-    public void delete(HashSet<Card> cards) { repository.delete(cards); }
+    public void delete(HashSet<com.gamurar.gamlang.Card> cards) { repository.deleteCard(cards); }
 
     public void deleteById(Integer[] cardIds) {
         repository.deleteById(cardIds);
@@ -51,7 +46,7 @@ public class CardViewModel extends AndroidViewModel {
         repository.deleteAllCards();
     }
 
-    public LiveData<List<Card>> getAllCards() {
+    public LiveData<List<com.gamurar.gamlang.Card>> getAllCards() {
         return mCards;
     }
 
@@ -61,14 +56,6 @@ public class CardViewModel extends AndroidViewModel {
 
     public void translateWordOnly(WordTranslation fragment, String word) {
         repository.translateWordOnly(fragment, word);
-    }
-
-    public String savePictures(HashSet<ImageViewBitmap> imageViews) {
-        return repository.savePictures(imageViews);
-    }
-
-    public void saveSound(String url) {
-        repository.saveSound(url);
     }
 
     public void setWord(Word word) {

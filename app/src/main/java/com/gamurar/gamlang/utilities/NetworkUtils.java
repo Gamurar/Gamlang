@@ -61,7 +61,7 @@ public class NetworkUtils {
     private static final int ENG = 1033;
     private static final int RUS = 1049;
 
-    //Image search on Pixels.com
+    //ImageEntry search on Pixels.com
     private static final String IMAGE_SEARCH_API_KEY
             = "563492ad6f917000010000010b67db13fe80472ea18059085d7f7a45";
     private static final String IMAGE_SEARCH_BASE_URL
@@ -370,7 +370,7 @@ public class NetworkUtils {
 
     //Get JSON Images
     public static String getImagesJSON(URL url) throws IOException {
-        Log.i(TAG, "Image search api key: " + IMAGE_SEARCH_API_KEY);
+        Log.i(TAG, "ImageEntry search api key: " + IMAGE_SEARCH_API_KEY);
 
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         // optional default is GET
@@ -538,7 +538,7 @@ public class NetworkUtils {
 
     public static String extractGlosbeSound(Document glosbePage) {
         try {
-            return glosbePage.getElementById("add-translation-container")
+            return GLOSBE_BASE_URL + glosbePage.getElementById("add-translation-container")
                     .nextElementSibling().getElementsByAttribute("data-url-ogg")
                     .get(0).attr("data-url-ogg");
         } catch (Throwable e) {

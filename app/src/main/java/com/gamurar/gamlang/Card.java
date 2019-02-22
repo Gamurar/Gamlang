@@ -10,7 +10,7 @@ public class Card {
     private String question;
     private String answer;
     private ArrayList<Bitmap> pictures;
-    private String[] pictureFileNames;
+    private ArrayList<String> pictureFileNames;
     private MediaPlayer pronunciation;
     private String soundFileName;
 
@@ -66,15 +66,15 @@ public class Card {
     }
 
     public String[] getPictureFileNames() {
-        return pictureFileNames;
+        return pictureFileNames.toArray(new String[0]);
     }
 
-    public void setPictureFileNames(String[] pictureFileNames) {
+    public void setPictureFileNames(ArrayList<String> pictureFileNames) {
         this.pictureFileNames = pictureFileNames;
     }
 
     public boolean hasPictures() {
-        return pictureFileNames != null && pictureFileNames.length > 0;
+        return pictures != null && pictures.size() > 0;
     }
 
     public MediaPlayer getPronunciation() {
@@ -98,5 +98,12 @@ public class Card {
 
     public String getSoundFileName() {
         return this.soundFileName;
+    }
+
+    public void addPictureFileName(String fileName) {
+        if (pictureFileNames == null) {
+            pictureFileNames = new ArrayList<>();
+        }
+        pictureFileNames.add(fileName);
     }
 }

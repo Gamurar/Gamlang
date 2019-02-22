@@ -1,24 +1,19 @@
 package com.gamurar.gamlang.Model;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Card;
+import com.gamurar.gamlang.Model.database.CardEntry;
+import com.gamurar.gamlang.Model.database.ImageDao;
+import com.gamurar.gamlang.Model.database.ImageEntry;
+import com.gamurar.gamlang.Model.database.SoundDao;
+import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Model.database.AppDatabase;
 import com.gamurar.gamlang.Model.database.CardDao;
-import com.gamurar.gamlang.Model.database.CardEntry;
-import com.gamurar.gamlang.View.ExploreFragment;
 import com.gamurar.gamlang.Word;
-import com.gamurar.gamlang.utilities.AppExecutors;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.LiveSearchHelper;
 import com.gamurar.gamlang.utilities.MySingleton;
@@ -29,18 +24,13 @@ import com.gamurar.gamlang.utilities.Updatable;
 import com.gamurar.gamlang.utilities.WordTranslation;
 import com.gamurar.gamlang.views.ImageViewBitmap;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.io.File;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 public class CardRepository {
@@ -55,8 +45,10 @@ public class CardRepository {
 
 
     private CardDao cardDao;
+    private ImageDao imageDao;
+    private SoundDao soundDao;
     private LiveData<List<CardEntry>> mCardEntries;
-    private LiveData<List<Card>> cards;
+    private LiveData<List<com.gamurar.gamlang.Card>> cards;
     public static String[] wikiOpenSearchWords;
     private Context mContext;
     private static String mFromLangCode;
@@ -72,12 +64,14 @@ public class CardRepository {
     public void initLocal() {
         AppDatabase db = AppDatabase.getInstance(mContext);
         cardDao = db.cardDao();
+        imageDao = db.imageDao();
+        soundDao = db.soundDao();
         mCardEntries = cardDao.loadAllCards();
         cards = Transformations.map(mCardEntries, cardEntries -> {
             CardEntry[] entries = new CardEntry[cardEntries.size()];
-            List<Card> cards = null;
+            List<com.gamurar.gamlang.Card> cards = null;
             try {
-                cards = new Tasks.createCardsAsyncTask()
+                cards = new Tasks.createCardsAsyncTask(cardDao, imageDao, soundDao)
                         .execute(cardEntries.toArray(entries))
                         .get();
             } catch (ExecutionException | InterruptedException e) {
@@ -108,30 +102,35 @@ public class CardRepository {
         return mCardEntries;
     }
 
-    public LiveData<List<Card>> getAllCards() {
+    public LiveData<List<com.gamurar.gamlang.Card>> getAllCards() {
         return cards;
     }
 
-    public void insert(CardEntry cardEntry) {
-        new Tasks.databaseAsyncTask(cardDao, INSERT_TASK).execute(cardEntry);
+
+
+    public void insertCard(CardEntry cardEntry, String[] images, String sound) {
+        new Tasks.databaseAsyncTask(cardDao, INSERT_TASK,
+                images, imageDao,
+                sound, soundDao).execute(cardEntry);
     }
 
-    public void delete(CardEntry cardEntry) {
-        new Tasks.databaseAsyncTask(cardDao, DELETE_TASK).execute(cardEntry);
+    public void deleteCard(CardEntry cardEntry) {
+        new Tasks.databaseAsyncTask(cardDao, DELETE_TASK,
+                null, null, null, null).execute(cardEntry);
     }
 
-    public void delete(HashSet<Card> cards) {
+    public void deleteCard(HashSet<Card> cards) {
         Integer[] cardIds = new Integer[cards.size()];
         int i = 0;
-        for (Card card : cards) {
+        for (com.gamurar.gamlang.Card card : cards) {
             cardIds[i] = card.getId();
             i++;
 
             if (card.hasPictures()) {
-                new Tasks.deletePicturesAsyncTask().execute(card.getPictureFileNames());
+                new Tasks.deletePicturesAsyncTask(imageDao).execute(card.getPictureFileNames());
             }
             if (card.hasSound()) {
-                new Tasks.deleteSoundAsyncTask().execute(card.getSoundFileName());
+                new Tasks.deleteSoundAsyncTask(soundDao).execute(card.getSoundFileName());
             }
         }
         new Tasks.databaseDeleteByIdAsyncTask(cardDao).execute(cardIds);
@@ -146,14 +145,15 @@ public class CardRepository {
     }
 
     public void deleteAllCards() {
-        new Tasks.databaseAsyncTask(cardDao, DELETE_ALL_TASK).execute();
+        new Tasks.databaseAsyncTask(cardDao, DELETE_ALL_TASK,
+                null, null, null, null).execute();
     }
 
     public List<Card> getCards(List<CardEntry> cardEntries) {
         CardEntry[] entries = new CardEntry[cardEntries.size()];
-        List<Card> cards = null;
+        List<com.gamurar.gamlang.Card> cards = null;
         try {
-            cards = new Tasks.createCardsAsyncTask()
+            cards = new Tasks.createCardsAsyncTask(cardDao, imageDao, soundDao)
                     .execute(cardEntries.toArray(entries))
                     .get();
         } catch (ExecutionException | InterruptedException e) {
@@ -183,13 +183,11 @@ public class CardRepository {
             return NetworkUtils.translateByGlosbe(word, mFromLangCode, mToLangCode);
     }
 
-    public String savePictures(HashSet<ImageViewBitmap> imageViews) {
+    public String[] savePictures(HashSet<ImageViewBitmap> imageViews) {
         try {
-            String fileNames = new Tasks.savePicturesAsyncTask()
+            return new Tasks.savePicturesAsyncTask(imageDao)
                     .execute( imageViews.toArray(new ImageViewBitmap[imageViews.size()]) )
                     .get();
-
-            return fileNames;
 
         } catch (ExecutionException | ConcurrentModificationException | InterruptedException e) {
             e.printStackTrace();
@@ -198,58 +196,16 @@ public class CardRepository {
         }
     }
 
-    public void saveSound(String url) {
-        new Tasks.savePronunciationAsyncTask().execute(url);
-    }
-
-    public String[] getOpenSearchLiveData() {
-        return wikiOpenSearchWords;
+    public String saveSound(String url) {
+        try {
+            return new Tasks.savePronunciationAsyncTask().execute(url).get();
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, e.getMessage(), e);
+            return null;
+        }
     }
 
     public static void openSearch() {
-//        AppExecutors.getInstance().networkIO().execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                Tasks.loadSuggestionCards loadCardsTask = new Tasks.loadSuggestionCards(mAdapter, mFromLangCode, mToLangCode);
-//                while (LiveSearchHelper.isTyping) {
-//                    String query;
-//                    while (LiveSearchHelper.lastTyped.isEmpty()) {
-//
-//                        this.wait();
-//                    }
-//                    LiveSearchHelper.lastSearched = query;
-//                    String[] words = NetworkUtils.wikiOpenSearchRequest(query);
-//                    if (LiveSearchHelper.lastTyped.equals(query)) {
-//                        loadCardsTask.execute(words);
-//                    }
-//
-//                }
-//            }
-//        });
-
-
-//        String[] words;
-//        Runnable wikiOpenSearch = new Runnable() {
-//            @Override
-//            public void run() {
-//                String word = LiveSearchHelper.lastTyped;
-//                LiveSearchHelper.lastSearched = word;
-//                LiveSearchHelper.isSearching = true;
-//                words = NetworkUtils.wikiOpenSearchRequest(word);
-//            }
-//        };
-//
-//        Runnable main = new Runnable() {
-//            @Override
-//            public void run() {
-//                Executor executor = AsyncTask.SERIAL_EXECUTOR;
-//                while (LiveSearchHelper.isTyping) {
-//                    executor.execute(wikiOpenSearch);
-//                }
-//            }
-//
-//        };
-
 
     }
 
@@ -284,23 +240,6 @@ public class CardRepository {
 
     public String getPrefToLang() {
         return PreferencesUtils.getPrefToLang(mContext);
-    }
-
-    private class OpenSearchRunnable implements Runnable {
-
-        @Override
-        public void run() {
-            Tasks.loadSuggestionCards loadCardsTask = new Tasks.loadSuggestionCards(mAdapter, mFromLangCode, mToLangCode);
-            while (LiveSearchHelper.isTyping) {
-                String query = LiveSearchHelper.lastTyped;
-                LiveSearchHelper.lastSearched = query;
-                String[] words = NetworkUtils.wikiOpenSearchRequest(query);
-                if (LiveSearchHelper.lastTyped.equals(query)) {
-                    loadCardsTask.execute(words);
-                }
-
-            }
-        }
     }
 }
 

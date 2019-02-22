@@ -34,7 +34,7 @@ public class Word {
         if (translation != null && !translation.isEmpty()) {
             this.translation = translation;
         } else {
-            Log.e(TAG, "setTranslation: Wrong translation!");
+            Log.e(TAG, "setAnswer: Wrong translation!");
         }
 
     }

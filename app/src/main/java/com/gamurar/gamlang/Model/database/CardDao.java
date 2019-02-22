@@ -17,7 +17,7 @@ public interface CardDao {
     LiveData<List<CardEntry>> loadAllCards();
 
     @Insert
-    void insertCard(CardEntry cardEntry);
+    long insertCard(CardEntry cardEntry);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateCard(CardEntry taskEntry);
@@ -33,4 +33,11 @@ public interface CardDao {
 
     @Query("SELECT * FROM card WHERE id = :id")
     CardEntry loadCardById(int id);
+
+    @Query("SELECT image.file_name AS image, sound.file_name AS sound " +
+            "FROM card " +
+            "INNER JOIN image ON card.id = image.card_id " +
+            "INNER JOIN sound ON card.id = sound.card_id " +
+            "WHERE card.id = :cardId")
+    ImageAndSound loadImageAndSoundFileNamesByCardId(int cardId);
 }

@@ -20,6 +20,8 @@ public class CardCreationViewModel extends AndroidViewModel {
 
     CardRepository mRepository;
     Word mWord;
+    private String[] images;
+    private String sounds;
 
     public CardCreationViewModel(@NonNull Application application) {
         super(application);
@@ -43,14 +45,14 @@ public class CardCreationViewModel extends AndroidViewModel {
     }
 
     public void saveSound(String url) {
-        mRepository.saveSound(url);
+        sounds = mRepository.saveSound(url);
     }
 
     public void insert(CardEntry cardEntry) {
-        mRepository.insert(cardEntry);
+        mRepository.insertCard(cardEntry, images, sounds);
     }
 
-    public String savePictures(HashSet<ImageViewBitmap> imageViews) {
-        return mRepository.savePictures(imageViews);
+    public void savePictures(HashSet<ImageViewBitmap> imageViews) {
+        images = mRepository.savePictures(imageViews);
     }
 }

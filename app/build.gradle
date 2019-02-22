@@ -60,6 +60,6 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.21'
     implementation 'com.makeramen:roundedimageview:2.3.0'
 
-    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+    implementation 'com.airbnb.android:lottie:2.7.0'
 }

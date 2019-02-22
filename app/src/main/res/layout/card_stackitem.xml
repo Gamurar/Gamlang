@@ -4,8 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/selectableItemBackground"
-    android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@android:color/white"
     app:cardCornerRadius="8dp"
     app:cardPreventCornerOverlap="false"

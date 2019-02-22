@@ -12,42 +12,24 @@ public class CardEntry {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
-    private String word;
-    private String translation;
-    private String image;
-    private String pronunciation;
-    @ColumnInfo(name = "updated_at")
-    private Date updatedAt;
+    private String question;
+    private String answer;
+    private Date created;
+    private Date lastReview;
+    private Date nextReview;
 
     @Ignore
-    public CardEntry(String word, String translation) {
-        this.word = word;
-        this.translation = translation;
-        this.updatedAt = new Date();
+    public CardEntry(String question, String answer) {
+        this.question = question;
+        this.answer = answer;
+        this.created = new Date();
     }
 
-    @Ignore
-    public CardEntry(String word, String translation, String image) {
-        this.word = word;
-        this.translation = translation;
-        this.image = image;
-        this.updatedAt = new Date();
-    }
-
-    @Ignore
-    public CardEntry(String word, String translation, String image, String pronunciation) {
-        this.word = word;
-        this.translation = translation;
-        this.image = image;
-        this.pronunciation = pronunciation;
-        this.updatedAt = new Date();
-    }
-
-    public CardEntry(int id, String word, String translation) {
+    public CardEntry(int id, String question, String answer) {
         this.id = id;
-        this.word = word;
-        this.translation = translation;
-        this.updatedAt = new Date();
+        this.question = question;
+        this.answer = answer;
+        this.created = new Date();
     }
 
     public int getId() {
@@ -58,43 +40,43 @@ public class CardEntry {
         this.id = id;
     }
 
-    public String getWord() {
-        return word;
+    public String getQuestion() {
+        return question;
     }
 
-    public void setWord(String word) {
-        this.word = word;
+    public void setQuestion(String question) {
+        this.question = question;
     }
 
-    public String getTranslation() {
-        return translation;
+    public String getAnswer() {
+        return answer;
     }
 
-    public void setTranslation(String translation) {
-        this.translation = translation;
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
 
-    public String getImage() {
-        return image;
+    public Date getLastReview() {
+        return lastReview;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setLastReview(Date lastReview) {
+        this.lastReview = lastReview;
     }
 
-    public String getPronunciation() {
-        return pronunciation;
+    public Date getNextReview() {
+        return nextReview;
     }
 
-    public void setPronunciation(String pronunciation) {
-        this.pronunciation = pronunciation;
+    public void setNextReview(Date nextReview) {
+        this.nextReview = nextReview;
     }
 
-    public Date getUpdatedAt() {
-        return updatedAt;
+    public Date getCreated() {
+        return created;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

@@ -104,13 +104,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                     mCards.get(getAdapterPosition()).pronounce();
                 }
             });
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    answerContainer.setVisibility(LinearLayout.VISIBLE);
-                    Log.d(TAG, "onClick: Answer container clicked");
-                }
-            });
         }
 
     }

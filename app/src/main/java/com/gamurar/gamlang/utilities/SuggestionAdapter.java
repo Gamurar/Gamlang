@@ -81,7 +81,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Ca
 
     @Override
     public void insert(Object item) {
-        Log.d(TAG, "insert: Adapter that receives query responses: " + this);
+        Log.d(TAG, "insertCard: Adapter that receives query responses: " + this);
         if (item instanceof Pair) {
             Pair<String, String> pair = (Pair<String, String>) item;
                 addCard(pair);

@@ -9,9 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.R;
@@ -122,19 +120,17 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
 
     private void addToDictionary() {
         Word word = viewModel.getWord();
-        CardEntry newCard = new CardEntry(word.getName(), word.getTranslation());
+        CardEntry newCardEntry = new CardEntry(word.getName(), word.getTranslation());
         if (selectedImages != null && !selectedImages.isEmpty()) {
-            String imagesString = viewModel.savePictures(selectedImages);
-            newCard.setImage(imagesString);
+            viewModel.savePictures(selectedImages);
         }
         if (word.hasSoundURL()) {
             String soundURL = word.getSoundURL();
             viewModel.saveSound(soundURL);
-            newCard.setPronunciation(soundURL);
         }
 
-        viewModel.insert(newCard);
-        Log.d(TAG, "The word " + newCard.getWord() + " has been inserted to the Database");
+        viewModel.insert(newCardEntry);
+        Log.d(TAG, "The word " + newCardEntry.getQuestion() + " has been inserted to the Database");
         parent.onCardAdded();
     }
 
