@@ -54,12 +54,12 @@ public class CardCreationActivity extends AppCompatActivity {
     }
 
     public void onCardAdded() {
-        SystemUtils.setStatusBarColor(this, R.color.colorPrimary);
-        mTopAlert.setVisibility(View.VISIBLE);
         getSupportFragmentManager()
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .replace(R.id.fragment_container, new CardCreationFinishFragment())
                 .commit();
+        SystemUtils.setStatusBarColor(this, R.color.colorPrimary);
+        mTopAlert.setVisibility(View.VISIBLE);
     }
 }

@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.CardCreationViewModel;
@@ -40,6 +41,7 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
     private ImageButton mPlayBtn;
     private Button mAddImagesBtn;
     private CardCreationActivity parent;
+    private LottieAnimationView mPreloader;
 
     @Nullable
     @Override
@@ -54,6 +56,7 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
     }
 
     private void init(View view) {
+        mPreloader = view.findViewById(R.id.preloader);
         parent = (CardCreationActivity) getActivity();
         viewModel = parent.viewModel;
 
@@ -101,16 +104,20 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
     @Override
     public void addImage(Pair<String, Bitmap> image) {
         mAdapter.addImage(image);
+        if (mAdapter.getItemCount() > 3) {
+            mPreloader.cancelAnimation();
+            mPreloader.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onLoadImagesStart() {
-
     }
 
     @Override
     public void onLoadImagesFinished() {
-
+        mPreloader.cancelAnimation();
+        mPreloader.setVisibility(View.GONE);
     }
 
     @Override

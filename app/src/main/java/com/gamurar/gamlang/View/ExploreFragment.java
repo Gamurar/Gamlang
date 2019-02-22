@@ -55,6 +55,10 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     private RecyclerView mRecyclerView;
     private ProgressBar progressBar;
 
+    private static boolean isSearching;
+    private static int wordsFromWiki = 0;
+    private static int wordsFromGlosbe = 0;
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -84,11 +88,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
         mRecyclerView.setAdapter(mAdapter);
 
         mSearchView = view.findViewById(R.id.sv_find_new_words);
-        progressBar = view.findViewById(R.id.determinateBar);
-        ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 100, 0);
-        //animation.setDuration(3500); // 3.5 second
-        animation.setInterpolator(new DecelerateInterpolator());
-        animation.start();
+        progressBar = view.findViewById(R.id.progress_bar);
         if (getArguments() != null) {
             String lang = getArguments().getString(KEY_LANG);
             mSearchView.setQueryHint(getString(R.string.search_word_hint, lang));
@@ -101,15 +101,20 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
             @Override
             public boolean onQueryTextSubmit(String query) {
                 SystemUtils.closeKeyboard(getActivity());
-                subject.onNext(query);
+                subject.onNext(query.toLowerCase());
+                progressBar.setVisibility(View.VISIBLE);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 mAdapter.clear();
-                progressBar.setProgress(0);
-                subject.onNext(newText);
+                subject.onNext(newText.toLowerCase());
+                if (newText.isEmpty()) {
+                    progressBar.setVisibility(View.INVISIBLE);
+                } else {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
                 return true;
             }
         });
@@ -138,7 +143,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
 
     @Override
     public void onItemInsert() {
-        progressBar.incrementProgressBy(10);
+
     }
 
     public RecyclerView getRecyclerView() {
@@ -165,12 +170,13 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                 .switchMap(new Function<String, ObservableSource<String>>() {
                     @Override
                     public ObservableSource<String> apply(String query) throws Exception {
-//                        AppExecutors.getInstance().mainThread().execute(() -> mAdapter.clear());
                         if (query == null) return Observable.just("");
                         Log.d(TAG, "WikiOpenSearch api call: " + query);
                         String words[] = NetworkUtils.wikiOpenSearchRequest(query);
                         if (words == null || words.length < 1) return Observable.just("");
-                        progressBar.incrementProgressBy(25);
+                        isSearching = true;
+                        wordsFromWiki = words.length;
+                        wordsFromGlosbe = 0;
                         return Observable.fromArray(words);
                     }
                 })
@@ -180,8 +186,8 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                         if (word == null) return Observable.just(new Pair<>(word, ""));
                         Log.d(TAG, "Glosbe translation api call: " + word);
                         String translation = mViewModel.translateByGlosbe(word);
+                        wordsFromGlosbe++;
                         if (translation == null) return Observable.just(new Pair<>(word, ""));
-                        progressBar.incrementProgressBy(5);
                         return Observable.just(new Pair<>(word, translation));
 //                        return new Pair<>(query, translation);
                     }
@@ -199,7 +205,16 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                     public void onNext(Pair<String, String> pair) {
                         if (!pair.first.isEmpty() && !pair.second.isEmpty()) {
                             mAdapter.insert(pair);
-                            progressBar.incrementProgressBy(10);
+                        }
+                        if (wordsFromWiki <= wordsFromGlosbe) {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            isSearching = false;
+                            wordsFromWiki = 0;
+                            wordsFromGlosbe = 0;
+                        }
+                        else if (progressBar.getVisibility() == View.INVISIBLE) {
+                            progressBar.setVisibility(View.VISIBLE);
+                            isSearching = true;
                         }
                     }
 

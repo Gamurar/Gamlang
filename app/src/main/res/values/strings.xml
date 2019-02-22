@@ -71,5 +71,6 @@
     <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="dont_remember">Don\'t remember</string>
     <string name="remember">Remember</string>
+    <string name="create_card">Create card</string>
 
 </resources>

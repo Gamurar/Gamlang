@@ -30,30 +30,25 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
             android:background="@drawable/customborder"
             app:defaultQueryHint="@string/search_word_hint_en"
             app:iconifiedByDefault="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ProgressBar
-            android:id="@+id/determinateBar"
-            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="16dp"
-            android:progress="0"
+            android:layout_marginBottom="-6dp"
+            android:id="@+id/progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/sv_find_new_words"
-            app:layout_constraintStart_toStartOf="@+id/sv_find_new_words"
-            app:layout_constraintTop_toTopOf="@+id/sv_find_new_words"
-            app:layout_constraintVertical_bias="0.68"
-            android:visibility="gone"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:indeterminate="true"
+            android:visibility="invisible"/>
 
     </LinearLayout>
 
@@ -72,19 +67,6 @@
             android:text="@string/suggestions"
             android:textAllCaps="true"
             android:textStyle="bold" />
-
-        <!--<GridView-->
-        <!--android:id="@+id/gv_suggestion_words"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:numColumns="2"-->
-        <!--android:columnWidth="200dp"-->
-        <!--android:verticalSpacing="2dp"-->
-        <!--android:horizontalSpacing="2dp"-->
-        <!--android:stretchMode="columnWidth"-->
-        <!--android:gravity="center"-->
-        <!--android:scrollbars="none">-->
-        <!--</GridView>-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_suggestion_words"
