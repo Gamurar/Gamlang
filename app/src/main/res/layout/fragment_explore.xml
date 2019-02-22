@@ -27,10 +27,33 @@
             android:id="@+id/sv_find_new_words"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
             android:background="@drawable/customborder"
             app:defaultQueryHint="@string/search_word_hint_en"
-            app:iconifiedByDefault="false" />
+            app:iconifiedByDefault="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ProgressBar
+            android:id="@+id/determinateBar"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:progress="0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/sv_find_new_words"
+            app:layout_constraintStart_toStartOf="@+id/sv_find_new_words"
+            app:layout_constraintTop_toTopOf="@+id/sv_find_new_words"
+            app:layout_constraintVertical_bias="0.68"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

@@ -26,6 +26,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Ca
 
     public interface ExploreCardClickListener {
         void onClick(String word, String translation);
+        void onItemInsert();
     }
 
     public SuggestionAdapter(Context context, ExploreCardClickListener listener) {
@@ -85,6 +86,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Ca
             Pair<String, String> pair = (Pair<String, String>) item;
                 addCard(pair);
         }
+        mClickListener.onItemInsert();
     }
 
     class CardViewHolder extends RecyclerView.ViewHolder {

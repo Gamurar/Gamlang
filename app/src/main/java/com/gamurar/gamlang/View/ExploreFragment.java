@@ -1,7 +1,9 @@
 package com.gamurar.gamlang.View;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Interpolator;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
@@ -10,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.ProgressBar;
 
 import androidx.appcompat.widget.SearchView;
 
@@ -49,6 +53,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     private boolean isReversed = false;
     private ExploreActivity parentActivity;
     private RecyclerView mRecyclerView;
+    private ProgressBar progressBar;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -79,10 +84,16 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
         mRecyclerView.setAdapter(mAdapter);
 
         mSearchView = view.findViewById(R.id.sv_find_new_words);
+        progressBar = view.findViewById(R.id.determinateBar);
+        ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 100, 0);
+        //animation.setDuration(3500); // 3.5 second
+        animation.setInterpolator(new DecelerateInterpolator());
+        animation.start();
         if (getArguments() != null) {
             String lang = getArguments().getString(KEY_LANG);
             mSearchView.setQueryHint(getString(R.string.search_word_hint, lang));
         }
+
 
 
         final PublishSubject<String> subject = PublishSubject.create();
@@ -97,6 +108,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
             @Override
             public boolean onQueryTextChange(String newText) {
                 mAdapter.clear();
+                progressBar.setProgress(0);
                 subject.onNext(newText);
                 return true;
             }
@@ -122,6 +134,11 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
         intent.putExtra(CardCreationActivity.EXTRA_WORD_INFO, wordExtra);
         startActivity(intent);
         mSearchView.setQuery("", false);
+    }
+
+    @Override
+    public void onItemInsert() {
+        progressBar.incrementProgressBy(10);
     }
 
     public RecyclerView getRecyclerView() {
@@ -153,6 +170,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                         Log.d(TAG, "WikiOpenSearch api call: " + query);
                         String words[] = NetworkUtils.wikiOpenSearchRequest(query);
                         if (words == null || words.length < 1) return Observable.just("");
+                        progressBar.incrementProgressBy(25);
                         return Observable.fromArray(words);
                     }
                 })
@@ -163,6 +181,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                         Log.d(TAG, "Glosbe translation api call: " + word);
                         String translation = mViewModel.translateByGlosbe(word);
                         if (translation == null) return Observable.just(new Pair<>(word, ""));
+                        progressBar.incrementProgressBy(5);
                         return Observable.just(new Pair<>(word, translation));
 //                        return new Pair<>(query, translation);
                     }
@@ -180,6 +199,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                     public void onNext(Pair<String, String> pair) {
                         if (!pair.first.isEmpty() && !pair.second.isEmpty()) {
                             mAdapter.insert(pair);
+                            progressBar.incrementProgressBy(10);
                         }
                     }
 
