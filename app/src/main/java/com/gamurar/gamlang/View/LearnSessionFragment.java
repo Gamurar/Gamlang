@@ -1,11 +1,14 @@
 package com.gamurar.gamlang.View;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.LearnViewModel;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.constraintlayout.widget.Group;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProviders;
@@ -38,6 +42,10 @@ public class LearnSessionFragment extends Fragment implements LifecycleOwner, Ca
     private boolean mIsSessionBegan;
     private boolean mIsAnswered;
     private Card mCurrentCard;
+    private LottieAnimationView mNotFoundAnim;
+    private Group mNoCardsViews;
+    private Group mRememberBtns;
+    private Button mCreateNewCardBtn;
 
     @Nullable
     @Override
@@ -56,6 +64,10 @@ public class LearnSessionFragment extends Fragment implements LifecycleOwner, Ca
         mRememberBtn = view.findViewById(R.id.remember_btn);
         mDontRememberBtn = view.findViewById(R.id.dont_remember_btn);
         CardStackView mCardStack = view.findViewById(R.id.card_stack);
+        mNotFoundAnim = view.findViewById(R.id.not_found_anim);
+        mNoCardsViews = view.findViewById(R.id.no_cards_screen);
+        mRememberBtns = view.findViewById(R.id.remember_btns);
+        mCreateNewCardBtn = view.findViewById(R.id.create_new_btn);
         mAdapter = new CardsAdapter();
         mStackManager = new CardStackLayoutManager(getContext(), this);
         mCardStack.setLayoutManager(mStackManager);
@@ -80,6 +92,15 @@ public class LearnSessionFragment extends Fragment implements LifecycleOwner, Ca
                 mViewModel.updateCardReview(mCurrentCard);
             }
         });
+
+        mCreateNewCardBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), ExploreActivity.class);
+                startActivity(intent);
+                getActivity().finish();
+            }
+        });
     }
 
     private void showAnswer() {
@@ -93,11 +114,22 @@ public class LearnSessionFragment extends Fragment implements LifecycleOwner, Ca
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this).get(LearnViewModel.class);
         mViewModel.getCards().observe(this, (cards) -> {
-            if (cards != null && !mIsSessionBegan) {
-                mCards = (ArrayList<Card>) LearnUtils.getTodayCards(cards);
-                mAdapter.setCards(mCards);
+            if (!mIsSessionBegan) {
+                if (cards != null) {
+                    mCards = (ArrayList<Card>) LearnUtils.getTodayCards(cards);
+                    if (mCards != null && !mCards.isEmpty())
+                        mAdapter.setCards(mCards);
+                    else
+                        showNoCardsScreen();
+                }
             }
         });
+    }
+
+    private void showNoCardsScreen() {
+        mRememberBtns.setVisibility(View.GONE);
+        mNoCardsViews.setVisibility(View.VISIBLE);
+        mNotFoundAnim.playAnimation();
     }
 
     @Override

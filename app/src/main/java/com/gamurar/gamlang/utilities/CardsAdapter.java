@@ -56,7 +56,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
             viewHolder.answerContainer.setVisibility(LinearLayout.INVISIBLE);
             Card card = mCards.get(i);
 
-            viewHolder.stage.setText(getStageData(card));
+            //viewHolder.stage.setText(getStageData(card));
 
             viewHolder.question.setText(card.getQuestion());
             viewHolder.answer.setText(card.getAnswer());

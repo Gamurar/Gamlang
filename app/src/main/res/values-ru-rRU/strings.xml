@@ -40,4 +40,6 @@
     <string name="dont_remember">Не помню</string>
     <string name="remember">Помню</string>
     <string name="create_card">Добавить карточку</string>
+    <string name="no_cards">Здесь ничего нет</string>
+    <string name="create_new_one">Создать карточку</string>
 </resources>

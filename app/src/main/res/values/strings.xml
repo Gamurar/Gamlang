@@ -21,7 +21,7 @@
     <string name="search_new_words_label">Find new words to learn</string>
     <string name="search_word_hint_en">Search for a word in English</string>
     <string name="search_word_hint_ru">Search for a word in Russian</string>
-    <string name="search_word_hint">Search for a question in %1$s</string>
+    <string name="search_word_hint">Search for a word in %1$s</string>
     <string name="settings">Settings</string>
 
     <!--CardEntry creation-->
@@ -72,5 +72,10 @@
     <string name="dont_remember">Don\'t remember</string>
     <string name="remember">Remember</string>
     <string name="create_card">Create card</string>
+    <string name="no_cards">There is nothing here</string>
+    <string name="add_new">Add new</string>
+    <string name="create_new_card">Create new card</string>
+    <string name="create_new">Create new</string>
+    <string name="create_new_one">Create new one</string>
 
 </resources>

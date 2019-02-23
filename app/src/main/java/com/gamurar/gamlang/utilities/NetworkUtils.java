@@ -538,9 +538,10 @@ public class NetworkUtils {
 
     public static String extractGlosbeSound(Document glosbePage) {
         try {
-            return GLOSBE_BASE_URL + glosbePage.getElementById("add-translation-container")
-                    .nextElementSibling().getElementsByAttribute("data-url-ogg")
-                    .get(0).attr("data-url-ogg");
+            Elements oggs = glosbePage.getElementById("add-translation-container")
+                    .nextElementSibling().getElementsByAttribute("data-url-ogg");
+            if (oggs.isEmpty()) return null;
+            return GLOSBE_BASE_URL + oggs.get(0).attr("data-url-ogg");
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage(), e);
             return null;
