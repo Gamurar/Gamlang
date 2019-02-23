@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.CardRepository;
-import com.gamurar.gamlang.Model.database.CardEntry;
 
 import java.util.List;
 
@@ -21,12 +20,13 @@ public class LearnViewModel extends AndroidViewModel {
         super(application);
         mRepository = CardRepository.getInstance(application);
         mRepository.initLocal();
-        mCards = mRepository.getAllCards();
+        mCards = mRepository.getLiveCards();
     }
 
     public LiveData<List<Card>> getCards() {
         return mCards;
     }
+
 
     public void updateCardReview(Card card) {
         mRepository.updateCardReview(card.getId(), card.getLastReview(), card.getNextReview());

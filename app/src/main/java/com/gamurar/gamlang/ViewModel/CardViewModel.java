@@ -8,7 +8,6 @@ import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.WordTranslation;
-import com.gamurar.gamlang.views.ImageViewBitmap;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +25,7 @@ public class CardViewModel extends AndroidViewModel {
         super(application);
         repository = CardRepository.getInstance(application);
         repository.initLocal();
-        mCards = repository.getAllCards();
+        mCards = repository.getLiveCards();
     }
 
     public void delete(CardEntry cardEntry) {

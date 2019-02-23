@@ -6,13 +6,16 @@ import com.gamurar.gamlang.Card;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class LearnUtils {
 
-    public final static long[] INTERVALS = new long[] {
+    private static final String TAG = "LearnUtils";
+
+    private final static long[] INTERVALS = new long[] {
             TimeUnit.SECONDS.toMillis(5),
             TimeUnit.SECONDS.toMillis(25),
             TimeUnit.MINUTES.toMillis(2),
@@ -25,36 +28,20 @@ public class LearnUtils {
             TimeUnit.DAYS.toMillis(120)
     };
 
-    public static List<Card> reverseCards(List<Card> cards) {
-        Date date = new Date();
-
-
-        List<Card> reversedCards = new ArrayList<>();
-        for (Card card : cards) {
-            Card newCard = new Card(card);
-            newCard.setQuestion(card.getAnswer());
-            newCard.setAnswer(card.getQuestion());
-            reversedCards.add(newCard);
-        }
-
-        return reversedCards;
-    }
-
     public static void remember(Card card) {
         int stage = getReviewStage(card.getLastReview(), card.getNextReview());
         Date now = new Date();
-        long nextReview = INTERVALS[++stage] + now.getTime();
+        long interval = stage < 9 ? INTERVALS[++stage] : INTERVALS[stage];
+        long nextReview = now.getTime() + interval;
         card.setLastReview(now);
         card.setNextReview(new Date(nextReview));
     }
 
     public static void dontRemember(Card card) {
         int stage = getReviewStage(card.getLastReview(), card.getNextReview());
-        if (stage == 0) {
-            return;
-        }
         Date now = new Date();
-        long nextReview = INTERVALS[--stage] + now.getTime();
+        long interval = stage > 0 ? INTERVALS[--stage] : INTERVALS[0];
+        long nextReview = now.getTime() + interval;
         card.setLastReview(now);
         card.setNextReview(new Date(nextReview));
     }
@@ -69,6 +56,20 @@ public class LearnUtils {
         }
 
         return -1;
+    }
+
+    /**
+     * @param allCards all cards from the app database
+     * @return cards for review today
+     * */
+    public static List<Card> getTodayCards(List<Card> allCards) {
+        List<Card> todayCards = new ArrayList<>();
+        for (Card card : allCards) {
+            if (card.getNextReview().compareTo(new Date()) < 0) {
+                todayCards.add(card);
+            }
+        }
+        return todayCards;
     }
 
 

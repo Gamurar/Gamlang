@@ -125,6 +125,10 @@ public class Word {
         updatesListener.IPAupdated();
     }
 
+    public void soundNotFound() {
+        updatesListener.soundNotFound();
+    }
+
     public void setUpdatesListener(UpdatesListener listener) {
         updatesListener = listener;
     }
@@ -138,5 +142,15 @@ public class Word {
     public interface UpdatesListener {
         void IPAupdated();
         void soundUpdated();
+        void soundNotFound();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        if (pronunciation != null) {
+            pronunciation.release();
+            pronunciation = null;
+        }
+        super.finalize();
     }
 }

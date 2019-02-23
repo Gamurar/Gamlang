@@ -42,6 +42,7 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
     private Button mAddImagesBtn;
     private CardCreationActivity parent;
     private LottieAnimationView mPreloader;
+    private boolean isSoundLoading;
 
     @Nullable
     @Override
@@ -56,6 +57,7 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
     }
 
     private void init(View view) {
+        isSoundLoading = true;
         mPreloader = view.findViewById(R.id.preloader);
         parent = (CardCreationActivity) getActivity();
         viewModel = parent.viewModel;
@@ -71,6 +73,12 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
                 mPlayBtn.setAnimation(R.raw.speaker);
                 mPlayBtn.setMinFrame(67);
                 mPlayBtn.loop(false);
+                isSoundLoading = false;
+            }
+
+            @Override
+            public void soundNotFound() {
+                mPlayBtn.setVisibility(View.GONE);
             }
         });
 
@@ -87,16 +95,14 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
         mTranslation.setText(viewModel.getWord().getTranslation());
 
         mPlayBtn.setOnClickListener(v -> {
+            if (isSoundLoading) return;
             Word word = viewModel.getWord();
             word.pronounce();
             mPlayBtn.setMinAndMaxFrame(67, 90);
             mPlayBtn.playAnimation();
-            word.setPronunciationListener(new Word.PronounceListener() {
-                @Override
-                public void onSaid() {
-                    mPlayBtn.setMinAndMaxFrame(0, 18);
-                    mPlayBtn.playAnimation();
-                }
+            word.setPronunciationListener(() -> {
+                mPlayBtn.setMinAndMaxFrame(0, 18);
+                mPlayBtn.playAnimation();
             });
 
         });

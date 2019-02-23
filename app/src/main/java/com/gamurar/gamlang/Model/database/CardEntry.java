@@ -27,6 +27,8 @@ public class CardEntry {
         this.question = question;
         this.answer = answer;
         this.created = new Date();
+        this.lastReview = new Date();
+        this.nextReview = new Date();
     }
 
     public CardEntry(int id, String question, String answer) {
@@ -34,6 +36,8 @@ public class CardEntry {
         this.question = question;
         this.answer = answer;
         this.created = new Date();
+        this.lastReview = new Date();
+        this.nextReview = new Date();
     }
 
     public int getId() {

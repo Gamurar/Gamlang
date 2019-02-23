@@ -571,29 +571,22 @@ public class Tasks {
             Document glosbePage = NetworkUtils.getGlosbePage(word, mFromLang, mToLang);
             if (glosbePage != null) {
                 String IPA = NetworkUtils.extractGlosbeIPA(glosbePage);
-                AppExecutors.getInstance().mainThread().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        word.setIPA(IPA);
-                    }
-                });
+                AppExecutors.getInstance().mainThread().execute(() -> word.setIPA(IPA));
                 try {
                     String soundURL = NetworkUtils.extractGlosbeSound(glosbePage);
                     if (soundURL == null || soundURL.isEmpty()) {
                         soundURL = NetworkUtils.extractForvoSound(word.getName(), mFromLang);
-                        if (soundURL == null) return null;
+                        if (soundURL == null) {
+                            AppExecutors.getInstance().mainThread().execute(word::soundNotFound);
+                            return null;
+                        }
                     }
                     MediaPlayer mediaPlayer = new MediaPlayer();
                     mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                     mediaPlayer.setDataSource(soundURL);
                     mediaPlayer.prepare();
                     final String soundURLfinal = soundURL;
-                    AppExecutors.getInstance().mainThread().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            word.setPronunciation(mediaPlayer, soundURLfinal);
-                        }
-                    });
+                    AppExecutors.getInstance().mainThread().execute(() -> word.setPronunciation(mediaPlayer, soundURLfinal));
                 } catch (IOException e) { e.printStackTrace(); }
             }
             return null;

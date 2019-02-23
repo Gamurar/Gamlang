@@ -139,4 +139,13 @@ public class Card {
     public int getStage() {
         return LearnUtils.getReviewStage(lastReview, nextReview);
     }
+
+    @Override
+    protected void finalize() throws Throwable {
+        if (pronunciation != null) {
+            pronunciation.release();
+            pronunciation = null;
+        }
+        super.finalize();
+    }
 }

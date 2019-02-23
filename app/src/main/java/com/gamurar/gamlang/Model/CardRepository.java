@@ -13,6 +13,7 @@ import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Model.database.AppDatabase;
 import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Word;
+import com.gamurar.gamlang.utilities.CardsObserver;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.MySingleton;
 import com.gamurar.gamlang.utilities.NetworkUtils;
@@ -58,12 +59,14 @@ public class CardRepository {
     private static boolean mIsReversed = false;
     public static RequestQueue requestQueue;
     private static ProgressableAdapter mAdapter;
+    private static CardsObserver mCardsObserver;
 
     public static CardRepository getInstance(Context context) {
         if (sInstance == null) {
             synchronized (LOCK) {
                 Log.d(TAG, "Creating new repository instance");
                 sInstance = new CardRepository(context);
+                mCardsObserver = new CardsObserver();
             }
         }
         Log.d(TAG, "Getting the repository instance");
@@ -82,6 +85,7 @@ public class CardRepository {
         soundDao = db.soundDao();
         mCardEntries = cardDao.loadAllCards();
         cards = transformEntriesToCardsLiveData();
+        cards.observeForever(mCardsObserver);
         File[] myDirs = mContext.getExternalFilesDirs(Environment.DIRECTORY_PICTURES);
         picturesDirectory = myDirs.length > 1 ? myDirs[1] : myDirs[0];
 
@@ -131,9 +135,11 @@ public class CardRepository {
         return mCardEntries;
     }
 
-    public LiveData<List<Card>> getAllCards() {
+    public LiveData<List<Card>> getLiveCards() {
         return cards;
     }
+
+    public List<Card> getCards() {return mCardsObserver.getCards(); }
 
     public List<Card> getAllCurrentCards() {return entriesToCards(mCardEntries); }
 
