@@ -15,7 +15,9 @@ import android.widget.TextView;
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.CardViewModel;
+import com.gamurar.gamlang.ViewModel.LearnViewModel;
 import com.gamurar.gamlang.utilities.CardsAdapter;
+import com.gamurar.gamlang.utilities.LearnUtils;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
 import com.yuyakaido.android.cardstackview.CardStackListener;
 import com.yuyakaido.android.cardstackview.CardStackView;
@@ -42,6 +44,8 @@ public class LearnSessionFragment extends Fragment implements LifecycleOwner, Ca
     private TextView mRememberBtn;
     private TextView mDontRememberBtn;
     private CardStackLayoutManager mStackManager;
+    private LearnViewModel mViewModel;
+    private boolean isSessionBegan;
 
     @Nullable
     @Override
@@ -53,10 +57,10 @@ public class LearnSessionFragment extends Fragment implements LifecycleOwner, Ca
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         init(view);
-        setupViewModel();
     }
 
     private void init(View view) {
+        isSessionBegan = false;
         mRememberBtn = view.findViewById(R.id.remember_btn);
         mDontRememberBtn = view.findViewById(R.id.dont_remember_btn);
         CardStackView mCardStack = view.findViewById(R.id.card_stack);
@@ -64,26 +68,44 @@ public class LearnSessionFragment extends Fragment implements LifecycleOwner, Ca
         mStackManager = new CardStackLayoutManager(getContext(), this);
         mCardStack.setLayoutManager(mStackManager);
         mCardStack.setAdapter(mAdapter);
+        setupViewModel();
 
-        View.OnClickListener showAnswer = new View.OnClickListener() {
+        mRememberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mStackManager.getTopView()
-                        .findViewById(R.id.answer_container)
-                        .setVisibility(View.VISIBLE);
+                showAnswer();
+                Card card = mCards.get(
+                        mStackManager.getTopPosition());
+                LearnUtils.remember(card);
+                mViewModel.updateCardReview(card);
             }
-        };
+        });
+        mDontRememberBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAnswer();
+                Card card = mCards.get(
+                        mStackManager.getTopPosition());
+                LearnUtils.dontRemember(card);
+                mViewModel.updateCardReview(card);
+            }
+        });
+    }
 
-        mRememberBtn.setOnClickListener(showAnswer);
-        mDontRememberBtn.setOnClickListener(showAnswer);
+    private void showAnswer() {
+        mStackManager.getTopView()
+                .findViewById(R.id.answer_container)
+                .setVisibility(View.VISIBLE);
+        if (!isSessionBegan) isSessionBegan = true;
     }
 
     private void setupViewModel() {
-        CardViewModel viewModel = ViewModelProviders.of(this).get(CardViewModel.class);
-        viewModel.getAllCards().observe(this, (cards) -> {
-            Log.d(TAG, "setupViewModel: receive data from ViewModel to 'Learn words'");
-            mCards = (ArrayList<Card>) cards;
-            mAdapter.setCards(mCards);
+        mViewModel = ViewModelProviders.of(this).get(LearnViewModel.class);
+        mViewModel.getCards().observe(this, (cards) -> {
+            if (cards != null && !isSessionBegan) {
+                mCards = (ArrayList<Card>) cards;
+                mAdapter.setCards(mCards);
+            }
         });
     }
 
@@ -95,6 +117,7 @@ public class LearnSessionFragment extends Fragment implements LifecycleOwner, Ca
     @Override
     public void onCardSwiped(Direction direction) {
         if (mStackManager.getTopPosition() == mCards.size()) {
+            isSessionBegan = false;
             getActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new LearnSessionFinishFragment())
                     .commit();

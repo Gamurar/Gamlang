@@ -39,4 +39,5 @@
     <string name="pref_lang_ru_value">русский</string>
     <string name="dont_remember">Не помню</string>
     <string name="remember">Помню</string>
+    <string name="create_card">Добавить карточку</string>
 </resources>

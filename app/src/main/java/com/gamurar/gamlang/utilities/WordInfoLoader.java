@@ -1,5 +1,5 @@
 package com.gamurar.gamlang.utilities;
 
-public interface Updatable {
+public interface WordInfoLoader {
     void update();
 }

@@ -1,5 +1,6 @@
 package com.gamurar.gamlang.Model.database;
 
+import java.util.Date;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
@@ -21,6 +22,11 @@ public interface CardDao {
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateCard(CardEntry taskEntry);
+
+    @Query("UPDATE card " +
+            "SET last_review = :lastReview, next_review = :nextReview " +
+            "WHERE id = :cardId")
+    void updateReview(int cardId, Date lastReview, Date nextReview);
 
     @Delete
     void deleteCard(CardEntry cardEntry);

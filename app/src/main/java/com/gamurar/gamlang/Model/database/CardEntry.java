@@ -15,7 +15,11 @@ public class CardEntry {
     private String question;
     private String answer;
     private Date created;
+
+    @ColumnInfo(name="last_review")
     private Date lastReview;
+
+    @ColumnInfo(name="next_review")
     private Date nextReview;
 
     @Ignore

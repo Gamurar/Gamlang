@@ -21,9 +21,11 @@ import com.gamurar.gamlang.views.ImageViewBitmap;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHolder> {
@@ -53,6 +55,9 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
         if (i < mCards.size()) {
             viewHolder.answerContainer.setVisibility(LinearLayout.INVISIBLE);
             Card card = mCards.get(i);
+
+            viewHolder.stage.setText(getStageData(card));
+
             viewHolder.question.setText(card.getQuestion());
             viewHolder.answer.setText(card.getAnswer());
             if (card.getPictures() != null) {
@@ -67,6 +72,26 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                 viewHolder.playWord.setVisibility(ImageButton.VISIBLE);
             }
         }
+    }
+
+    private String getStageData(Card card) {
+        StringBuilder stageStr = new StringBuilder("Stage: ");
+        stageStr.append(card.getStage());
+        stageStr.append('\n');
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss", Locale.getDefault());
+        stageStr.append("Last review: ");
+        if (card.getLastReview() == null) {
+            stageStr.append("null");
+        } else {
+            stageStr.append(dateFormat.format(card.getLastReview()));
+        }
+        stageStr.append("\nNext review: ");
+        if (card.getNextReview() == null) {
+            stageStr.append("null");
+        } else {
+            stageStr.append(dateFormat.format(card.getNextReview()));
+        }
+        return stageStr.toString();
     }
 
     @Override
@@ -85,6 +110,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
     }
 
     class CardViewHolder extends RecyclerView.ViewHolder {
+        TextView stage;
         TextView question;
         TextView answer;
         ImageView imageView;
@@ -98,6 +124,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
             answer = itemView.findViewById(R.id.card_answer);
             imageView = itemView.findViewById(R.id.card_image);
             answerContainer = itemView.findViewById(R.id.answer_container);
+            stage = itemView.findViewById(R.id.stage);
             playWord.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

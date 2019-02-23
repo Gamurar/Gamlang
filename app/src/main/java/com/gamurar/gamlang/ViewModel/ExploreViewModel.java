@@ -19,7 +19,7 @@ public class ExploreViewModel extends AndroidViewModel {
 
     public ExploreViewModel(Application application) {
         super(application);
-        mRepository = new CardRepository(application);
+        mRepository = CardRepository.getInstance(application);
         mRepository.initRemote();
     }
 

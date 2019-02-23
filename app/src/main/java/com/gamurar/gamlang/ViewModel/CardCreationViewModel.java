@@ -7,7 +7,7 @@ import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
-import com.gamurar.gamlang.utilities.Updatable;
+import com.gamurar.gamlang.utilities.WordInfoLoader;
 import com.gamurar.gamlang.views.ImageViewBitmap;
 
 import java.util.HashSet;
@@ -25,7 +25,7 @@ public class CardCreationViewModel extends AndroidViewModel {
 
     public CardCreationViewModel(@NonNull Application application) {
         super(application);
-        mRepository = new CardRepository(application);
+        mRepository = CardRepository.getInstance(application);
         mRepository.initRemote();
         mRepository.initLocal();
     }
@@ -38,7 +38,7 @@ public class CardCreationViewModel extends AndroidViewModel {
         return mWord;
     }
 
-    public void gatherWordInfo(Updatable updatable, ImagesLoadable imagesLoadable) {
+    public void gatherWordInfo(WordInfoLoader updatable, ImagesLoadable imagesLoadable) {
         Log.d(TAG, "Word object: " + mWord);
         mRepository.gatherWordInfo(mWord, updatable);
         mRepository.fetchImages(mWord.getName(), imagesLoadable);

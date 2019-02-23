@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.AppExecutors;
@@ -15,6 +16,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+
+import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;

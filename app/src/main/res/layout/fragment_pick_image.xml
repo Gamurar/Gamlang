@@ -5,19 +5,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageButton
+    <!--<ImageButton-->
+        <!--android:id="@+id/play_btn"-->
+        <!--android:layout_width="50dp"-->
+        <!--android:layout_height="50dp"-->
+        <!--android:layout_marginStart="8dp"-->
+        <!--android:layout_marginTop="8dp"-->
+        <!--android:layout_marginBottom="8dp"-->
+        <!--android:background="@drawable/accent_circle"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent"-->
+        <!--app:layout_constraintTop_toTopOf="parent"-->
+        <!--app:layout_constraintVertical_bias="0.16000003"-->
+        <!--app:srcCompat="@drawable/ic_volume_up_white" />-->
+
+    <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/play_btn"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/accent_circle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.16000003"
-        app:srcCompat="@drawable/ic_volume_up_white" />
+        app:lottie_rawRes="@raw/speaker"
+        android:padding="8dp"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="false"
+        app:cornerRadius="26dp" />
 
     <TextView
         android:id="@+id/word"
@@ -30,6 +47,7 @@
         app:layout_constraintBottom_toTopOf="@+id/play_btn"
         app:layout_constraintStart_toEndOf="@+id/play_btn"
         app:layout_constraintTop_toBottomOf="@+id/play_btn"
+        app:layout_goneMarginStart="24dp"
         tools:text="bol" />
 
     <TextView

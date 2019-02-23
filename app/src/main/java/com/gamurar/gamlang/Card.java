@@ -3,7 +3,10 @@ package com.gamurar.gamlang;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 
+import com.gamurar.gamlang.utilities.LearnUtils;
+
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Card {
     private int id;
@@ -13,6 +16,16 @@ public class Card {
     private ArrayList<String> pictureFileNames;
     private MediaPlayer pronunciation;
     private String soundFileName;
+    private Date lastReview;
+    private Date nextReview;
+
+    public Card(int id, String question, String answer, Date lastReview, Date nextReview) {
+        this.id = id;
+        this.question = question;
+        this.answer = answer;
+        this.lastReview = lastReview;
+        this.nextReview = nextReview;
+    }
 
     public Card(String question, String answer) {
         this.question = question;
@@ -105,5 +118,25 @@ public class Card {
             pictureFileNames = new ArrayList<>();
         }
         pictureFileNames.add(fileName);
+    }
+
+    public Date getNextReview() {
+        return nextReview;
+    }
+
+    public void setNextReview(Date nextReview) {
+        this.nextReview = nextReview;
+    }
+
+    public Date getLastReview() {
+        return lastReview;
+    }
+
+    public void setLastReview(Date lastReview) {
+        this.lastReview = lastReview;
+    }
+
+    public int getStage() {
+        return LearnUtils.getReviewStage(lastReview, nextReview);
     }
 }

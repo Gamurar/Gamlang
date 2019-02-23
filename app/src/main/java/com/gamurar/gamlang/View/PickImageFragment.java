@@ -7,8 +7,8 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -18,7 +18,7 @@ import com.gamurar.gamlang.ViewModel.CardCreationViewModel;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesAdapter;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
-import com.gamurar.gamlang.utilities.Updatable;
+import com.gamurar.gamlang.utilities.WordInfoLoader;
 import com.gamurar.gamlang.views.ImageViewBitmap;
 
 import java.util.HashSet;
@@ -29,7 +29,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class PickImageFragment extends Fragment implements Updatable, ImagesAdapter.ImageClickListener, ImagesLoadable {
+public class PickImageFragment extends Fragment implements WordInfoLoader, ImagesAdapter.ImageClickListener, ImagesLoadable {
     private static final String TAG = "PickImageFragment";
 
     private TextView mWord;
@@ -38,7 +38,7 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
     private RecyclerView mImagesRV;
     private CardCreationViewModel viewModel;
     private ImagesAdapter mAdapter;
-    private ImageButton mPlayBtn;
+    private LottieAnimationView mPlayBtn;
     private Button mAddImagesBtn;
     private CardCreationActivity parent;
     private LottieAnimationView mPreloader;
@@ -59,18 +59,47 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
         mPreloader = view.findViewById(R.id.preloader);
         parent = (CardCreationActivity) getActivity();
         viewModel = parent.viewModel;
+        viewModel.getWord().setUpdatesListener(new Word.UpdatesListener() {
+            @Override
+            public void IPAupdated() {
+                setIPA();
+            }
+
+            @Override
+            public void soundUpdated() {
+                mPlayBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.accent_circle));
+                mPlayBtn.setAnimation(R.raw.speaker);
+                mPlayBtn.setMinFrame(67);
+                mPlayBtn.loop(false);
+            }
+        });
 
         mWord = view.findViewById(R.id.word);
         mTranslation = view.findViewById(R.id.translation);
         mIPA = view.findViewById(R.id.IPA);
         mImagesRV = view.findViewById(R.id.rv_word_pictures);
         mPlayBtn = view.findViewById(R.id.play_btn);
+        mPlayBtn.setAnimation(R.raw.material_loding);
+        mPlayBtn.playAnimation();
         mAddImagesBtn = view.findViewById(R.id.btn_add_images);
 
         mWord.setText(viewModel.getWord().getName());
         mTranslation.setText(viewModel.getWord().getTranslation());
 
-        mPlayBtn.setOnClickListener(v -> viewModel.getWord().pronounce());
+        mPlayBtn.setOnClickListener(v -> {
+            Word word = viewModel.getWord();
+            word.pronounce();
+            mPlayBtn.setMinAndMaxFrame(67, 90);
+            mPlayBtn.playAnimation();
+            word.setPronunciationListener(new Word.PronounceListener() {
+                @Override
+                public void onSaid() {
+                    mPlayBtn.setMinAndMaxFrame(0, 18);
+                    mPlayBtn.playAnimation();
+                }
+            });
+
+        });
         mAddImagesBtn.setOnClickListener(v -> addToDictionary());
 
         mAdapter = new ImagesAdapter(this);
@@ -78,10 +107,10 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
                 new GridLayoutManager(getContext(), 2, GridLayoutManager.HORIZONTAL, false)
         );
         mImagesRV.setAdapter(mAdapter);
+
     }
 
-    @Override
-    public void update() {
+    public void setIPA() {
         String IPA = viewModel.getWord().getIPA();
         if (IPA != null && !IPA.isEmpty()) {
             mIPA.setText(getString(R.string.IPA, IPA));
@@ -142,4 +171,8 @@ public class PickImageFragment extends Fragment implements Updatable, ImagesAdap
     }
 
 
+    @Override
+    public void update() {
+
+    }
 }

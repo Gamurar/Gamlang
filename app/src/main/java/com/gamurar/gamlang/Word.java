@@ -14,6 +14,7 @@ public class Word {
     public ArrayList<String> context;
     private MediaPlayer pronunciation;
     private String soundURL;
+    private UpdatesListener updatesListener;
 
     public Word() {}
 
@@ -83,6 +84,18 @@ public class Word {
         }
         this.pronunciation = pronunciation;
         this.soundURL = soundURL;
+        updatesListener.soundUpdated();
+    }
+
+    public void setPronunciationListener(PronounceListener listener) {
+        if (pronunciation != null) {
+            pronunciation.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    listener.onSaid();
+                }
+            });
+        }
     }
 
     public String getSoundURL() {
@@ -91,6 +104,10 @@ public class Word {
 
     public boolean hasSoundURL() {
         return soundURL != null && !soundURL.isEmpty();
+    }
+
+    public boolean hasPronunciation() {
+        return pronunciation != null;
     }
 
     public void pronounce() {
@@ -105,9 +122,21 @@ public class Word {
 
     public void setIPA(String IPA) {
         this.IPA = IPA;
+        updatesListener.IPAupdated();
     }
 
-    public void onUpdate() {
+    public void setUpdatesListener(UpdatesListener listener) {
+        updatesListener = listener;
+    }
 
+    public interface PronounceListener {
+        void onSaid();
+    }
+
+
+
+    public interface UpdatesListener {
+        void IPAupdated();
+        void soundUpdated();
     }
 }

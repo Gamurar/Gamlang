@@ -101,8 +101,6 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
             @Override
             public boolean onQueryTextSubmit(String query) {
                 SystemUtils.closeKeyboard(getActivity());
-                subject.onNext(query.toLowerCase());
-                progressBar.setVisibility(View.VISIBLE);
                 return true;
             }
 

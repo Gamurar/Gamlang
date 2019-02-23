@@ -8,24 +8,23 @@ import com.android.volley.RequestQueue;
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.Model.database.ImageDao;
-import com.gamurar.gamlang.Model.database.ImageEntry;
 import com.gamurar.gamlang.Model.database.SoundDao;
 import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Model.database.AppDatabase;
 import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
-import com.gamurar.gamlang.utilities.LiveSearchHelper;
 import com.gamurar.gamlang.utilities.MySingleton;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.PreferencesUtils;
 import com.gamurar.gamlang.utilities.ProgressableAdapter;
-import com.gamurar.gamlang.utilities.Updatable;
+import com.gamurar.gamlang.utilities.WordInfoLoader;
 import com.gamurar.gamlang.utilities.WordTranslation;
 import com.gamurar.gamlang.views.ImageViewBitmap;
 
 import java.io.File;
 import java.util.ConcurrentModificationException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -35,6 +34,9 @@ import androidx.lifecycle.Transformations;
 
 public class CardRepository {
     private static final String TAG = "CardRepository";
+
+    private static final Object LOCK = new Object();
+    private static CardRepository sInstance;
 
     public static final String INSERT_TASK = "insert_task";
     public static final String DELETE_TASK = "delete_task";
@@ -48,7 +50,7 @@ public class CardRepository {
     private ImageDao imageDao;
     private SoundDao soundDao;
     private LiveData<List<CardEntry>> mCardEntries;
-    private LiveData<List<com.gamurar.gamlang.Card>> cards;
+    private LiveData<List<Card>> cards;
     public static String[] wikiOpenSearchWords;
     private Context mContext;
     private static String mFromLangCode;
@@ -57,19 +59,40 @@ public class CardRepository {
     public static RequestQueue requestQueue;
     private static ProgressableAdapter mAdapter;
 
+    public static CardRepository getInstance(Context context) {
+        if (sInstance == null) {
+            synchronized (LOCK) {
+                Log.d(TAG, "Creating new repository instance");
+                sInstance = new CardRepository(context);
+            }
+        }
+        Log.d(TAG, "Getting the repository instance");
+        return sInstance;
+    }
+
     public CardRepository(Context context) {
         mContext = context;
     }
 
     public void initLocal() {
+        if (cardDao != null) return;
         AppDatabase db = AppDatabase.getInstance(mContext);
         cardDao = db.cardDao();
         imageDao = db.imageDao();
         soundDao = db.soundDao();
         mCardEntries = cardDao.loadAllCards();
-        cards = Transformations.map(mCardEntries, cardEntries -> {
+        cards = transformEntriesToCardsLiveData();
+        File[] myDirs = mContext.getExternalFilesDirs(Environment.DIRECTORY_PICTURES);
+        picturesDirectory = myDirs.length > 1 ? myDirs[1] : myDirs[0];
+
+        myDirs = mContext.getExternalFilesDirs(Environment.DIRECTORY_MUSIC);
+        musicDirectory = myDirs.length > 1 ? myDirs[1] : myDirs[0];
+    }
+
+    private LiveData<List<Card>> transformEntriesToCardsLiveData() {
+        return Transformations.map(mCardEntries, cardEntries -> {
             CardEntry[] entries = new CardEntry[cardEntries.size()];
-            List<com.gamurar.gamlang.Card> cards = null;
+            List<Card> cards = null;
             try {
                 cards = new Tasks.createCardsAsyncTask(cardDao, imageDao, soundDao)
                         .execute(cardEntries.toArray(entries))
@@ -79,12 +102,18 @@ public class CardRepository {
             }
             return cards;
         });
+    }
 
-        File[] myDirs = mContext.getExternalFilesDirs(Environment.DIRECTORY_PICTURES);
-        picturesDirectory = myDirs.length > 1 ? myDirs[1] : myDirs[0];
-
-        myDirs = mContext.getExternalFilesDirs(Environment.DIRECTORY_MUSIC);
-        musicDirectory = myDirs.length > 1 ? myDirs[1] : myDirs[0];
+    public List<Card> entriesToCards(LiveData<List<CardEntry>> cardEntries) {
+        List<Card> cards = null;
+        try {
+            cards = new Tasks.createCardsAsyncTask(cardDao, imageDao, soundDao)
+                    .execute(cardEntries.getValue().toArray(new CardEntry[0]))
+                    .get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return cards;
     }
 
     public void initRemote() {
@@ -102,10 +131,11 @@ public class CardRepository {
         return mCardEntries;
     }
 
-    public LiveData<List<com.gamurar.gamlang.Card>> getAllCards() {
+    public LiveData<List<Card>> getAllCards() {
         return cards;
     }
 
+    public List<Card> getAllCurrentCards() {return entriesToCards(mCardEntries); }
 
 
     public void insertCard(CardEntry cardEntry, String[] images, String sound) {
@@ -149,6 +179,10 @@ public class CardRepository {
                 null, null, null, null).execute();
     }
 
+    public void updateCardReview(int cardId, Date lastReview, Date nextReview) {
+        new Tasks.dbUpdateReview(cardId, lastReview, nextReview, cardDao).execute();
+    }
+
     public List<Card> getCards(List<CardEntry> cardEntries) {
         CardEntry[] entries = new CardEntry[cardEntries.size()];
         List<com.gamurar.gamlang.Card> cards = null;
@@ -186,7 +220,7 @@ public class CardRepository {
     public String[] savePictures(HashSet<ImageViewBitmap> imageViews) {
         try {
             return new Tasks.savePicturesAsyncTask(imageDao)
-                    .execute( imageViews.toArray(new ImageViewBitmap[imageViews.size()]) )
+                    .execute(imageViews.toArray(new ImageViewBitmap[imageViews.size()]))
                     .get();
 
         } catch (ExecutionException | ConcurrentModificationException | InterruptedException e) {
@@ -225,7 +259,7 @@ public class CardRepository {
         return mIsReversed;
     }
 
-    public void gatherWordInfo(Word word, Updatable updatable) {
+    public void gatherWordInfo(Word word, WordInfoLoader updatable) {
         Log.d(TAG, "Word object: " + word);
         new Tasks.gatherWordInfo(mFromLangCode, mToLangCode, updatable).execute(word);
     }

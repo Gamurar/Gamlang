@@ -2,6 +2,7 @@ package com.gamurar.gamlang.ViewModel;
 
 import android.app.Application;
 
+import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.Model.database.CardEntry;
@@ -18,12 +19,12 @@ import androidx.lifecycle.LiveData;
 
 public class CardViewModel extends AndroidViewModel {
     private CardRepository repository;
-    private LiveData<List<com.gamurar.gamlang.Card>> mCards;
+    private LiveData<List<Card>> mCards;
     private Word mWord;
 
     public CardViewModel(@NonNull Application application) {
         super(application);
-        repository = new CardRepository(application);
+        repository = CardRepository.getInstance(application);
         repository.initLocal();
         mCards = repository.getAllCards();
     }
@@ -46,7 +47,7 @@ public class CardViewModel extends AndroidViewModel {
         repository.deleteAllCards();
     }
 
-    public LiveData<List<com.gamurar.gamlang.Card>> getAllCards() {
+    public LiveData<List<Card>> getAllCards() {
         return mCards;
     }
 

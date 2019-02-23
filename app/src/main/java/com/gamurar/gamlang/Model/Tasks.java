@@ -2,7 +2,6 @@ package com.gamurar.gamlang.Model;
 
 import android.graphics.Bitmap;
 import android.media.AudioManager;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -11,7 +10,6 @@ import android.util.Pair;
 
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.database.CardEntry;
-import com.gamurar.gamlang.Model.database.ImageAndSound;
 import com.gamurar.gamlang.Model.database.ImageDao;
 import com.gamurar.gamlang.Model.database.ImageEntry;
 import com.gamurar.gamlang.Model.database.SoundDao;
@@ -19,11 +17,12 @@ import com.gamurar.gamlang.Model.database.SoundEntry;
 import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Word;
+import com.gamurar.gamlang.utilities.AppExecutors;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
 import com.gamurar.gamlang.utilities.LiveSearchHelper;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.ProgressableAdapter;
-import com.gamurar.gamlang.utilities.Updatable;
+import com.gamurar.gamlang.utilities.WordInfoLoader;
 import com.gamurar.gamlang.utilities.WordContext;
 import com.gamurar.gamlang.utilities.WordTranslation;
 import com.gamurar.gamlang.views.ImageViewBitmap;
@@ -39,6 +38,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,7 +48,7 @@ public class Tasks {
     /**
      * Fetch images from local storage and bind them with data from the local database
      */
-    public static class createCardsAsyncTask extends AsyncTask<CardEntry, Void, ArrayList<com.gamurar.gamlang.Card>> {
+    public static class createCardsAsyncTask extends AsyncTask<CardEntry, Void, ArrayList<Card>> {
 
         private static final String TAG = "createCardsAsyncTask";
 
@@ -72,9 +72,10 @@ public class Tasks {
             ArrayList<Bitmap> images;
 
             for (CardEntry entry : cardEntries) {
-                Card card = new Card(entry.getQuestion(), entry.getAnswer());
                 int cardId = entry.getId();
-                card.setId(cardId);
+                Card card = new Card(cardId,
+                        entry.getQuestion(), entry.getAnswer(),
+                        entry.getLastReview(), entry.getNextReview());
                 List<ImageEntry> imageEntries = imageDao.loadImagesByCardId(cardId);
 
                 if (imageEntries != null) {
@@ -555,10 +556,10 @@ public class Tasks {
 
         private String mFromLang;
         private String mToLang;
-        private Updatable mUpdatable;
+        private WordInfoLoader mUpdatable;
 
 
-        gatherWordInfo(String fromLang, String toLang, Updatable updatable) {
+        gatherWordInfo(String fromLang, String toLang, WordInfoLoader updatable) {
             mFromLang = fromLang;
             mToLang = toLang;
             mUpdatable = updatable;
@@ -569,7 +570,13 @@ public class Tasks {
             Word word = words[0];
             Document glosbePage = NetworkUtils.getGlosbePage(word, mFromLang, mToLang);
             if (glosbePage != null) {
-                word.setIPA(NetworkUtils.extractGlosbeIPA(glosbePage));
+                String IPA = NetworkUtils.extractGlosbeIPA(glosbePage);
+                AppExecutors.getInstance().mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        word.setIPA(IPA);
+                    }
+                });
                 try {
                     String soundURL = NetworkUtils.extractGlosbeSound(glosbePage);
                     if (soundURL == null || soundURL.isEmpty()) {
@@ -580,7 +587,13 @@ public class Tasks {
                     mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                     mediaPlayer.setDataSource(soundURL);
                     mediaPlayer.prepare();
-                    word.setPronunciation(mediaPlayer, soundURL);
+                    final String soundURLfinal = soundURL;
+                    AppExecutors.getInstance().mainThread().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            word.setPronunciation(mediaPlayer, soundURLfinal);
+                        }
+                    });
                 } catch (IOException e) { e.printStackTrace(); }
             }
             return null;
@@ -589,7 +602,6 @@ public class Tasks {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            mUpdatable.update();
         }
     }
 
@@ -649,4 +661,23 @@ public class Tasks {
     }
 
 
+    public static class dbUpdateReview extends AsyncTask <Void, Void, Void> {
+        private int cardId;
+        private Date lastReview;
+        private Date nextReview;
+        private CardDao cardDao;
+
+        public dbUpdateReview(int cardId, Date lastReview, Date nextReview, CardDao cardDao) {
+            this.cardId = cardId;
+            this.lastReview = lastReview;
+            this.nextReview = nextReview;
+            this.cardDao = cardDao;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            cardDao.updateReview(cardId, lastReview, nextReview);
+            return null;
+        }
+    }
 }
