@@ -58,4 +58,6 @@ public class ExploreViewModel extends AndroidViewModel {
 
     public String getToLang() { return mRepository.getPrefToLang(); }
 
+    public void initLocal() { mRepository.initLocal(); }
+
 }

@@ -2,7 +2,9 @@ package com.gamurar.gamlang.utilities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -10,9 +12,19 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.gamurar.gamlang.R;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+
 import androidx.core.content.ContextCompat;
 
 public class SystemUtils {
+    private static final String TAG = "SystemUtils";
+
     public static void hideStatusBar(Activity activity) {
         activity.getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,

@@ -4,24 +4,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.R;
-import com.gamurar.gamlang.Word;
-import com.gamurar.gamlang.utilities.AppExecutors;
-import com.gamurar.gamlang.utilities.NetworkUtils;
+import com.gamurar.gamlang.utilities.PreferencesUtils;
 import com.gamurar.gamlang.utilities.SystemUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
-import java.util.concurrent.TimeUnit;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import io.reactivex.Observable;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -31,14 +23,20 @@ public class MainActivity extends AppCompatActivity {
     private CardView mMenuWatch;
     private CardView mMenuSettings;
     private FloatingActionButton mMenuAddWords;
+    private TextView mCardInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
-        testingRxJava();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setCardsInfo();
+        CardRepository.getInstance(this).initLocal();
     }
 
     private void init() {
@@ -49,12 +47,18 @@ public class MainActivity extends AppCompatActivity {
         mMenuWatch = findViewById(R.id.menu_watch);
         mMenuSettings = findViewById(R.id.menu_settings);
         mMenuAddWords = findViewById(R.id.fab_add_words);
+        mCardInfo = findViewById(R.id.cards_info);
 
         mMenuLearn.setOnClickListener(new StartActivity(LearnWordsActivity.class));
-        mMenuDictionary.setOnClickListener(new StartActivity(MyDictionaryActivity.class));
+        mMenuDictionary.setOnClickListener(new StartActivity(DictionaryActivity.class));
         mMenuWatch.setOnClickListener(new StartActivity(VideoActivity.class));
         mMenuSettings.setOnClickListener(new StartActivity(SettingsActivity.class));
         mMenuAddWords.setOnClickListener(new StartActivity(ExploreActivity.class));
+    }
+
+    private void setCardsInfo() {
+        int totalCards = PreferencesUtils.getTotalCards(this);
+        mCardInfo.setText(getString(R.string.cards_info, totalCards));
     }
 
     private class StartActivity implements View.OnClickListener {
@@ -74,16 +78,5 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void testingRxJava() {
-        /*
-        * *********************LEARNING**********************/
 
-
-
-
-
-
-        /*
-         * **********************LEARNING*********************/
-    }
 }

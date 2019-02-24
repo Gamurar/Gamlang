@@ -18,8 +18,8 @@ import androidx.lifecycle.AndroidViewModel;
 public class CardCreationViewModel extends AndroidViewModel {
     private static final String TAG = "CardCreationViewModel";
 
-    CardRepository mRepository;
-    Word mWord;
+    private CardRepository mRepository;
+    private Word mWord;
     private String[] images;
     private String sounds;
 
@@ -27,7 +27,6 @@ public class CardCreationViewModel extends AndroidViewModel {
         super(application);
         mRepository = CardRepository.getInstance(application);
         mRepository.initRemote();
-        mRepository.initLocal();
     }
 
     public void setWord(Word word) {

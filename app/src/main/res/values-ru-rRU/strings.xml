@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Gamlang</string>
     <string name="action_delete">Удалить</string>
     <string name="action_refresh">Обновить</string>
     <string name="add_another_word">Добавить слово</string>
@@ -42,4 +41,5 @@
     <string name="create_card">Добавить карточку</string>
     <string name="no_cards">Здесь ничего нет</string>
     <string name="create_new_one">Создать карточку</string>
+    <string name="cards_info">У Вас %1$d карточек</string>
 </resources>

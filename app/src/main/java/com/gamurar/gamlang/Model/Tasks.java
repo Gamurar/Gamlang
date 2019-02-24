@@ -19,6 +19,7 @@ import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.AppExecutors;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
+import com.gamurar.gamlang.utilities.InternetCheckable;
 import com.gamurar.gamlang.utilities.LiveSearchHelper;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.ProgressableAdapter;
@@ -36,6 +37,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -67,8 +70,8 @@ public class Tasks {
          * @return ArrayList of created cards
          */
         @Override
-        protected ArrayList<com.gamurar.gamlang.Card> doInBackground(CardEntry... cardEntries) {
-            ArrayList<com.gamurar.gamlang.Card> cards = new ArrayList<>();
+        protected ArrayList<Card> doInBackground(CardEntry... cardEntries) {
+            ArrayList<Card> cards = new ArrayList<>();
             ArrayList<Bitmap> images;
 
             for (CardEntry entry : cardEntries) {
@@ -672,5 +675,44 @@ public class Tasks {
             cardDao.updateReview(cardId, lastReview, nextReview);
             return null;
         }
+    }
+
+    public static class CheckInternetConnection extends AsyncTask<Void, Void, Boolean> {
+        InternetCheckable checker;
+
+        public CheckInternetConnection(InternetCheckable checker) {
+            this.checker = checker;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            return NetworkUtils.isOnline();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isOnline) {
+            if (isOnline) {
+                checker.online();
+            } else {
+                checker.offline();
+            }
+        }
+    }
+
+    public static class InternetCheck extends AsyncTask<Void,Void,Boolean> {
+
+        private Consumer mConsumer;
+        public  interface Consumer { void accept(Boolean internet); }
+
+        public  InternetCheck(Consumer consumer) { mConsumer = consumer; execute(); }
+
+        @Override protected Boolean doInBackground(Void... voids) { try {
+            Socket sock = new Socket();
+            sock.connect(new InetSocketAddress("8.8.8.8", 53), 1500);
+            sock.close();
+            return true;
+        } catch (IOException e) { return false; } }
+
+        @Override protected void onPostExecute(Boolean internet) { mConsumer.accept(internet); }
     }
 }

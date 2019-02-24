@@ -4,6 +4,8 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Interpolator;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
@@ -17,9 +19,12 @@ import android.widget.ProgressBar;
 
 import androidx.appcompat.widget.SearchView;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.gamurar.gamlang.Model.Tasks;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.ExploreViewModel;
 import com.gamurar.gamlang.utilities.AppExecutors;
+import com.gamurar.gamlang.utilities.InternetCheckable;
 import com.gamurar.gamlang.utilities.LiveSearchHelper;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.SuggestionAdapter;
@@ -36,9 +41,12 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
+import io.reactivex.internal.disposables.DisposableContainer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
@@ -54,10 +62,13 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     private ExploreActivity parentActivity;
     private RecyclerView mRecyclerView;
     private ProgressBar progressBar;
+    private ConnectivityManager connectivityManager;
+    private LottieAnimationView mOfflineAnim;
 
     private static boolean isSearching;
     private static int wordsFromWiki = 0;
     private static int wordsFromGlosbe = 0;
+    private static boolean isOnline;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -74,9 +85,9 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         Log.d(TAG, "onViewCreated() called");
         init(view);
-        super.onViewCreated(view, savedInstanceState);
     }
 
     private void init(View view) {
@@ -89,12 +100,13 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
 
         mSearchView = view.findViewById(R.id.sv_find_new_words);
         progressBar = view.findViewById(R.id.progress_bar);
+        mOfflineAnim = view.findViewById(R.id.offline_anim);
         if (getArguments() != null) {
             String lang = getArguments().getString(KEY_LANG);
             mSearchView.setQueryHint(getString(R.string.search_word_hint, lang));
         }
-
-
+        connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        isOnline = isOnline();
 
         final PublishSubject<String> subject = PublishSubject.create();
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -108,7 +120,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
             public boolean onQueryTextChange(String newText) {
                 mAdapter.clear();
                 subject.onNext(newText.toLowerCase());
-                if (newText.isEmpty()) {
+                if (newText.isEmpty() || !isOnline) {
                     progressBar.setVisibility(View.INVISIBLE);
                 } else {
                     progressBar.setVisibility(View.VISIBLE);
@@ -117,6 +129,10 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
             }
         });
         setUpSearchObservable(subject);
+        if (!isOnline) {
+            mOfflineAnim.setVisibility(View.VISIBLE);
+            mOfflineAnim.playAnimation();
+        }
     }
 
     @Override
@@ -161,7 +177,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                 .filter(new Predicate<String>() {
                     @Override
                     public boolean test(String text) {
-                        return !text.isEmpty();
+                        return !text.isEmpty() && isOnline;
                     }
                 })
                 .distinct()
@@ -229,4 +245,8 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     }
 
 
+    public boolean isOnline() {
+        NetworkInfo netInfo = connectivityManager.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnected();
+    }
 }

@@ -7,7 +7,6 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -18,6 +17,7 @@ import com.gamurar.gamlang.ViewModel.CardCreationViewModel;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.ImagesAdapter;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
+import com.gamurar.gamlang.utilities.PreferencesUtils;
 import com.gamurar.gamlang.utilities.WordInfoLoader;
 import com.gamurar.gamlang.views.ImageViewBitmap;
 
@@ -26,13 +26,14 @@ import java.util.HashSet;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class PickImageFragment extends Fragment implements WordInfoLoader, ImagesAdapter.ImageClickListener, ImagesLoadable {
     private static final String TAG = "PickImageFragment";
 
-    private TextView mWord;
+    private TextView mWordTV;
     private TextView mTranslation;
     private TextView mIPA;
     private RecyclerView mImagesRV;
@@ -43,6 +44,7 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
     private CardCreationActivity parent;
     private LottieAnimationView mPreloader;
     private boolean isSoundLoading;
+    private Word word;
 
     @Nullable
     @Override
@@ -52,16 +54,20 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        init(view);
         super.onViewCreated(view, savedInstanceState);
+        init(view);
     }
 
     private void init(View view) {
         isSoundLoading = true;
         mPreloader = view.findViewById(R.id.preloader);
         parent = (CardCreationActivity) getActivity();
-        viewModel = parent.viewModel;
-        viewModel.getWord().setUpdatesListener(new Word.UpdatesListener() {
+        String[] wordInfo = getArguments().getStringArray(CardCreationActivity.EXTRA_WORD_INFO);
+        word = new Word(wordInfo[0], wordInfo[1]);
+        viewModel = ViewModelProviders.of(getActivity()).get(CardCreationViewModel.class);
+        viewModel.setWord(word);
+        viewModel.gatherWordInfo(this, this);
+        word.setUpdatesListener(new Word.UpdatesListener() {
             @Override
             public void IPAupdated() {
                 setIPA();
@@ -82,7 +88,7 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
             }
         });
 
-        mWord = view.findViewById(R.id.word);
+        mWordTV = view.findViewById(R.id.word);
         mTranslation = view.findViewById(R.id.translation);
         mIPA = view.findViewById(R.id.IPA);
         mImagesRV = view.findViewById(R.id.rv_word_pictures);
@@ -91,12 +97,11 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
         mPlayBtn.playAnimation();
         mAddImagesBtn = view.findViewById(R.id.btn_add_images);
 
-        mWord.setText(viewModel.getWord().getName());
-        mTranslation.setText(viewModel.getWord().getTranslation());
+        mWordTV.setText(word.getName());
+        mTranslation.setText(word.getTranslation());
 
         mPlayBtn.setOnClickListener(v -> {
             if (isSoundLoading) return;
-            Word word = viewModel.getWord();
             word.pronounce();
             mPlayBtn.setMinAndMaxFrame(67, 90);
             mPlayBtn.playAnimation();
@@ -106,7 +111,10 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
             });
 
         });
-        mAddImagesBtn.setOnClickListener(v -> addToDictionary());
+        mAddImagesBtn.setOnClickListener(v -> {
+            addToDictionary();
+            PreferencesUtils.incrementTotalCards(getContext());
+        });
 
         mAdapter = new ImagesAdapter(this);
         mImagesRV.setLayoutManager(
@@ -117,7 +125,7 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
     }
 
     public void setIPA() {
-        String IPA = viewModel.getWord().getIPA();
+        String IPA = word.getIPA();
         if (IPA != null && !IPA.isEmpty()) {
             mIPA.setText(getString(R.string.IPA, IPA));
             mIPA.setVisibility(TextView.VISIBLE);
@@ -161,7 +169,6 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
     }
 
     private void addToDictionary() {
-        Word word = viewModel.getWord();
         CardEntry newCardEntry = new CardEntry(word.getName(), word.getTranslation());
         if (selectedImages != null && !selectedImages.isEmpty()) {
             viewModel.savePictures(selectedImages);

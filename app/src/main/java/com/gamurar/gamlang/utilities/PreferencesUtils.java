@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.gamurar.gamlang.R;
+import com.gamurar.gamlang.View.DictionaryActivity;
+import com.gamurar.gamlang.View.PickImageFragment;
 
 import androidx.preference.PreferenceManager;
 
@@ -75,5 +77,34 @@ public class PreferencesUtils {
 
         return langCode;
     }
-    
+
+    public static void setTotalCards(Context context, int totalCards) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(context.getString(R.string.pref_total_cards_key), totalCards);
+        editor.apply();
+    }
+
+    public static int getTotalCards(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return sharedPreferences.getInt(
+                context.getString(R.string.pref_total_cards_key), 0);
+    }
+
+    public static void incrementTotalCards(Context context) {
+        int totalCards = getTotalCards(context);
+        totalCards++;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(context.getString(R.string.pref_total_cards_key), totalCards);
+        editor.apply();
+    }
+
+    public static void decrementTotalCards(int deleted, Context context) {
+        int totalCards = getTotalCards(context) - deleted;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(context.getString(R.string.pref_total_cards_key), totalCards);
+        editor.apply();
+    }
 }

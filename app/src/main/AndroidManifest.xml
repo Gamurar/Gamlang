@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:windowSoftInputMode="adjustPan"
@@ -49,7 +50,7 @@
                 android:value="View.MainActivity" />
         </activity>
         <activity
-            android:name=".View.MyDictionaryActivity"
+            android:name=".View.DictionaryActivity"
             android:launchMode="singleTop"
             android:parentActivityName="View.MainActivity">
             <meta-data

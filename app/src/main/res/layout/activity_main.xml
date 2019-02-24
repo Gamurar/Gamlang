@@ -27,13 +27,15 @@
             android:textSize="22sp" />
 
         <TextView
+            android:id="@+id/cards_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_title"
             android:layout_marginTop="6dp"
-            android:text="12 items"
+            android:text="@string/cards_info"
             android:textColor="#52BAFF"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            tools:text="You have 6 cards"/>
 
         <com.github.abdularis.civ.CircleImageView
             android:id="@+id/avatar"

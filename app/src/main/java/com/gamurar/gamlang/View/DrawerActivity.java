@@ -98,7 +98,7 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
 //            }
 //            case R.id.nav_my_dictionary: {
 //                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-//                        //new MyDictionaryActivity()).commit();
+//                        //new DictionaryActivity()).commit();
 //                break;
 //            }
 //            case R.id.nav_add_words: {

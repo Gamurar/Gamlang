@@ -121,7 +121,6 @@ public class CardRepository {
     }
 
     public void initRemote() {
-        requestQueue = MySingleton.getInstance(mContext).getRequestQueue();
         mFromLangCode = PreferencesUtils.getPrefFromLangCode(mContext);
         mToLangCode = PreferencesUtils.getPrefToLangCode(mContext);
     }

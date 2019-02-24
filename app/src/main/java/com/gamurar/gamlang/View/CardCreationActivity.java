@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.CardCreationViewModel;
 import com.gamurar.gamlang.Word;
@@ -32,20 +33,23 @@ public class CardCreationActivity extends AppCompatActivity {
         init();
     }
 
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        CardRepository.getInstance(this).initLocal();
+    }
+
     private void init() {
-        viewModel = ViewModelProviders.of(this).get(CardCreationViewModel.class);
         mTopAlert = findViewById(R.id.top_alert);
-
-        if (getIntent().hasExtra(EXTRA_WORD_INFO)) {
-            String[] wordInfo = getIntent().getStringArrayExtra(EXTRA_WORD_INFO);
-            Word word = new Word(wordInfo[0], wordInfo[1]);
-            viewModel.setWord(word);
-        }
-
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         PickImageFragment fragment = new PickImageFragment();
-        viewModel.gatherWordInfo(fragment, fragment);
+        if (getIntent().hasExtra(EXTRA_WORD_INFO)) {
+            Bundle bundle = new Bundle();
+            bundle.putStringArray(EXTRA_WORD_INFO,
+                    getIntent().getStringArrayExtra(EXTRA_WORD_INFO));
+            fragment.setArguments(bundle);
+        }
         fragmentTransaction.add(R.id.fragment_container, fragment).commit();
     }
 

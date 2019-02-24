@@ -13,6 +13,7 @@ import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.CardViewModel;
 import com.gamurar.gamlang.utilities.DictionaryAdapter;
+import com.gamurar.gamlang.utilities.PreferencesUtils;
 
 import java.util.HashSet;
 
@@ -25,9 +26,9 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MyDictionaryActivity extends AppCompatActivity
+public class DictionaryActivity extends AppCompatActivity
     implements DictionaryAdapter.DictWordSelectListener {
-    private static final String TAG = "MyDictionaryActivity";
+    private static final String TAG = "DictionaryActivity";
     private RecyclerView mWordsList;
     private DictionaryAdapter mAdapter;
     private HashSet<Card> selectedCards;
@@ -65,7 +66,7 @@ public class MyDictionaryActivity extends AppCompatActivity
         mViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
         mViewModel.getAllCards().observe(this, (cardEntries) -> {
             mAdapter.setCards(cardEntries);
-
+            PreferencesUtils.setTotalCards(this, cardEntries.size());
         });
     }
 
@@ -97,6 +98,7 @@ public class MyDictionaryActivity extends AppCompatActivity
 
     private void deleteSelectedCards() {
         mViewModel.delete(selectedCards);
+//        PreferencesUtils.decrementTotalCards(selectedCards.size(), this);
         Log.d(TAG, "deleteSelectedCards: The selected cards deleted");
         selectedCards.clear();
 
