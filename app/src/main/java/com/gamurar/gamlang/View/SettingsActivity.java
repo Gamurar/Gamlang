@@ -1,13 +1,17 @@
 package com.gamurar.gamlang.View;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.gamurar.gamlang.R;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -15,20 +19,28 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        ActionBar actionBar = this.getSupportActionBar();
+        init();
+    }
 
-        // Set the action bar back button to look like an up button
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
+    private void init() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window mWindow = this.getWindow();
+            mWindow.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            mWindow.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            mWindow.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
         }
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle(R.string.settings);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        // When the home button is pressed, take the user back to the VisualizerActivity
         if (id == android.R.id.home) {
-            NavUtils.navigateUpFromSameTask(this);
+            onBackPressed();
         }
         return super.onOptionsItemSelected(item);
     }

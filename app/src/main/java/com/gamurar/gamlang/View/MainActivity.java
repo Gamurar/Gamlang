@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.R;
+import com.gamurar.gamlang.utilities.AppExecutors;
+import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.PreferencesUtils;
 import com.gamurar.gamlang.utilities.SystemUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "onClick: " + mActivity.getSimpleName() + " menu option clicked!");
+            Log.d(TAG, "onWordClick: " + mActivity.getSimpleName() + " menu option clicked!");
             Intent intent = new Intent(MainActivity.this, mActivity);
             startActivity(intent);
         }

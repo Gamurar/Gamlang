@@ -12,7 +12,7 @@ import androidx.room.Update;
 @Dao
 public interface SoundDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertSound(SoundEntry soundEntry);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
@@ -21,18 +21,12 @@ public interface SoundDao {
     @Delete
     void deleteImage(SoundEntry soundEntry);
 
-    @Query("DELETE FROM sound WHERE file_name IN(:fileNames)")
+    @Query("DELETE FROM Sounds WHERE file_name IN(:fileNames)")
     void deleteSoundsByFileName(String[] fileNames);
 
-    @Query("DELETE FROM sound WHERE file_name = :fileName")
+    @Query("DELETE FROM Sounds WHERE file_name = :fileName")
     void deleteSoundByFileName(String fileName);
 
-    @Query("DELETE FROM sound")
+    @Query("DELETE FROM Sounds")
     void deleteAllSounds();
-
-    @Query("SELECT * FROM sound WHERE card_id IN(:ids)")
-    List<SoundEntry> loadSoundsByCardId(Integer[] ids);
-
-    @Query("SELECT * FROM sound WHERE card_id = :id")
-    SoundEntry loadSoundByCardId(int id);
 }

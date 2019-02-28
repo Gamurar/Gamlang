@@ -5,13 +5,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.gamurar.gamlang.Model.CardRepository;
-import com.gamurar.gamlang.Model.Tasks;
-import com.gamurar.gamlang.View.ExploreFragment;
 import com.gamurar.gamlang.Word;
 
 import org.json.JSONArray;
@@ -33,14 +26,8 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
-import java.util.concurrent.Callable;
-
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * These utilities will be used to communicate with the network.
@@ -93,9 +80,17 @@ public class NetworkUtils {
     public static final String WIKI_OPENSEARCH_ACTION = "https://en.wiktionary.org/w/api.php?action=opensearch";
     private static final String WIKI_PARAM_SEARCH = "search";
     private static final String WIKI_PARAM_LIMIT = "limit";
-    private static final String PARAM_FORMAT = "format";
+    private static final String WIKI_PARAM_FORMAT = "format";
     private static final String jsonFormat = "json";
     private static final String wikiResultsLimit = "10";
+
+    //Wiktionary translation API
+    private static final String WIKI_BASE_URL = "https://en.wiktionary.org/w/api.php";
+    private static final String WIKI_PARAM_ACTION = "action";
+    private static final String WIKI_PARAM_PAGE = "page";
+    private static final String WIKI_PARAM_PROPERTIES = "prop";
+    private static final String wikiActionParse = "parse";
+    private static final String wikiPropIwlinks = "iwlinks";
     /**
      * Builds the URL used to query GitHub.
      *
@@ -124,8 +119,17 @@ public class NetworkUtils {
             case WIKI_OPENSEARCH_ACTION: {
                 builtUri = Uri.parse(WIKI_OPENSEARCH_ACTION).buildUpon()
                         .appendQueryParameter(WIKI_PARAM_SEARCH, word)
-                        .appendQueryParameter(PARAM_FORMAT, jsonFormat)
+                        .appendQueryParameter(WIKI_PARAM_FORMAT, jsonFormat)
                         .appendQueryParameter(WIKI_PARAM_LIMIT, wikiResultsLimit)
+                        .build();
+                break;
+            }
+            case WIKI_BASE_URL: {
+                builtUri = Uri.parse(WIKI_BASE_URL).buildUpon()
+                        .appendQueryParameter(WIKI_PARAM_ACTION, wikiActionParse)
+                        .appendQueryParameter(WIKI_PARAM_PROPERTIES, wikiPropIwlinks)
+                        .appendQueryParameter(WIKI_PARAM_FORMAT, jsonFormat)
+                        .appendQueryParameter(WIKI_PARAM_PAGE, word)
                         .build();
                 break;
             }
@@ -147,6 +151,39 @@ public class NetworkUtils {
 
         return url;
     }
+
+    /**
+     * @return response from the get request
+     * */
+    private static String GETRequest(URL url) {
+        try {
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+
+            int responseCode = con.getResponseCode();
+            Log.i(TAG, "\nSending 'GET' request to URL : " + url);
+            Log.i(TAG, "Response Code : " + responseCode);
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            Log.i(TAG, "Response: " + response);
+
+            return response.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 
     private static String fetchGlosbeJSON(String word, String fromLang, String toLang, String action) throws IOException {
 //        String fromLang = PreferencesUtils.getPrefFromLangCode(context);
@@ -406,38 +443,6 @@ public class NetworkUtils {
         return response.toString();
     }
 
-    /**
-     * @return response from the get request
-     * */
-    public static String GETRequest(URL url) {
-        try {
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("GET");
-
-            int responseCode = con.getResponseCode();
-            Log.i(TAG, "\nSending 'GET' request to URL : " + url);
-            Log.i(TAG, "Response Code : " + responseCode);
-
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            Log.i(TAG, "Response: " + response);
-
-            return response.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
     public static Word getWordFromShortTranslation(String JSONString) {
         try {
             JSONObject json = new JSONObject(JSONString)
@@ -496,11 +501,11 @@ public class NetworkUtils {
         if (siteDomain.equals("en")) {
             url = "https://www.google.com"
                     + "/search?q=" + word
-                    + "&sout=1&tbm=isch&gs_l=img";
+                    + "&sout=2&tbm=isch&gs_l=img";
         } else {
             url = "https://www.google." + siteDomain
                     + "/search?q=" + word + "+site%3A" + siteDomain
-                    + "&sout=1&tbm=isch&gs_l=img";
+                    + "&sout=2&tbm=isch&gs_l=img";
         }
 
         try {
@@ -508,12 +513,10 @@ public class NetworkUtils {
             Document doc = Jsoup.connect(url).get();
             Log.d(TAG, doc.title());
             Log.d(TAG, "jsoupTest: " + doc.title());
-            Elements images = doc.select("#res #search #ires .images_table img");
+            Elements images = doc.getElementsByClass("THL2l").next();
             for (Element image : images) {
-                Log.d(TAG, "jsoupTest: " + image.attr("src"));
-//                                + image.attr("title") + "\n\t"
-//                                + image.absUrl("href"));
-                imgsUrl.add(image.attr("src"));
+                Log.d(TAG, "image url: " + image.toString());
+                imgsUrl.add(image.attr("data-src"));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -612,5 +615,24 @@ public class NetworkUtils {
 
             return true;
         } catch (IOException e) { return false; }
+    }
+
+    public static String wikiTranslate(String word) {
+        URL url = buildUrl(word, WIKI_BASE_URL);
+        try {
+            JSONArray json = new JSONObject(GETRequest(url))
+                    .getJSONObject("parse")
+                    .getJSONArray("iwlinks");
+            for (int i = 0; i < json.length(); i++) {
+                if (json.getJSONObject(i).getString("prefix").equals("ru")) {
+                    Log.d(TAG, "wiki translation: " + json.getJSONObject(i).getString("*").replace("ru:", ""));
+                    return json.getJSONObject(i).getString("*").replace("ru:", "");
+                }
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return null;
     }
 }

@@ -1,31 +1,22 @@
 package com.gamurar.gamlang.View;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Interpolator;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
-import android.util.StateSet;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ProgressBar;
 
 import androidx.appcompat.widget.SearchView;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.gamurar.gamlang.Model.Tasks;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.ExploreViewModel;
-import com.gamurar.gamlang.utilities.AppExecutors;
-import com.gamurar.gamlang.utilities.InternetCheckable;
-import com.gamurar.gamlang.utilities.LiveSearchHelper;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.SuggestionAdapter;
 import com.gamurar.gamlang.utilities.SystemUtils;
@@ -41,12 +32,10 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
-import io.reactivex.internal.disposables.DisposableContainer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
@@ -69,6 +58,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     private static int wordsFromWiki = 0;
     private static int wordsFromGlosbe = 0;
     private static boolean isOnline;
+    private Disposable mDisposable;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -173,7 +163,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     }
 
     private void setUpSearchObservable(PublishSubject<String> subject) {
-        subject.debounce(300, TimeUnit.MILLISECONDS)
+        mDisposable = subject.debounce(300, TimeUnit.MILLISECONDS)
                 .filter(new Predicate<String>() {
                     @Override
                     public boolean test(String text) {
@@ -199,7 +189,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                     public ObservableSource<Pair<String,String>> apply(String word) throws Exception {
                         if (word == null) return Observable.just(new Pair<>(word, ""));
                         Log.d(TAG, "Glosbe translation api call: " + word);
-                        String translation = mViewModel.translateByGlosbe(word);
+                        String translation = mViewModel.translateByWiki(word);
                         wordsFromGlosbe++;
                         if (translation == null) return Observable.just(new Pair<>(word, ""));
                         return Observable.just(new Pair<>(word, translation));
@@ -207,40 +197,29 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                     }
 
                 })
+                .skipWhile(new Predicate<Pair<String, String>>() {
+                    @Override
+                    public boolean test(Pair<String, String> pair) throws Exception {
+                        return pair.second.isEmpty();
+                    }
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Pair<String, String>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        Log.d(TAG, "onSubscribe()");
+                .subscribe(pair -> {
+                    if (!pair.first.isEmpty() && !pair.second.isEmpty()) {
+                        mAdapter.insert(pair);
                     }
-
-                    @Override
-                    public void onNext(Pair<String, String> pair) {
-                        if (!pair.first.isEmpty() && !pair.second.isEmpty()) {
-                            mAdapter.insert(pair);
-                        }
-                        if (wordsFromWiki <= wordsFromGlosbe) {
-                            progressBar.setVisibility(View.INVISIBLE);
-                            isSearching = false;
-                            wordsFromWiki = 0;
-                            wordsFromGlosbe = 0;
-                        }
-                        else if (progressBar.getVisibility() == View.INVISIBLE) {
-                            progressBar.setVisibility(View.VISIBLE);
-                            isSearching = true;
-                        }
+                    if (wordsFromWiki <= wordsFromGlosbe) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        isSearching = false;
+                        wordsFromWiki = 0;
+                        wordsFromGlosbe = 0;
+                    } else if (progressBar.getVisibility() == View.INVISIBLE) {
+                        progressBar.setVisibility(View.VISIBLE);
+                        isSearching = true;
                     }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(TAG, e.getMessage(), e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.d(TAG, "onComplete()");
-                    }
+                }, throwable -> {
+                    Log.e(TAG, throwable.getMessage(), throwable );
                 });
     }
 
@@ -248,5 +227,12 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     public boolean isOnline() {
         NetworkInfo netInfo = connectivityManager.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnected();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mDisposable.dispose();
+        Log.d(TAG, "onDestroyView: search disposed");
     }
 }

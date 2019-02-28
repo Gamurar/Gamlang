@@ -3,13 +3,16 @@ package com.gamurar.gamlang.utilities;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,7 +34,6 @@ import java.util.Map;
 public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHolder> {
     private static final String TAG = "CardsAdapter";
     private ArrayList<Card> mCards;
-
 
 
     public CardsAdapter() {
@@ -60,11 +62,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
 
             viewHolder.question.setText(card.getQuestion());
             viewHolder.answer.setText(card.getAnswer());
-            if (card.getPictures() != null) {
-                viewHolder.imageView.setImageBitmap(card.getPictures().get(0));
-            } else {
-                viewHolder.imageView.setVisibility(View.INVISIBLE);
-            }
+            viewHolder.adapter.setImages(card.getPictures());
 
             if (!card.hasSound()) {
                 viewHolder.playWord.setVisibility(ImageButton.GONE);
@@ -113,24 +111,42 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
         TextView stage;
         TextView question;
         TextView answer;
-        ImageView imageView;
         ImageButton playWord;
         LinearLayout answerContainer;
+        RecyclerView imagesRV;
+        CardImagesAdapter adapter;
 
         private CardViewHolder(@NonNull View itemView) {
             super(itemView);
             question = itemView.findViewById(R.id.card_question);
             playWord = itemView.findViewById(R.id.play_word);
             answer = itemView.findViewById(R.id.card_answer);
-            imageView = itemView.findViewById(R.id.card_image);
             answerContainer = itemView.findViewById(R.id.answer_container);
             stage = itemView.findViewById(R.id.stage);
-            playWord.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mCards.get(getAdapterPosition()).pronounce();
-                }
-            });
+            imagesRV = itemView.findViewById(R.id.rv_images);
+            playWord.setOnClickListener(v -> mCards.get(getAdapterPosition()).pronounce());
+
+            adapter = new CardImagesAdapter();
+            GridLayoutManager layoutManager = new GridLayoutManager(itemView.getContext(), 2);
+//            layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+//                @Override
+//                public int getSpanSize(int position) {
+//                    int itemCount = adapter.getItemCount() - 1;
+//                    Log.d("CardImages", "item count: " + itemCount);
+//                    Log.d("CardImages", "position: " + position);
+//
+//                    if (itemCount == position && (itemCount + 1) % 2 != 0) {
+//                        if (adapter.getCurrentImageViewHolder() != null) {
+//                        }
+//                        return 2;
+//                    } else {
+//                        return 1;
+//                    }
+//                }
+//            });
+            imagesRV.setLayoutManager(layoutManager);
+            imagesRV.setAdapter(adapter);
+
         }
 
     }

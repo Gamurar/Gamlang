@@ -7,11 +7,15 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.Model.database.ImageDao;
 import com.gamurar.gamlang.Model.database.ImageEntry;
+import com.gamurar.gamlang.Model.database.IntermediateDao;
+import com.gamurar.gamlang.Model.database.IntermediateEntry;
 import com.gamurar.gamlang.Model.database.SoundDao;
 import com.gamurar.gamlang.Model.database.SoundEntry;
 import com.gamurar.gamlang.View.ExploreActivity;
@@ -55,14 +59,10 @@ public class Tasks {
 
         private static final String TAG = "createCardsAsyncTask";
 
-        private CardDao cardDao;
-        private ImageDao imageDao;
-        private SoundDao soundDao;
+        private List<IntermediateEntry> cardsData;
 
-        public createCardsAsyncTask(CardDao cardDao, ImageDao imageDao, SoundDao soundDao) {
-            this.cardDao = cardDao;
-            this.imageDao = imageDao;
-            this.soundDao = soundDao;
+        public createCardsAsyncTask(List<IntermediateEntry> cardsData) {
+            this.cardsData = cardsData;
         }
 
         /**
@@ -71,53 +71,62 @@ public class Tasks {
          */
         @Override
         protected ArrayList<Card> doInBackground(CardEntry... cardEntries) {
-            ArrayList<Card> cards = new ArrayList<>();
-            ArrayList<Bitmap> images;
+            ArrayList<Card> deckCards = new ArrayList<>();
+            SparseIntArray dbIdDeckId = new SparseIntArray();
 
-            for (CardEntry entry : cardEntries) {
-                int cardId = entry.getId();
-                Card card = new Card(cardId,
-                        entry.getQuestion(), entry.getAnswer(),
-                        entry.getLastReview(), entry.getNextReview());
-                List<ImageEntry> imageEntries = imageDao.loadImagesByCardId(cardId);
+            for (IntermediateEntry entry : cardsData) {
+                int cardId = entry.getCardId();
+                String pictureFileName = entry.getImageFile();
+                String soundFileName = entry.getSoundFile();
+                if (deckCards.size() <= cardId && dbIdDeckId.get(cardId, -1) == -1) {
+                    //Create new card
+                    int i = cardId - 1;
+                    Card card = new Card(cardId,
+                            cardEntries[i].getQuestion(), cardEntries[i].getAnswer(),
+                            cardEntries[i].getLastReview(), cardEntries[i].getNextReview());
 
-                if (imageEntries != null) {
-                    images = new ArrayList<>();
-                    try {
-                        //get images for the card
-                        for (ImageEntry imageEntry : imageEntries) {
-                            String fileName = imageEntry.getFileName();
-                            File file = new File(CardRepository.picturesDirectory, fileName);
-                            Log.d(TAG, "doInBackground: path to the picture: \n"
-                                    + file.getAbsolutePath());
-                            Bitmap bitmap = Picasso.get().load(file).get();
-                            images.add(bitmap);
-                            card.addPictureFileName(fileName);
-                        }
-                        card.setPictures(images);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    addPicture(pictureFileName, card);
+                    setSound(soundFileName, card);
+                    deckCards.add(card);
+                    dbIdDeckId.put(cardId, deckCards.size()-1);
+                } else {
+                    Card card = deckCards.get(dbIdDeckId.get(cardId));
+                    addPicture(pictureFileName, card);
                 }
-
-                SoundEntry soundEntry = soundDao.loadSoundByCardId(cardId);
-                if (soundEntry != null) {
-                    try {
-                        String fileURL = soundEntry.getFileName();
-                        String fileName = getFileNameFromURL(fileURL);
-                        String filePath = CardRepository.musicDirectory + "/" + fileName;
-                        MediaPlayer mediaPlayer = new MediaPlayer();
-                        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                        mediaPlayer.setDataSource(filePath);
-                        mediaPlayer.prepare();
-                        card.setPronunciation(mediaPlayer, filePath);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                cards.add(card);
             }
-            return cards;
+
+            return deckCards;
+        }
+
+        private void setSound(String soundFileName, Card card) {
+            if (soundFileName != null) {
+                try {
+                    String fileName = getFileNameFromURL(soundFileName);
+                    String filePath = CardRepository.musicDirectory + "/" + fileName;
+                    MediaPlayer mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    mediaPlayer.setDataSource(filePath);
+                    mediaPlayer.prepare();
+                    card.setPronunciation(mediaPlayer, filePath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        private void addPicture(String pictureFileName, Card card) {
+            if (pictureFileName != null) {
+                try {
+                    File file = new File(CardRepository.picturesDirectory, pictureFileName);
+                    Log.d(TAG, "doInBackground: path to the picture: \n"
+                            + file.getAbsolutePath());
+                    Bitmap bitmap = Picasso.get().load(file).get();
+                    card.addPicture(bitmap);
+                    card.addPictureFileName(pictureFileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -127,7 +136,7 @@ public class Tasks {
      * <p>
      * While execution finished, call MutableLiveData's postValue method to update the word.
      */
-    public static class translateQueryTask extends AsyncTask<String, Void, Pair<String, ArrayList<String[]>>> {
+    public static class translateQueryTask extends AsyncTask<String, Void, String> {
 
         private static final String TAG = "TranslateQueryTask";
 
@@ -148,37 +157,23 @@ public class Tasks {
         }
 
         @Override
-        protected Pair<String, ArrayList<String[]>> doInBackground(String... words) {
+        protected String doInBackground(String... words) {
             String fromLang = "en";
             String toLang = "ru";
             String word = words[0];
 
-            String translation = NetworkUtils.translateByGlosbe(
-                    word,
-                    fromLang, toLang);
+            String translation = NetworkUtils.wikiTranslate(word);
 
-            ArrayList<String[]> wordContext = NetworkUtils.contextByGlosbe(
-                    word,
-                    fromLang, toLang);
-
-            Pair<String, ArrayList<String[]>> result = new Pair<>(translation, wordContext);
-
-            return result;
+            return translation;
         }
 
         @Override
-        protected void onPostExecute(Pair<String, ArrayList<String[]>> result) {
-            String translation = result.first;
-            ArrayList<String[]> context = result.second;
+        protected void onPostExecute(String translation) {
             fragment.onLoadTranslationFinished();
             if (translation != null && !translation.isEmpty()) {
                 fragment.setTranslation(translation);
             } else {
                 fragment.showTranslationErrorMessage();
-            }
-
-            if (context != null && !context.isEmpty() && fragment instanceof WordContext) {
-                ((WordContext) fragment).setContext(context);
             }
         }
     }
@@ -290,15 +285,9 @@ public class Tasks {
     /**
      * Saves pictures to the local storage.
      */
-    public static class savePicturesAsyncTask extends AsyncTask<ImageViewBitmap, Void, String[]> {
+    public static class savePicturesToStorage extends AsyncTask<ImageViewBitmap, Void, String[]> {
 
-        private static final String TAG = "savePicturesAsyncTask";
-
-        private ImageDao imageDao;
-
-        public savePicturesAsyncTask(ImageDao imageDao) {
-            this.imageDao = imageDao;
-        }
+        private static final String TAG = "savePicturesToStorage";
 
         /**
          * @param imageViews to save on the storage
@@ -449,22 +438,27 @@ public class Tasks {
         private String task;
         private String[] images;
         private String sound;
+        private IntermediateDao intermediateDao;
+        private boolean isInserted;
 
         public databaseAsyncTask(CardDao cardDao, String task,
                                  String[] images, ImageDao imageDao,
-                                 String sound, SoundDao soundDao) {
+                                 String sound, SoundDao soundDao,
+                                 IntermediateDao intermediateDao) {
             this.cardDao = cardDao;
             this.task = task;
             this.images = images;
             this.sound = sound;
             this.imageDao = imageDao;
             this.soundDao = soundDao;
+            this.intermediateDao = intermediateDao;
+            isInserted = false;
         }
 
         @Override
         protected Void doInBackground(CardEntry... cardEntries) {
             if (CardRepository.INSERT_TASK.equals(task)) {
-                int cardId = (int)cardDao.insertCard(cardEntries[0]);
+                int cardId = (int) cardDao.insertCard(cardEntries[0]);
                 insertImagesAndSounds(cardId);
             }
             if (CardRepository.DELETE_TASK.equals(task)) {
@@ -478,16 +472,29 @@ public class Tasks {
         }
 
         private void insertImagesAndSounds(int cardId) {
+            ImageEntry imageEntry;
+            SoundEntry soundEntry;
+            IntermediateEntry intermediateEntry = new IntermediateEntry(cardId);
+            if (sound != null && soundDao != null) {
+                soundEntry = new SoundEntry(sound);
+                soundDao.insertSound(soundEntry);
+                intermediateEntry.setSoundFile(sound);
+            }
+
             if (images != null && imageDao != null) {
                 for (String image : images) {
-                    ImageEntry imageEntry = new ImageEntry(image, cardId);
+                    imageEntry = new ImageEntry(image);
                     imageDao.insertImage(imageEntry);
+                    intermediateEntry.setImageFile(image);
+                    intermediateDao.insert(intermediateEntry);
+                    isInserted = true;
                 }
             }
-            if (sound != null && soundDao != null) {
-                SoundEntry soundEntry = new SoundEntry(sound, cardId);
-                soundDao.insertSound(soundEntry);
+
+            if (!isInserted) {
+                intermediateDao.insert(intermediateEntry);
             }
+
         }
     }
 
@@ -511,7 +518,7 @@ public class Tasks {
     public static class loadSuggestionCards extends AsyncTask<String, Pair, Void> {
         private final ProgressableAdapter mAdapter;
         private String fromLang;
-        private String toLang ;
+        private String toLang;
 
         public loadSuggestionCards(ProgressableAdapter adapter, String fromLang, String toLang) {
             mAdapter = adapter;
@@ -543,14 +550,14 @@ public class Tasks {
         @Override
         protected void onProgressUpdate(Pair... values) {
             super.onProgressUpdate(values);
-                if (LiveSearchHelper.lastTyped.equals(LiveSearchHelper.lastSearched)) {
-                    mAdapter.insert(values[0]);
-                } else {
-                    this.cancel(true);
-                    mAdapter.clear();
-                    if (!LiveSearchHelper.lastTyped.isEmpty())
-                        NetworkUtils.requestWikiOpenSearchAgain();
-                }
+            if (LiveSearchHelper.lastTyped.equals(LiveSearchHelper.lastSearched)) {
+                mAdapter.insert(values[0]);
+            } else {
+                this.cancel(true);
+                mAdapter.clear();
+                if (!LiveSearchHelper.lastTyped.isEmpty())
+                    NetworkUtils.requestWikiOpenSearchAgain();
+            }
         }
     }
 
@@ -590,7 +597,9 @@ public class Tasks {
                     mediaPlayer.prepare();
                     final String soundURLfinal = soundURL;
                     AppExecutors.getInstance().mainThread().execute(() -> word.setPronunciation(mediaPlayer, soundURLfinal));
-                } catch (IOException e) { e.printStackTrace(); }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             return null;
         }
@@ -601,55 +610,6 @@ public class Tasks {
         }
     }
 
-    public static class soundDBQuery extends AsyncTask<String, Void, Void> {
-
-        private String task;
-        private SoundDao soundDao;
-        private int cardId;
-
-        public soundDBQuery(String task, SoundDao soundDao, int cardId) {
-            this.task = task;
-            this.soundDao = soundDao;
-            this.cardId = cardId;
-        }
-
-        @Override
-        protected Void doInBackground(String... fileNames) {
-            if (CardRepository.INSERT_TASK.equals(task)) {
-                for (String fileName : fileNames) {
-                    SoundEntry soundEntry = new SoundEntry(fileName, cardId);
-                    soundDao.insertSound(soundEntry);
-                }
-            }
-
-            return null;
-        }
-    }
-
-    public static class ImageDBQuery extends AsyncTask<String, Void, Void> {
-
-        private String task;
-        private ImageDao imageDao;
-        private int cardId;
-
-        public ImageDBQuery(String task, ImageDao imageDao, int cardId) {
-            this.task = task;
-            this.imageDao = imageDao;
-            this.cardId = cardId;
-        }
-
-        @Override
-        protected Void doInBackground(String... fileNames) {
-            if (CardRepository.INSERT_TASK.equals(task)) {
-                for (String fileName : fileNames) {
-                    ImageEntry imageEntry = new ImageEntry(fileName, cardId);
-                    imageDao.insertImage(imageEntry);
-                }
-            }
-
-            return null;
-        }
-    }
 
     private static String getFileNameFromURL(String url) {
         String pattern = "(.*/)(.*$)";
@@ -657,7 +617,7 @@ public class Tasks {
     }
 
 
-    public static class dbUpdateReview extends AsyncTask <Void, Void, Void> {
+    public static class dbUpdateReview extends AsyncTask<Void, Void, Void> {
         private int cardId;
         private Date lastReview;
         private Date nextReview;
@@ -699,20 +659,46 @@ public class Tasks {
         }
     }
 
-    public static class InternetCheck extends AsyncTask<Void,Void,Boolean> {
+    public static class InternetCheck extends AsyncTask<Void, Void, Boolean> {
 
         private Consumer mConsumer;
-        public  interface Consumer { void accept(Boolean internet); }
 
-        public  InternetCheck(Consumer consumer) { mConsumer = consumer; execute(); }
+        public interface Consumer {
+            void accept(Boolean internet);
+        }
 
-        @Override protected Boolean doInBackground(Void... voids) { try {
-            Socket sock = new Socket();
-            sock.connect(new InetSocketAddress("8.8.8.8", 53), 1500);
-            sock.close();
-            return true;
-        } catch (IOException e) { return false; } }
+        public InternetCheck(Consumer consumer) {
+            mConsumer = consumer;
+            execute();
+        }
 
-        @Override protected void onPostExecute(Boolean internet) { mConsumer.accept(internet); }
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                Socket sock = new Socket();
+                sock.connect(new InetSocketAddress("8.8.8.8", 53), 1500);
+                sock.close();
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean internet) {
+            mConsumer.accept(internet);
+        }
+    }
+
+    public static class dbLoadAllCards extends AsyncTask<Void, Void, List<CardEntry>> {
+        CardDao mCardDao;
+        public dbLoadAllCards(CardDao cardDao) {
+            mCardDao = cardDao;
+        }
+
+        @Override
+        protected List<CardEntry> doInBackground(Void... voids) {
+            return mCardDao.loadAllCards();
+        }
     }
 }

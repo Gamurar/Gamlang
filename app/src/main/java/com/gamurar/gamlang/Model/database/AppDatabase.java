@@ -8,7 +8,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-@Database(entities = {CardEntry.class, ImageEntry.class, SoundEntry.class}, version = 1, exportSchema = false)
+@Database(entities = {CardEntry.class, ImageEntry.class, SoundEntry.class, IntermediateEntry.class}, version = 1, exportSchema = false)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -35,5 +35,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ImageDao imageDao();
 
     public abstract SoundDao soundDao();
+
+    public abstract IntermediateDao intermediateDao();
 
 }

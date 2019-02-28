@@ -1,5 +1,6 @@
 package com.gamurar.gamlang.View;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,12 +9,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.ViewModel.CardViewModel;
 import com.gamurar.gamlang.utilities.DictionaryAdapter;
 import com.gamurar.gamlang.utilities.PreferencesUtils;
+import com.github.abdularis.civ.AvatarImageView;
 
 import java.util.HashSet;
 
@@ -21,7 +24,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,6 +35,11 @@ import androidx.recyclerview.widget.RecyclerView;
 public class DictionaryActivity extends AppCompatActivity
     implements DictionaryAdapter.DictWordSelectListener {
     private static final String TAG = "DictionaryActivity";
+
+    public static final String EXTRA_WORD_ITEM = "extra_word_item";
+    public static final String EXTRA_WORD_IMAGE_TRANSITION_NAME = "extra_word_image_transition_name";
+    public static final String EXTRA_WORD_TRANSITION_NAME = "extra_word_transition_name";
+
     private RecyclerView mWordsList;
     private DictionaryAdapter mAdapter;
     private HashSet<Card> selectedCards;
@@ -64,9 +75,11 @@ public class DictionaryActivity extends AppCompatActivity
 
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
-        mViewModel.getAllCards().observe(this, (cardEntries) -> {
-            mAdapter.setCards(cardEntries);
-            PreferencesUtils.setTotalCards(this, cardEntries.size());
+        mViewModel.getAllCards().observe(this, (cards) -> {
+            if (cards != null) {
+                mAdapter.setCards(cards);
+                PreferencesUtils.setTotalCards(this, cards.size());
+            }
         });
     }
 
@@ -106,6 +119,27 @@ public class DictionaryActivity extends AppCompatActivity
         mAdapter.haveSelection = false;
     }
 
+
+    @Override
+    public void onWordClick(int position, Card card, AvatarImageView picture, TextView word) {
+        Intent intent = new Intent(this, WordDetailActivity.class);
+        intent.putExtra(EXTRA_WORD_ITEM, card);
+        intent.putExtra(EXTRA_WORD_TRANSITION_NAME, ViewCompat.getTransitionName(word));
+        Pair wordPair = new Pair<>(word, ViewCompat.getTransitionName(word));
+        ActivityOptionsCompat options;
+        if (picture != null) {
+            intent.putExtra(EXTRA_WORD_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(picture));
+            Pair picPair = Pair.create(picture, ViewCompat.getTransitionName(picture));
+            options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this,
+                    picPair, wordPair);
+        } else {
+            options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this, wordPair);
+        }
+
+        startActivity(intent, options.toBundle());
+    }
 
     @Override
     public void onFirstSelect(View view, Card card) {

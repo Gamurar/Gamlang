@@ -51,7 +51,17 @@ public class CardCreationViewModel extends AndroidViewModel {
         mRepository.insertCard(cardEntry, images, sounds);
     }
 
-    public void savePictures(HashSet<ImageViewBitmap> imageViews) {
-        images = mRepository.savePictures(imageViews);
+
+    public void insert(HashSet<ImageViewBitmap> selectedImages) {
+        CardEntry newCardEntry = new CardEntry(mWord.getName(), mWord.getTranslation());
+        if (selectedImages != null && !selectedImages.isEmpty()) {
+            images = mRepository.savePictures(selectedImages);
+        }
+        if (mWord.hasSoundURL()) {
+            sounds = mRepository.saveSound(mWord.getSoundURL());
+        }
+
+        mRepository.insertCard(newCardEntry, images, sounds);
+        Log.d(TAG, "The word " + newCardEntry.getQuestion() + " has been inserted to the Database");
     }
 }

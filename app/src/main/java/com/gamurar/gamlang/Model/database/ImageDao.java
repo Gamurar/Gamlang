@@ -13,7 +13,7 @@ import androidx.room.Update;
 @Dao
 public interface ImageDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertImage(ImageEntry imageEntry);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
@@ -22,19 +22,13 @@ public interface ImageDao {
     @Delete
     void deleteImage(ImageEntry imageEntry);
 
-    @Query("DELETE FROM image WHERE file_name IN(:fileNames)")
+    @Query("DELETE FROM Images WHERE file_name IN(:fileNames)")
     void deleteImagesByFileName(String[] fileNames);
 
-    @Query("DELETE FROM image WHERE file_name = :fileName")
+    @Query("DELETE FROM Images WHERE file_name = :fileName")
     void deleteImageByFileName(String fileName);
 
-    @Query("DELETE FROM image")
+    @Query("DELETE FROM Images")
     void deleteAllImages();
-
-    @Query("SELECT * FROM image WHERE card_id IN(:ids)")
-    List<ImageEntry> loadImagesByCardId(Integer[] ids);
-
-    @Query("SELECT * FROM image WHERE card_id = :id")
-    List<ImageEntry> loadImagesByCardId(int id);
 
 }

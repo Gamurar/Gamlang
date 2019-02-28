@@ -8,12 +8,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "image",
-        foreignKeys = {
-        @ForeignKey(entity = CardEntry.class,
-                parentColumns = "id",
-                childColumns = "card_id")},
-        indices = {@Index("card_id")})
+@Entity(tableName = "Images")
 public class ImageEntry {
 
     @PrimaryKey
@@ -21,12 +16,8 @@ public class ImageEntry {
     @NonNull
     private String fileName;
 
-    @ColumnInfo(name="card_id")
-    private int cardId;
-
-    public ImageEntry(@NonNull String fileName, int cardId) {
+    public ImageEntry(@NonNull String fileName) {
         this.fileName = fileName;
-        this.cardId = cardId;
     }
 
     @NonNull
@@ -38,11 +29,4 @@ public class ImageEntry {
         this.fileName = fileName;
     }
 
-    public int getCardId() {
-        return cardId;
-    }
-
-    public void setCardId(int cardId) {
-        this.cardId = cardId;
-    }
 }

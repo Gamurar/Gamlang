@@ -8,6 +8,8 @@ import com.android.volley.RequestQueue;
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.Model.database.CardEntry;
 import com.gamurar.gamlang.Model.database.ImageDao;
+import com.gamurar.gamlang.Model.database.IntermediateDao;
+import com.gamurar.gamlang.Model.database.IntermediateEntry;
 import com.gamurar.gamlang.Model.database.SoundDao;
 import com.gamurar.gamlang.View.ExploreActivity;
 import com.gamurar.gamlang.Model.database.AppDatabase;
@@ -15,7 +17,6 @@ import com.gamurar.gamlang.Model.database.CardDao;
 import com.gamurar.gamlang.Word;
 import com.gamurar.gamlang.utilities.CardsObserver;
 import com.gamurar.gamlang.utilities.ImagesLoadable;
-import com.gamurar.gamlang.utilities.MySingleton;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.PreferencesUtils;
 import com.gamurar.gamlang.utilities.ProgressableAdapter;
@@ -50,14 +51,14 @@ public class CardRepository {
     private CardDao cardDao;
     private ImageDao imageDao;
     private SoundDao soundDao;
-    private LiveData<List<CardEntry>> mCardEntries;
-    private LiveData<List<Card>> cards;
-    public static String[] wikiOpenSearchWords;
+    private IntermediateDao intermediateDao;
+    private LiveData<List<IntermediateEntry>> mCardsData;
+    private List<CardEntry> mCardEntries;
+    private LiveData<List<Card>> mCards;
     private Context mContext;
     private static String mFromLangCode;
     private static String mToLangCode;
     private static boolean mIsReversed = false;
-    public static RequestQueue requestQueue;
     private static ProgressableAdapter mAdapter;
     private static CardsObserver mCardsObserver;
 
@@ -83,9 +84,10 @@ public class CardRepository {
         cardDao = db.cardDao();
         imageDao = db.imageDao();
         soundDao = db.soundDao();
-        mCardEntries = cardDao.loadAllCards();
-        cards = transformEntriesToCardsLiveData();
-        cards.observeForever(mCardsObserver);
+        intermediateDao = db.intermediateDao();
+        mCardsData = intermediateDao.loadAllCardsData();
+        mCards = transformEntriesToCardsLiveData();
+        mCards.observeForever(mCardsObserver);
         File[] myDirs = mContext.getExternalFilesDirs(Environment.DIRECTORY_PICTURES);
         picturesDirectory = myDirs.length > 1 ? myDirs[1] : myDirs[0];
 
@@ -94,30 +96,21 @@ public class CardRepository {
     }
 
     private LiveData<List<Card>> transformEntriesToCardsLiveData() {
-        return Transformations.map(mCardEntries, cardEntries -> {
-            CardEntry[] entries = new CardEntry[cardEntries.size()];
+        return Transformations.map(mCardsData, cardsData -> {
             List<Card> cards = null;
             try {
-                cards = new Tasks.createCardsAsyncTask(cardDao, imageDao, soundDao)
-                        .execute(cardEntries.toArray(entries))
-                        .get();
+                List<CardEntry> cardEntries = loadAllCards();
+                if (cardEntries != null) {
+                    CardEntry[] cardEntriesArr = cardEntries.toArray(new CardEntry[0]);
+                    cards = new Tasks.createCardsAsyncTask(cardsData)
+                            .execute(cardEntriesArr)
+                            .get();
+                }
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
             }
             return cards;
         });
-    }
-
-    public List<Card> entriesToCards(LiveData<List<CardEntry>> cardEntries) {
-        List<Card> cards = null;
-        try {
-            cards = new Tasks.createCardsAsyncTask(cardDao, imageDao, soundDao)
-                    .execute(cardEntries.getValue().toArray(new CardEntry[0]))
-                    .get();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        return cards;
     }
 
     public void initRemote() {
@@ -130,28 +123,22 @@ public class CardRepository {
         Log.d(TAG, "initOpenSearch: Repository Adapter: " + mAdapter);
     }
 
-    public LiveData<List<CardEntry>> getCardEntries() {
-        return mCardEntries;
-    }
-
     public LiveData<List<Card>> getLiveCards() {
-        return cards;
+        return mCards;
     }
-
-    public List<Card> getCards() {return mCardsObserver.getCards(); }
-
-    public List<Card> getAllCurrentCards() {return entriesToCards(mCardEntries); }
 
 
     public void insertCard(CardEntry cardEntry, String[] images, String sound) {
         new Tasks.databaseAsyncTask(cardDao, INSERT_TASK,
                 images, imageDao,
-                sound, soundDao).execute(cardEntry);
+                sound, soundDao,
+                intermediateDao).execute(cardEntry);
     }
 
     public void deleteCard(CardEntry cardEntry) {
         new Tasks.databaseAsyncTask(cardDao, DELETE_TASK,
-                null, null, null, null).execute(cardEntry);
+                null, null, null, null,
+                intermediateDao).execute(cardEntry);
     }
 
     public void deleteCard(HashSet<Card> cards) {
@@ -181,24 +168,21 @@ public class CardRepository {
 
     public void deleteAllCards() {
         new Tasks.databaseAsyncTask(cardDao, DELETE_ALL_TASK,
-                null, null, null, null).execute();
+                null, null, null, null,
+                intermediateDao).execute();
+    }
+
+    public List<CardEntry> loadAllCards() {
+        try {
+            return new Tasks.dbLoadAllCards(cardDao).execute().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void updateCardReview(int cardId, Date lastReview, Date nextReview) {
         new Tasks.dbUpdateReview(cardId, lastReview, nextReview, cardDao).execute();
-    }
-
-    public List<Card> getCards(List<CardEntry> cardEntries) {
-        CardEntry[] entries = new CardEntry[cardEntries.size()];
-        List<com.gamurar.gamlang.Card> cards = null;
-        try {
-            cards = new Tasks.createCardsAsyncTask(cardDao, imageDao, soundDao)
-                    .execute(cardEntries.toArray(entries))
-                    .get();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        return cards;
     }
 
     public void translateWord(ExploreActivity fragment, String word) {
@@ -224,7 +208,7 @@ public class CardRepository {
 
     public String[] savePictures(HashSet<ImageViewBitmap> imageViews) {
         try {
-            return new Tasks.savePicturesAsyncTask(imageDao)
+            return new Tasks.savePicturesToStorage()
                     .execute(imageViews.toArray(new ImageViewBitmap[imageViews.size()]))
                     .get();
 
@@ -279,6 +263,10 @@ public class CardRepository {
 
     public String getPrefToLang() {
         return PreferencesUtils.getPrefToLang(mContext);
+    }
+
+    public String translateByWiki(String word) {
+        return NetworkUtils.wikiTranslate(word);
     }
 }
 

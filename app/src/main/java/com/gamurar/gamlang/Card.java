@@ -2,13 +2,15 @@ package com.gamurar.gamlang;
 
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.gamurar.gamlang.utilities.LearnUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Card {
+public class Card implements Parcelable {
     private int id;
     private String question;
     private String answer;
@@ -46,6 +48,27 @@ public class Card {
         this.pictureFileNames = card.pictureFileNames;
     }
 
+    protected Card(Parcel in) {
+        id = in.readInt();
+        question = in.readString();
+        answer = in.readString();
+        pictures = in.createTypedArrayList(Bitmap.CREATOR);
+        pictureFileNames = in.createStringArrayList();
+        soundFileName = in.readString();
+    }
+
+    public static final Creator<Card> CREATOR = new Creator<Card>() {
+        @Override
+        public Card createFromParcel(Parcel in) {
+            return new Card(in);
+        }
+
+        @Override
+        public Card[] newArray(int size) {
+            return new Card[size];
+        }
+    };
+
     public String getQuestion() {
         return question;
     }
@@ -70,6 +93,13 @@ public class Card {
         this.pictures = pictures;
     }
 
+    public void addPicture(Bitmap picture) {
+        if (this.pictures == null) {
+            this.pictures = new ArrayList<>();
+        }
+        this.pictures.add(picture);
+    }
+
     public int getId() {
         return id;
     }
@@ -79,7 +109,12 @@ public class Card {
     }
 
     public String[] getPictureFileNames() {
+        if (!hasPictureFileNames()) return null;
         return pictureFileNames.toArray(new String[0]);
+    }
+
+    private boolean hasPictureFileNames() {
+        return pictureFileNames != null && !pictureFileNames.isEmpty();
     }
 
     public void setPictureFileNames(ArrayList<String> pictureFileNames) {
@@ -147,5 +182,27 @@ public class Card {
             pronunciation = null;
         }
         super.finalize();
+    }
+
+    @Override
+    public int describeContents() {
+        return hashCode();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(question);
+        dest.writeString(answer);
+        if (pictures.size() > 1) {
+            ArrayList<Bitmap> image = new ArrayList<>();
+            image.add(pictures.get(0));
+            dest.writeTypedList(image);
+        } else {
+            dest.writeTypedList(pictures);
+        }
+
+        dest.writeStringList(pictureFileNames);
+        dest.writeString(soundFileName);
     }
 }

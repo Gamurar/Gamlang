@@ -14,8 +14,8 @@ import androidx.room.Update;
 @Dao
 public interface CardDao {
 
-    @Query("SELECT * FROM card")
-    LiveData<List<CardEntry>> loadAllCards();
+    @Query("SELECT * FROM Cards")
+    List<CardEntry> loadAllCards();
 
     @Insert
     long insertCard(CardEntry cardEntry);
@@ -23,7 +23,7 @@ public interface CardDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateCard(CardEntry taskEntry);
 
-    @Query("UPDATE card " +
+    @Query("UPDATE Cards " +
             "SET last_review = :lastReview, next_review = :nextReview " +
             "WHERE id = :cardId")
     void updateReview(int cardId, Date lastReview, Date nextReview);
@@ -31,19 +31,12 @@ public interface CardDao {
     @Delete
     void deleteCard(CardEntry cardEntry);
 
-    @Query("DELETE FROM card WHERE id IN(:cardsId)")
+    @Query("DELETE FROM Cards WHERE id IN(:cardsId)")
     void deleteCardsById(Integer[] cardsId);
 
-    @Query("DELETE FROM card")
+    @Query("DELETE FROM Cards")
     void deleteAllCards();
 
-    @Query("SELECT * FROM card WHERE id = :id")
+    @Query("SELECT * FROM Cards WHERE id = :id")
     CardEntry loadCardById(int id);
-
-    @Query("SELECT image.file_name AS image, sound.file_name AS sound " +
-            "FROM card " +
-            "INNER JOIN image ON card.id = image.card_id " +
-            "INNER JOIN sound ON card.id = sound.card_id " +
-            "WHERE card.id = :cardId")
-    ImageAndSound loadImageAndSoundFileNamesByCardId(int cardId);
 }

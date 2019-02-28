@@ -85,7 +85,7 @@
             android:clickable="true"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -102,20 +102,26 @@
                 android:layout_marginBottom="20dp"
                 android:gravity="center"
                 android:textSize="18sp"
-                app:layout_constraintBottom_toTopOf="@+id/card_image"
+                app:layout_constraintBottom_toTopOf="@+id/rv_images"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:text="Answer" />
 
-            <ImageView
-                android:id="@+id/card_image"
+            <androidx.recyclerview.widget.RecyclerView
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:id="@+id/rv_images"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                tools:itemCount="3"
+                tools:layoutManager="GridLayoutManager"
+                tools:listitem="@layout/recycler_view_item_1"
+                tools:spanCount="5">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
         </LinearLayout>
 
         <TextView

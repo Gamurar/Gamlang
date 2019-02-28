@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Gamlang</string>
+    <string name="app" translatable="false">Gamlang</string>
 
     <!--Main menu-->
     <string name="learn">Learn</string>

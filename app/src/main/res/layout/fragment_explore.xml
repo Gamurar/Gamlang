@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:paddingTop="16dp"
         android:id="@+id/search_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,7 +26,9 @@
             android:text="@string/search_new_words_label"
             android:textAllCaps="true"
             android:textColor="@android:color/white"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:scaleX="1.12"
+            android:textSize="12sp"/>
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/sv_find_new_words"
@@ -40,23 +43,26 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:queryBackground="@android:color/transparent"
+            app:theme="@style/AppSearchView"/>
 
         <ProgressBar
-            android:layout_marginBottom="-6dp"
             android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            style="?android:attr/progressBarStyleHorizontal"
             android:indeterminate="true"
-            android:visibility="invisible"/>
+            android:visibility="invisible"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="-6dp"/>
 
     </LinearLayout>
 
+
+
     <LinearLayout
+        android:id="@+id/search_results"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="20dp"
@@ -70,11 +76,15 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="22sp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
+            android:scaleX="1.12"
             android:text="@string/suggestions"
             android:textAllCaps="true"
-            android:textStyle="bold" />
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_suggestion_words"

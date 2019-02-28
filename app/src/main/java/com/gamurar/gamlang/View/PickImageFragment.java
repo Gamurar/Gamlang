@@ -169,18 +169,8 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
     }
 
     private void addToDictionary() {
-        CardEntry newCardEntry = new CardEntry(word.getName(), word.getTranslation());
-        if (selectedImages != null && !selectedImages.isEmpty()) {
-            viewModel.savePictures(selectedImages);
-        }
-        if (word.hasSoundURL()) {
-            String soundURL = word.getSoundURL();
-            viewModel.saveSound(soundURL);
-        }
-
-        viewModel.insert(newCardEntry);
-        Log.d(TAG, "The word " + newCardEntry.getQuestion() + " has been inserted to the Database");
         parent.onCardAdded();
+        viewModel.insert(selectedImages);
     }
 
 

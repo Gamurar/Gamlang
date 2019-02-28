@@ -4,7 +4,6 @@ package com.gamurar.gamlang.utilities;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.abdularis.civ.AvatarImageView;
@@ -15,6 +14,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.CardViewHolder> {
@@ -26,6 +26,8 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
     public boolean haveSelection = false;
 
     public interface DictWordSelectListener {
+        void onWordClick(int position, Card card, AvatarImageView picture, TextView word);
+
         void onFirstSelect(View view, Card card);
 
         boolean onNextSelect(View view, Card card);
@@ -62,6 +64,18 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
             holder.picture.setImageBitmap(card.getPictures().get(0));
             holder.picture.setState(AvatarImageView.SHOW_IMAGE);
         }
+
+        ViewCompat.setTransitionName(holder.word, card.getQuestion());
+
+        if (card.hasPictures()) {
+            ViewCompat.setTransitionName(holder.picture, card.getPictureFileNames()[0]);
+            holder.itemView.setOnClickListener(v -> mDictWordSelectListener
+                    .onWordClick(holder.getAdapterPosition(), card, holder.picture, holder.word));
+        } else {
+            holder.itemView.setOnClickListener(v -> mDictWordSelectListener
+                    .onWordClick(holder.getAdapterPosition(), card, null, holder.word));
+        }
+
     }
 
     @Override
