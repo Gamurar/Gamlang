@@ -80,10 +80,15 @@ public class Tasks {
                 String soundFileName = entry.getSoundFile();
                 if (deckCards.size() <= cardId && dbIdDeckId.get(cardId, -1) == -1) {
                     //Create new card
-                    int i = cardId - 1;
-                    Card card = new Card(cardId,
-                            cardEntries[i].getQuestion(), cardEntries[i].getAnswer(),
-                            cardEntries[i].getLastReview(), cardEntries[i].getNextReview());
+                    Card card = null;
+                    for (CardEntry cEntry : cardEntries) {
+                        if (cardId == cEntry.getId()) {
+                            card = new Card(cardId,
+                                    cEntry.getQuestion(), cEntry.getAnswer(),
+                                    cEntry.getLastReview(), cEntry.getNextReview());
+                            break;
+                        }
+                    }
 
                     addPicture(pictureFileName, card);
                     setSound(soundFileName, card);

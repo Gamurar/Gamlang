@@ -122,7 +122,6 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
                 new GridLayoutManager(getContext(), 2, GridLayoutManager.HORIZONTAL, false)
         );
         mImagesRV.setAdapter(mAdapter);
-
     }
 
     public void setIPA() {
