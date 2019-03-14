@@ -268,6 +268,10 @@ public class CardRepository {
     public String translateByWiki(String word) {
         return NetworkUtils.wikiTranslate(word);
     }
+
+    public String translateByGamurar(String word) {
+        return NetworkUtils.gamurarTranslate(word);
+    }
 }
 
 

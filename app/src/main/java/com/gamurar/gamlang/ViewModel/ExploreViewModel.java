@@ -58,6 +58,10 @@ public class ExploreViewModel extends AndroidViewModel {
         return mRepository.translateByWiki(word);
     }
 
+    public String translateByGamurar(String word) {
+        return mRepository.translateByGamurar(word);
+    }
+
     public String getFromLang() { return mRepository.getPrefFromLang(); }
 
     public String getToLang() { return mRepository.getPrefToLang(); }

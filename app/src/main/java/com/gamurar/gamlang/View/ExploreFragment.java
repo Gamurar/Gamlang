@@ -30,10 +30,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
@@ -56,7 +54,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
 
     private static boolean isSearching;
     private static int wordsFromWiki = 0;
-    private static int wordsFromGlosbe = 0;
+    private static int translatedWords = 0;
     private static boolean isOnline;
     private Disposable mDisposable;
 
@@ -167,30 +165,33 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                 .filter(new Predicate<String>() {
                     @Override
                     public boolean test(String text) {
+                        log("filter");
                         return !text.isEmpty() && isOnline;
                     }
                 })
-                .distinct()
+                .distinctUntilChanged()
                 .switchMap(new Function<String, ObservableSource<String>>() {
                     @Override
                     public ObservableSource<String> apply(String query) throws Exception {
+                        log("switchMap");
                         if (query == null) return Observable.just("");
                         Log.d(TAG, "WikiOpenSearch api call: " + query);
                         String words[] = NetworkUtils.wikiOpenSearchRequest(query);
                         if (words == null || words.length < 1) return Observable.just("");
                         isSearching = true;
                         wordsFromWiki = words.length;
-                        wordsFromGlosbe = 0;
+                        translatedWords = 0;
                         return Observable.fromArray(words);
                     }
                 })
                 .flatMap(new Function<String, ObservableSource<Pair<String,String>>>() {
                     @Override
                     public ObservableSource<Pair<String,String>> apply(String word) throws Exception {
+                        log("flatMap");
                         if (word == null) return Observable.just(new Pair<>(word, ""));
-                        Log.d(TAG, "Glosbe translation api call: " + word);
                         String translation = mViewModel.translateByWiki(word);
-                        wordsFromGlosbe++;
+//                        String translation = mViewModel.translateByGamurar(word);
+                        translatedWords++;
                         if (translation == null) return Observable.just(new Pair<>(word, ""));
                         return Observable.just(new Pair<>(word, translation));
 //                        return new Pair<>(query, translation);
@@ -200,20 +201,22 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                 .skipWhile(new Predicate<Pair<String, String>>() {
                     @Override
                     public boolean test(Pair<String, String> pair) throws Exception {
+                        log("skipWhile");
                         return pair.second.isEmpty();
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(pair -> {
+                    log("subscribe");
                     if (!pair.first.isEmpty() && !pair.second.isEmpty()) {
                         mAdapter.insert(pair);
                     }
-                    if (wordsFromWiki <= wordsFromGlosbe) {
+                    if (wordsFromWiki <= translatedWords) {
                         progressBar.setVisibility(View.INVISIBLE);
                         isSearching = false;
                         wordsFromWiki = 0;
-                        wordsFromGlosbe = 0;
+                        translatedWords = 0;
                     } else if (progressBar.getVisibility() == View.INVISIBLE) {
                         progressBar.setVisibility(View.VISIBLE);
                         isSearching = true;
@@ -224,7 +227,7 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     }
 
 
-    public boolean isOnline() {
+    private boolean isOnline() {
         NetworkInfo netInfo = connectivityManager.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnected();
     }
@@ -233,6 +236,10 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
     public void onDestroyView() {
         super.onDestroyView();
         mDisposable.dispose();
-        Log.d(TAG, "onDestroyView: search disposed");
+        Log.d("rxFlow", "onDestroyView: search disposed");
+    }
+
+    private void log(String method) {
+        Log.d("rxFlow", Thread.currentThread().getName() + ": " + method);
     }
 }

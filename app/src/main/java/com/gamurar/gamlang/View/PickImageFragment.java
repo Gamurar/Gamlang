@@ -94,6 +94,7 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
         mImagesRV = view.findViewById(R.id.rv_word_pictures);
         mPlayBtn = view.findViewById(R.id.play_btn);
         mPlayBtn.setAnimation(R.raw.material_loding);
+        mPlayBtn.reverseAnimationSpeed();
         mPlayBtn.playAnimation();
         mAddImagesBtn = view.findViewById(R.id.btn_add_images);
 
@@ -102,11 +103,11 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
 
         mPlayBtn.setOnClickListener(v -> {
             if (isSoundLoading) return;
+            mPlayBtn.reverseAnimationSpeed();
             word.pronounce();
-            mPlayBtn.setMinAndMaxFrame(67, 90);
             mPlayBtn.playAnimation();
             word.setPronunciationListener(() -> {
-                mPlayBtn.setMinAndMaxFrame(0, 18);
+                mPlayBtn.reverseAnimationSpeed();
                 mPlayBtn.playAnimation();
             });
 

@@ -91,6 +91,11 @@ public class NetworkUtils {
     private static final String WIKI_PARAM_PROPERTIES = "prop";
     private static final String wikiActionParse = "parse";
     private static final String wikiPropIwlinks = "iwlinks";
+
+    //Gamurar translation API
+    private static final String GAMURAR_BASE_URL = "http://gamurar.ddns.net/api";
+    private static final String GAMURAR_PARAM_WORD = "word";
+
     /**
      * Builds the URL used to query GitHub.
      *
@@ -103,6 +108,12 @@ public class NetworkUtils {
         word = word.toLowerCase().trim();
 
         switch (action) {
+            case GAMURAR_BASE_URL: {
+                builtUri = Uri.parse(GAMURAR_BASE_URL).buildUpon()
+                        .appendQueryParameter(GAMURAR_PARAM_WORD, word)
+                        .build();
+                break;
+            }
             case ABBYY_AUTH: {
                 builtUri = Uri.parse(ABBYY_BASE_URL + action)
                         .buildUpon()
@@ -619,8 +630,10 @@ public class NetworkUtils {
 
     public static String wikiTranslate(String word) {
         URL url = buildUrl(word, WIKI_BASE_URL);
+        String strJson  = GETRequest(url);
+        if (strJson == null) return null;
         try {
-            JSONArray json = new JSONObject(GETRequest(url))
+            JSONArray json = new JSONObject(strJson)
                     .getJSONObject("parse")
                     .getJSONArray("iwlinks");
             for (int i = 0; i < json.length(); i++) {
@@ -634,5 +647,19 @@ public class NetworkUtils {
             Log.e(TAG, e.getMessage(), e);
         }
         return null;
+    }
+
+    public static String gamurarTranslate(String word) {
+        URL url = buildUrl(word, GAMURAR_BASE_URL);
+        try {
+            JSONArray json = new JSONArray(GETRequest(url));
+            return json.getJSONObject(0)
+                    .getJSONArray("translations")
+                    .getJSONObject(0)
+                    .getString("translation");
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            return null;
+        }
     }
 }
