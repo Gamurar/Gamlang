@@ -132,16 +132,23 @@ public class PickImageFragment extends Fragment implements WordInfoLoader, Image
         }
     }
 
-    private HashSet<ImageViewBitmap> selectedImages = new HashSet<>();
+    private HashSet<Pair<String, Bitmap>> selectedImages = new HashSet<>();
     @Override
-    public void onImageClick(ImageViewBitmap imgView) {
-        if (!selectedImages.contains(imgView)) {
-            selectedImages.add(imgView);
-            imgView.setBorderColor(getResources().getColor(R.color.colorAccent));
+    public void onImageClick(Pair<String, Bitmap> imgInfo) {
+        if (isImageSelected(imgInfo)) {
+            selectedImages.remove(imgInfo);
         } else {
-            selectedImages.remove(imgView);
-            imgView.setBorderColor(getResources().getColor(android.R.color.white));
+            selectedImages.add(imgInfo);
         }
+    }
+
+    private boolean isImageSelected(Pair<String, Bitmap> imgInfo) {
+        for (Pair<String, Bitmap> selectedImage : selectedImages) {
+            if (selectedImage.first.equals(imgInfo.first)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

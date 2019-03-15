@@ -1,8 +1,10 @@
 package com.gamurar.gamlang.Model;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
+import android.util.Pair;
 
 import com.android.volley.RequestQueue;
 import com.gamurar.gamlang.Card;
@@ -206,10 +208,10 @@ public class CardRepository {
             return NetworkUtils.translateByGlosbe(word, mFromLangCode, mToLangCode);
     }
 
-    public String[] savePictures(HashSet<ImageViewBitmap> imageViews) {
+    public String[] savePictures(HashSet<Pair<String, Bitmap>> images) {
         try {
-            return new Tasks.savePicturesToStorage()
-                    .execute(imageViews.toArray(new ImageViewBitmap[imageViews.size()]))
+            return new Tasks.savePicturesToStorage(images)
+                    .execute()
                     .get();
 
         } catch (ExecutionException | ConcurrentModificationException | InterruptedException e) {

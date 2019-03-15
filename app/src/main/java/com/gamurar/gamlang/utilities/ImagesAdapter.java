@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,14 +16,16 @@ import com.gamurar.gamlang.R;
 import com.gamurar.gamlang.views.ImageViewBitmap;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
     private static final String TAG = "ImagesAdapter";
     private ArrayList<Pair<String, Bitmap>> mImages;
     private ImageClickListener mImageClickListener;
+    private HashSet<Integer> selectedPositions = new HashSet<>();
 
     public interface ImageClickListener {
-        void onImageClick(ImageViewBitmap imgView);
+        void onImageClick(Pair<String, Bitmap> imgInfo);
     }
 
     public ImagesAdapter(ImageClickListener imageClickListener) {
@@ -47,6 +50,12 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
         Pair<String, Bitmap> image = mImages.get(i);
         imageViewHolder.imgView.setImageBitmap(image.second);
         imageViewHolder.imgView.setCode(image.first);
+
+        if (selectedPositions.contains(i)) {
+            imageViewHolder.imgView.setBorderColor(imageViewHolder.itemView.getResources().getColor(R.color.colorAccent));
+        } else {
+            imageViewHolder.imgView.setBorderColor(imageViewHolder.itemView.getResources().getColor(android.R.color.white));
+        }
     }
 
 
@@ -81,7 +90,17 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewH
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imgView = itemView.findViewById(R.id.iv_word_picture);
-            imgView.setOnClickListener(v -> mImageClickListener.onImageClick(imgView));
+            imgView.setOnClickListener(v -> {
+                mImageClickListener.onImageClick(new Pair<>(imgView.getCode(), imgView.getBitmap()));
+
+                if (!selectedPositions.contains(getAdapterPosition())) {
+                    selectedPositions.add(getAdapterPosition());
+                    imgView.setBorderColor(itemView.getResources().getColor(R.color.colorAccent));
+                } else {
+                    selectedPositions.remove(getAdapterPosition());
+                    imgView.setBorderColor(itemView.getResources().getColor(android.R.color.white));
+                }
+            });
         }
 
     }

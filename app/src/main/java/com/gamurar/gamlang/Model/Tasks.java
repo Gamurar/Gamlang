@@ -47,6 +47,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -290,27 +291,32 @@ public class Tasks {
     /**
      * Saves pictures to the local storage.
      */
-    public static class savePicturesToStorage extends AsyncTask<ImageViewBitmap, Void, String[]> {
+    public static class savePicturesToStorage extends AsyncTask<Void, Void, String[]> {
 
         private static final String TAG = "savePicturesToStorage";
 
+        HashSet<Pair<String, Bitmap>> images;
+
+        public savePicturesToStorage(HashSet<Pair<String, Bitmap>> images) {
+            this.images = images;
+        }
+
         /**
-         * @param imageViews to save on the storage
          * @return the files names concatenated to String divided by a space
          */
         @Override
-        protected String[] doInBackground(ImageViewBitmap... imageViews) {
+        protected String[] doInBackground(Void... voids) {
             File mPicturesDirectory = CardRepository.picturesDirectory;
             ArrayList<String> fileNames = new ArrayList<>();
-            for (ImageViewBitmap imageView : imageViews) {
-                Bitmap finalBitmap = imageView.getBitmap();
+            for (Pair<String, Bitmap> image : images) {
+                Bitmap finalBitmap = image.second;
 
                 if (!mPicturesDirectory.exists()) {
                     if (!mPicturesDirectory.mkdirs()) {
                         Log.e(TAG, "Directory not created");
                     }
                 }
-                String fname = imageView.getCode() + ".jpg";
+                String fname = image.first + ".jpg";
                 File file = new File(mPicturesDirectory, fname);
                 Log.d(TAG, "saveImage: file path: " + file.getAbsolutePath());
                 if (file.exists())

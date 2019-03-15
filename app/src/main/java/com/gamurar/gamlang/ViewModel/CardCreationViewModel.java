@@ -1,7 +1,9 @@
 package com.gamurar.gamlang.ViewModel;
 
 import android.app.Application;
+import android.graphics.Bitmap;
 import android.util.Log;
+import android.util.Pair;
 
 import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.Model.database.CardEntry;
@@ -53,21 +55,18 @@ public class CardCreationViewModel extends AndroidViewModel {
     }
 
 
-    public void insert(HashSet<ImageViewBitmap> selectedImages) {
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                CardEntry newCardEntry = new CardEntry(mWord.getName(), mWord.getTranslation());
-                if (selectedImages != null && !selectedImages.isEmpty()) {
-                    images = mRepository.savePictures(selectedImages);
-                }
-                if (mWord.hasSoundURL()) {
-                    sounds = mRepository.saveSound(mWord.getSoundURL());
-                }
-
-                mRepository.insertCard(newCardEntry, images, sounds);
-                Log.d(TAG, "The word " + newCardEntry.getQuestion() + " has been inserted to the Database");
+    public void insert(HashSet<Pair<String, Bitmap>> selectedImages) {
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            CardEntry newCardEntry = new CardEntry(mWord.getName(), mWord.getTranslation());
+            if (selectedImages != null && !selectedImages.isEmpty()) {
+                images = mRepository.savePictures(selectedImages);
             }
+            if (mWord.hasSoundURL()) {
+                sounds = mRepository.saveSound(mWord.getSoundURL());
+            }
+
+            mRepository.insertCard(newCardEntry, images, sounds);
+            Log.d(TAG, "The word " + newCardEntry.getQuestion() + " has been inserted to the Database");
         });
     }
 }
