@@ -75,12 +75,7 @@ public class DictionaryActivity extends AppCompatActivity
 
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
-        mViewModel.getAllCards().observe(this, (cards) -> {
-            if (cards != null) {
-                mAdapter.setCards(cards);
-                PreferencesUtils.setTotalCards(this, cards.size());
-            }
-        });
+        mAdapter.setCards(mViewModel.getAllCurrentCards());
     }
 
     @Override
@@ -110,8 +105,8 @@ public class DictionaryActivity extends AppCompatActivity
     }
 
     private void deleteSelectedCards() {
+        mAdapter.removeSelectedCards();
         mViewModel.delete(selectedCards);
-//        PreferencesUtils.decrementTotalCards(selectedCards.size(), this);
         Log.d(TAG, "deleteSelectedCards: The selected cards deleted");
         selectedCards.clear();
 
@@ -152,13 +147,13 @@ public class DictionaryActivity extends AppCompatActivity
     //return true if there are still selected items in the list and false otherwise
     @Override
     public boolean onNextSelect(View view, Card card) {
-        if (selectedCards.contains(card)) {
-            return onUnselect(view, card);
-        } else {
+//        if (selectedCards.contains(card)) {
+//            return onUnselect(view, card);
+//        } else {
             view.setBackgroundResource(R.color.colorAccentLight);
             selectedCards.add(card);
             return true;
-        }
+//        }
     }
 
     //return true if there are still selected items in the list and false otherwise

@@ -50,6 +50,8 @@ public class CardViewModel extends AndroidViewModel {
         return mCards;
     }
 
+    public List<Card> getAllCurrentCards() { return mCards.getValue(); }
+
     public void translateWord(ExploreActivity fragment, String word) {
         repository.translateWord(fragment, word);
     }

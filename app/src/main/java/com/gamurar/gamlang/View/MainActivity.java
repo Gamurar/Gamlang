@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.gamurar.gamlang.Model.CardRepository;
 import com.gamurar.gamlang.R;
+import com.gamurar.gamlang.ViewModel.CardViewModel;
 import com.gamurar.gamlang.utilities.AppExecutors;
 import com.gamurar.gamlang.utilities.NetworkUtils;
 import com.gamurar.gamlang.utilities.PreferencesUtils;
@@ -16,6 +17,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.lifecycle.ViewModelProviders;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private CardView mMenuSettings;
     private FloatingActionButton mMenuAddWords;
     private TextView mCardInfo;
+    private CardViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         setCardsInfo();
-        CardRepository.getInstance(this).initLocal();
     }
 
     private void init() {
@@ -56,6 +58,15 @@ public class MainActivity extends AppCompatActivity {
         mMenuWatch.setOnClickListener(new StartActivity(VideoActivity.class));
         mMenuSettings.setOnClickListener(new StartActivity(SettingsActivity.class));
         mMenuAddWords.setOnClickListener(new StartActivity(ExploreActivity.class));
+
+        setupViewModel();
+    }
+
+    private void setupViewModel() {
+        mViewModel = ViewModelProviders.of(this).get(CardViewModel.class);
+        mViewModel.getAllCards().observe(this, cards -> {
+            PreferencesUtils.setTotalCards(this, cards.size());
+        });
     }
 
     private void setCardsInfo() {
@@ -78,7 +89,4 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-
-
-
 }

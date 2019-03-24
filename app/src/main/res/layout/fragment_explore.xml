@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:paddingTop="16dp"
-        android:id="@+id/search_container"
+        android:id="@+id/sentence_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
@@ -71,7 +71,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_container">
+        app:layout_constraintTop_toBottomOf="@+id/sentence_container">
 
         <TextView
             android:layout_width="match_parent"
@@ -113,7 +113,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_container"
+        app:layout_constraintTop_toBottomOf="@+id/sentence_container"
         app:lottie_autoPlay="false"
         app:lottie_loop="false"
         app:lottie_rawRes="@raw/no_internet_connection" />

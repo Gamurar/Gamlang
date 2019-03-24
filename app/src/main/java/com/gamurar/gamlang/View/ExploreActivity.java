@@ -47,6 +47,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
@@ -88,14 +89,21 @@ public class ExploreActivity extends AppCompatActivity implements WordTranslatio
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_explore);
-        //setActionBar();
-        mExploreViewModel = ViewModelProviders.of(this).get(ExploreViewModel.class);
-
         mPager = findViewById(R.id.pager);
-        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
-        mPager.setAdapter(mPagerAdapter);
         TabLayout tabs = findViewById(R.id.lang_tabs);
-        tabs.setupWithViewPager(mPager);
+        //setActionBar();
+        if (!getIntent().hasExtra(Intent.EXTRA_PROCESS_TEXT)) {
+
+            mExploreViewModel = ViewModelProviders.of(this).get(ExploreViewModel.class);
+
+            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+            mPager.setAdapter(mPagerAdapter);
+            tabs.setupWithViewPager(mPager);
+        } else {
+            setWordFromContext();
+            mPager.setVisibility(View.GONE);
+            tabs.setVisibility(View.GONE);
+        }
 
 //        mActionBar.setTitle(R.string.explore);
 //        init();
@@ -107,9 +115,7 @@ public class ExploreActivity extends AppCompatActivity implements WordTranslatio
 
         playSoundImageView.setOnClickListener(soundBtn -> mWord.pronounce());
 
-        if (getIntent().hasExtra(Intent.EXTRA_PROCESS_TEXT)) {
-            setWordFromContext();
-        }
+
     }
 
 //    private void setActionBar() {
@@ -142,7 +148,10 @@ public class ExploreActivity extends AppCompatActivity implements WordTranslatio
             CharSequence text = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
             if (text != null && !TextUtils.isEmpty(text)) {
                 if (text.toString().contains(" ")) {
-                    showClickableSentence(text.toString());
+//                    showClickableSentence(text.toString());
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, new ExploreProcessTextFragment())
+                            .commit();
                 } else {
                     setWord(text.toString());
                     mViewModel.translateWord(this, mWord.getName());

@@ -10,6 +10,7 @@ import com.github.abdularis.civ.AvatarImageView;
 import com.gamurar.gamlang.Card;
 import com.gamurar.gamlang.R;
 
+import java.util.HashSet;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
 
     private static List<Card> mCards;
     private DictWordSelectListener mDictWordSelectListener;
+    private HashSet<Integer> selectedCardIds = new HashSet<>();
 
     public boolean haveSelection = false;
 
@@ -92,6 +94,18 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
         notifyDataSetChanged();
     }
 
+    public void removeSelectedCards() {
+        int removed = 0;
+        for (int i : selectedCardIds) {
+            if (i > mCards.size() - 1) {
+                i -= removed;
+            }
+            mCards.remove(i);
+            notifyItemRemoved(i);
+            removed++;
+        }
+    }
+
     class CardViewHolder extends RecyclerView.ViewHolder
             implements View.OnLongClickListener, View.OnClickListener {
         private static final String TAG = "CardViewHolder";
@@ -117,11 +131,21 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Ca
 
         @Override
         public boolean onLongClick(View view) {
+            int position = getAdapterPosition();
             if (!haveSelection) {
-                mDictWordSelectListener.onFirstSelect(cardView, mCards.get(getAdapterPosition()));
+                mDictWordSelectListener.onFirstSelect(cardView, mCards.get(position));
+                selectedCardIds.add(position);
                 haveSelection = true;
             } else {
-                haveSelection = mDictWordSelectListener.onNextSelect(cardView, mCards.get(getAdapterPosition()));
+//                haveSelection = mDictWordSelectListener.onNextSelect(cardView, mCards.get(getAdapterPosition()));
+                if (selectedCardIds.contains(position)) {
+                    mDictWordSelectListener.onUnselect(cardView, mCards.get(position));
+                    selectedCardIds.remove(position);
+                } else {
+                    mDictWordSelectListener.onNextSelect(cardView, mCards.get(position));
+                    selectedCardIds.add(position);
+                }
+                haveSelection = !selectedCardIds.isEmpty();
             }
             return true;
         }

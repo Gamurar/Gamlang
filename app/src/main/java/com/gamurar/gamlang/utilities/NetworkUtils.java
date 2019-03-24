@@ -651,6 +651,8 @@ public class NetworkUtils {
 
     public static String gamurarTranslate(String word) {
         URL url = buildUrl(word, GAMURAR_BASE_URL);
+        String strJson  = GETRequest(url);
+        if (strJson == null) return null;
         try {
             JSONArray json = new JSONArray(GETRequest(url));
             return json.getJSONObject(0)

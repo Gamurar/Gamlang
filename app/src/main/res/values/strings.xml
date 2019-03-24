@@ -77,5 +77,6 @@
     <string name="no_cards">There is nothing here</string>
     <string name="create_new_one">Create new one</string>
     <string name="cards_info">You have %1$d cards</string>
+    <string name="remaining_words">Remaining words</string>
 
 </resources>
