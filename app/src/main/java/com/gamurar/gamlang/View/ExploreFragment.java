@@ -189,8 +189,8 @@ public class ExploreFragment extends Fragment implements SuggestionAdapter.Explo
                     public ObservableSource<Pair<String,String>> apply(String word) throws Exception {
                         log("flatMap");
                         if (word == null) return Observable.just(new Pair<>(word, ""));
-//                        String translation = mViewModel.translateByWiki(word);
-                        String translation = mViewModel.translateByGamurar(word);
+                        String translation = mViewModel.translateByWiki(word);
+//                        String translation = mViewModel.translateByGamurar(word);
                         translatedWords++;
                         if (translation == null) return Observable.just(new Pair<>(word, ""));
                         return Observable.just(new Pair<>(word, translation));
