@@ -1,3 +1,4 @@
+# Gamlang
 Android application for learning foreign languages. It is based on [spaced repetition](https://en.wikipedia.org/wiki/Spaced_repetition "learn more about spaced repetition") technique with flashcards.
 
 
